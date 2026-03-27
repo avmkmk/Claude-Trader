@@ -1,0 +1,314 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+SimpleTrader is a Python-based algorithmic trading bot that implements a Simple Moving Average (SMA) crossover strategy. It supports two Indian broker APIs: **Nubra** (production) and **Upstox**, for fetching market data and placing orders.
+
+The bot continuously monitors market data, generates buy/sell signals based on SMA crossovers (fast SMA crossing slow SMA), and places mock orders accordingly.
+
+## Project Structure
+
+```
+SimpleTrader/
+├── main.py                    # Entry point with live signal generation logic
+├── apis/
+│   ├── nubra_api.py          # NubraAPIHandler class wrapping Nubra SDK
+│   └── upstox_api.py         # Upstox API helper functions
+├── strategies/
+│   ├── __init__.py           # Strategy module init
+│   ├── sma_crossover.py      # SMA crossover strategy (example)
+│   ├── templates/            # Strategy templates for quick start
+│   └── README.md             # Guide for creating strategies
+├── backtesting/
+│   ├── __init__.py           # Backtesting module init
+│   ├── data_scraper.py       # Equity data scraper (Nubra API)
+│   └── backtest_runner.py    # Backtest execution engine
+├── dashboard/
+│   ├── __init__.py           # Dashboard module init
+│   └── streamlit_app.py      # Web UI for auth, scraping, backtesting
+├── data/
+│   └── *.csv                 # Historical OHLCV data files
+├── auth_data.db              # SQLite database for authentication storage
+├── security_id_list.csv      # Large CSV with broker security identifiers
+├── requirements.txt          # Python dependencies
+├── STRATEGY_DEVELOPMENT.md   # Strategy development workflow
+├── INDIAN_MARKET_GUIDE.md    # Indian market trading guide
+└── .env                      # API credentials (not committed)
+```
+
+## Development Setup
+
+### Initial Setup
+```bash
+# Create and activate virtual environment
+python -m venv venv
+source venv/Scripts/activate  # On Windows with Git Bash
+# Or: venv\Scripts\activate.bat  # Windows CMD
+# Or: venv\Scripts\Activate.ps1  # PowerShell
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### Configuration
+Create or update `.env` file with broker credentials:
+```
+UPSTOX_ACCESS_TOKEN="your_upstox_token"
+NUBRA_CLIENT_ID="your_client_id"
+NUBRA_MPIN="your_mpin"
+```
+
+### Running the Application
+```bash
+# Run the main script (currently fetches 3-month GRAPHITE data)
+python main.py
+```
+
+## Core Architecture
+
+### Broker Abstraction
+The project uses a dual-broker architecture:
+
+1. **NubraAPIHandler** (`apis/nubra_api.py`):
+   - Class-based wrapper around `nubra-sdk`
+   - Methods: `initialize_sdk()`, `get_historical_data()`, `connect_websocket()`, `get_3months_equity()`
+   - Supports WebSocket for real-time data streaming
+   - Handles NSE equity data with OHLCV (Open, High, Low, Close, Volume)
+
+2. **Upstox Functions** (`apis/upstox_api.py`):
+   - Function-based wrapper around `upstox-python-sdk`
+   - `get_historical_data_upstox()`: Fetches candle data
+   - `place_mock_order_upstox()`: Places mock orders for testing
+
+### Signal Generation Flow
+1. **Data Fetching**: Historical data is fetched at regular intervals (configurable `check_interval_seconds`)
+2. **SMA Calculation**: Fast SMA (default 10-period) and slow SMA (default 30-period) are calculated
+3. **Crossover Detection**:
+   - **BUY signal**: Fast SMA crosses above slow SMA
+   - **SELL signal**: Fast SMA crosses below slow SMA
+4. **Order Placement**: Mock orders are placed when a new signal is generated
+
+The main loop is in `live_signal_generation()` in `main.py`.
+
+### Data Flow
+```
+Broker API → get_historical_data() → pandas DataFrame (OHLCV)
+  ↓
+SMA Calculation (fast & slow)
+  ↓
+Crossover Detection (signal generation)
+  ↓
+Order Placement (mock)
+```
+
+### Backtesting System
+
+SimpleTrader includes a complete backtesting framework for testing trading strategies on historical data.
+
+**Architecture:**
+```
+Strategy Templates (strategies/templates/)
+        ↓
+Strategy Classes (inherit from bt.Strategy)
+        ↓
+BacktestRunner (orchestrator)
+        ↓
+Backtrader Engine (data feeds, broker, analyzers)
+        ↓
+Performance Metrics (Sharpe, Drawdown, Win Rate, P&L)
+```
+
+**Key Components:**
+
+1. **Strategy Framework** (`strategies/`):
+   - Strategies inherit from `backtrader.Strategy`
+   - Implement `__init__()` for indicators, `next()` for trading logic
+   - Configurable parameters via `params` tuple
+   - Example: `SMACrossoverStrategy` with fast/slow SMA periods
+
+2. **Backtest Runner** (`backtesting/backtest_runner.py`):
+   - `BacktestRunner` class orchestrates backtests
+   - Methods: `load_data()`, `add_strategy()`, `add_analyzers()`, `run()`, `get_metrics()`
+   - Supports multiple strategies and parameter combinations
+   - Configurable commission (default 0.1%) and initial cash
+
+3. **Data Scraper** (`backtesting/data_scraper.py`):
+   - `EquityDataScraper` fetches historical data via Nubra API
+   - Batch scraping with rate limiting (60 requests/minute)
+   - Saves to `data/{SYMBOL}_{period_days}days.csv`
+   - Filters NSE equities from security_id_list.csv
+
+4. **Dashboard** (`dashboard/streamlit_app.py`):
+   - Web UI for authentication, data scraping, backtesting
+   - Three pages: Authentication, Data Scraping, Backtesting
+   - Real-time metrics display (Sharpe ratio, drawdown, P&L)
+   - Launch with: `streamlit run dashboard/streamlit_app.py`
+
+**Creating a New Strategy:**
+
+```python
+import backtrader as bt
+
+class MyStrategy(bt.Strategy):
+    params = (
+        ('period', 20),  # Configurable parameter
+    )
+
+    def __init__(self):
+        # Initialize indicators
+        self.sma = bt.indicators.SimpleMovingAverage(
+            self.data.close, period=self.params.period
+        )
+
+    def next(self):
+        # Trading logic
+        if not self.position:
+            if self.data.close[0] > self.sma[0]:
+                self.buy()
+        else:
+            if self.data.close[0] < self.sma[0]:
+                self.sell()
+```
+
+**Running a Backtest:**
+
+```python
+from backtesting.backtest_runner import BacktestRunner
+from strategies.my_strategy import MyStrategy
+
+runner = BacktestRunner(initial_cash=100000)
+runner.load_data('data/GRAPHITE_90days.csv', 'GRAPHITE')
+runner.add_strategy(MyStrategy, period=20)
+runner.add_analyzers()
+
+result = runner.run()
+metrics = runner.get_metrics(result)
+print(f"Sharpe Ratio: {metrics['sharpe_ratio']}")
+print(f"Total Return: {metrics['returns']['total_return']}")
+```
+
+**Performance Metrics:**
+
+- **Sharpe Ratio**: Risk-adjusted return (>1.0 is good)
+- **Max Drawdown**: Largest peak-to-trough decline (aim for <15%)
+- **Total Return**: Overall percentage gain/loss
+- **Win Rate**: Percentage of profitable trades
+- **Profit Factor**: Gross profit / gross loss (>1.5 is good)
+
+## Key Dependencies
+
+- **pandas**: DataFrame operations and time series analysis
+- **backtrader**: Backtesting trading strategies with full indicator library
+- **streamlit**: Web dashboard for authentication, scraping, backtesting
+- **nubra-sdk**: Nubra broker API (Indian markets)
+- **upstox-python-sdk**: Upstox broker API (Indian markets)
+- **websockets**: Real-time data streaming (Nubra)
+- **python-dotenv**: Environment variable management
+
+## Common Commands
+
+### Development
+```bash
+# Activate virtual environment
+source venv/Scripts/activate  # Git Bash
+# Or: venv\Scripts\activate.bat  # CMD
+# Or: venv\Scripts\Activate.ps1  # PowerShell
+
+# Install/update dependencies
+pip install -r requirements.txt
+```
+
+### Dashboard
+```bash
+# Launch Streamlit dashboard (recommended interface)
+streamlit run dashboard/streamlit_app.py
+
+# Access at http://localhost:8501
+# Use dashboard for: Authentication, Data Scraping, Backtesting
+```
+
+### Quick Testing (Command Line)
+
+**Test authentication:**
+```bash
+python -c "from apis.nubra_api import NubraAPIHandler; n = NubraAPIHandler(); print('Auth:', n.initialize_sdk())"
+```
+
+**Test strategy backtest:**
+```bash
+python -c "from backtesting.backtest_runner import BacktestRunner; from strategies.sma_crossover import SMACrossoverStrategy; r = BacktestRunner(); r.load_data('data/GRAPHITE_3months.csv', 'GRAPHITE'); r.add_strategy(SMACrossoverStrategy); r.add_analyzers(); result = r.run(); metrics = r.get_metrics(result); print('Sharpe:', metrics['sharpe_ratio'])"
+```
+
+**Scrape data for single equity:**
+```bash
+python -c "from apis.nubra_api import NubraAPIHandler; from backtesting.data_scraper import EquityDataScraper; n = NubraAPIHandler(); n.initialize_sdk(); s = EquityDataScraper(n); df = s.scrape_equity('RELIANCE'); s.save_to_csv(df, 'RELIANCE', 90)"
+```
+
+## Important Notes
+
+### Current Implementation Status
+- The `main()` function currently **only fetches 3-month daily data for GRAPHITE** and saves to CSV
+- The `live_signal_generation()` function is **not currently called** from main
+- Mock order placement functions exist but are not actively used in current main flow
+
+### Broker Selection
+The `live_signal_generation()` function accepts a `broker` parameter ("Nubra" or "Upstox") to switch between brokers. Nubra attempts WebSocket connection; Upstox uses polling.
+
+### Authentication
+- Nubra SDK uses `env_creds=True` to load credentials from environment variables
+- Upstox requires manual access token management (tokens expire and need renewal)
+- `auth_data.db` SQLite database stores authentication-related data
+
+### Time Intervals
+Historical data supports multiple intervals:
+- **minute**: 1-minute candles
+- **hour**: 1-hour candles
+- **days**: Daily candles
+
+### Security Identifiers
+- `security_id_list.csv` contains mapping of symbols to exchange instrument identifiers
+- Format includes: exchange ID, segment, security ID, trading symbol, expiry details, etc.
+
+## Strategy Development Process
+
+SimpleTrader includes a systematic workflow for developing profitable trading strategies. See **STRATEGY_DEVELOPMENT.md** for the complete guide.
+
+**Quick Overview:**
+
+1. **Research & Selection**: Identify market regime, select strategy type (momentum, mean reversion, breakout, trend following)
+2. **Parameter Design**: Define entry/exit conditions, position sizing, risk management rules
+3. **Implementation**: Create strategy class using templates (see `strategies/templates/`)
+4. **Backtesting**: Run on 1+ year of Indian market data, analyze metrics
+5. **Optimization**: Parameter sensitivity testing, walk-forward validation
+6. **Validation**: Ensure positive PnL, Sharpe >1.0, drawdown <15%
+
+**Strategy Templates Available:**
+- `strategies/templates/mean_reversion_template.py` - RSI + Bollinger Bands
+- `strategies/templates/momentum_template.py` - MACD + Volume
+- `strategies/templates/breakout_template.py` - ATR-based breakouts
+
+**Indian Market Considerations:**
+- See **INDIAN_MARKET_GUIDE.md** for market hours, liquidity requirements, circuit breakers
+- Trading hours: 9:30 AM - 3:30 PM IST
+- Avoid pre-market (9:15-9:30 AM) - low liquidity
+- Best windows: Opening (9:30-11 AM) for momentum, midday (11 AM-2 PM) for mean reversion
+- Risk limits: Max 3% per trade, max 10% in single position, -5% daily stop
+
+**Validation Checklist:**
+- [ ] Positive total return on backtest
+- [ ] Sharpe ratio > 1.0
+- [ ] Max drawdown < 15%
+- [ ] Win rate meets strategy minimums (45-55% depending on strategy type)
+- [ ] Profit factor > 1.5
+- [ ] Tested on 1+ year Indian market data
+- [ ] Stress tested on volatile periods (budget days, elections)
+
+## Debugging Tips
+
+- Check broker API authentication if data fetching fails
+- Verify `.env` file has correct credentials
+- For Nubra: ensure SDK initializes successfully with `initialize_sdk()`
+- For Upstox: check token validity (access tokens expire)
+- Monitor console output for signal generation timestamps and SMA values
