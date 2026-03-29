@@ -1,8 +1,37 @@
+"""
+Upstox Broker API Helper Functions
+
+Provides helper functions for Upstox broker API operations:
+- Historical data fetching
+- Order placement
+
+Usage:
+    from upstox_client import ApiClient, Configuration
+    config = Configuration()
+    api_client = ApiClient(config)
+    history_api = HistoryApi(api_client)
+    df = get_historical_data_upstox(history_api, 'NSE_EQ|RELIANCE', '2024-01-01', '2024-03-01')
+"""
+
 import pandas as pd
 from upstox_client.rest import ApiException
 
 
 def get_historical_data_upstox(history_api, instrument_key, from_date, to_date, interval_unit='days', interval_value=1):
+    """
+    Fetch historical candlestick data from Upstox.
+    
+    Args:
+        history_api: Upstox HistoryApi instance
+        instrument_key: Instrument key (e.g., 'NSE_EQ|RELIANCE')
+        from_date: Start date string
+        to_date: End date string
+        interval_unit: Unit of interval ('day', 'minute', 'hour', 'week', 'month')
+        interval_value: Interval value (e.g., 1 for 1 day, 5 for 5 minutes)
+        
+    Returns:
+        pandas DataFrame with OHLCV data, or None on error
+    """
     try:
         api_response = history_api.get_historical_candle_data1(
             instrument_key,

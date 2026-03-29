@@ -79,14 +79,14 @@ See **INDIAN_MARKET_GUIDE.md** for comprehensive details.
 - **Strategy Templates**: `strategies/templates/`
 - **Indian Market Guide**: `INDIAN_MARKET_GUIDE.md`
 - **Backtrader Documentation**: https://www.backtrader.com/docu/
-- **Dashboard**: `streamlit run dashboard/streamlit_app.py`
+- **Web Application**: http://localhost:5173
 
 ## Support
 
 For questions or issues:
 1. Check CLAUDE.md for architecture overview
 2. Review strategy templates for implementation examples
-3. Use dashboard for interactive backtesting
+3. Use web app for interactive backtesting
 4. Consult Backtrader docs for advanced indicators
 
 ---

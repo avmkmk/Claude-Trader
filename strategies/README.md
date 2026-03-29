@@ -24,7 +24,7 @@ params = (
 **Step 3: Test**
 ```python
 python my_mean_reversion.py
-# Or use dashboard: streamlit run dashboard/streamlit_app.py
+# Or use web app: http://localhost:5173
 ```
 
 ## Available Templates
@@ -162,11 +162,11 @@ def next(self):
 python my_strategy.py
 ```
 
-**Via dashboard:**
+**Via web app:**
 ```bash
-streamlit run dashboard/streamlit_app.py
-# Navigate to Backtesting page
-# Select your data file and run
+cd simple-trader-web && npm run dev
+# Navigate to Strategies page
+# Select symbol and run backtest
 ```
 
 ---
@@ -289,5 +289,5 @@ Before deploying a strategy:
 For questions:
 1. Check `STRATEGY_DEVELOPMENT.md` for workflow guidance
 2. Review template code comments for implementation details
-3. Use dashboard for interactive testing
+3. Use web app for interactive testing
 4. Refer to `CLAUDE.md` for system architecture

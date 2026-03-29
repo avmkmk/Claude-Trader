@@ -103,21 +103,29 @@ df = scraper.scrape_equity('RELIANCE')
 scraper.save_to_csv(df, 'RELIANCE', 90)
 ```
 
-### Dashboard
+### Web Application
 
-Streamlit web UI for authentication, data scraping, and backtesting:
+React + FastAPI web UI for authentication, portfolio management, and backtesting:
 
 **Launch:**
 ```bash
-streamlit run dashboard/streamlit_app.py
-# Access at http://localhost:8501
+# Backend
+cd simple-trader-api
+python -m app.main
+
+# Frontend
+cd simple-trader-web
+npm run dev
+
+# Access at http://localhost:5173
 ```
 
 **Features:**
-- Nubra authentication management
-- Batch data scraping (50+ equities)
+- MPIN authentication
+- Portfolio holdings and orders
 - Interactive backtesting with charts
-- Real-time metrics display
+- AI Chat with Gemini
+- Real market news
 
 ---
 

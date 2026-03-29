@@ -193,17 +193,12 @@ BEST INTERVAL: 4h with Sharpe ratio 1.58
 
 **Solution**:
 ```bash
-# For multi-timeframe data (15m, 1h, 4h, 1d)
-python scripts/hdfc_multi_timeframe_scraper.py
+# Data is in the parent folder under historical_Indian_equity_data/
+# For intraday equity data:
+ls "../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/15min/15min.csv"
 
-# For daily data only
-python scripts/batch_data_scraper.py
-```
-
-**Verify**:
-```bash
-ls scripts/data/HDFCBANK_365days_*.csv
-# Should show: 15m.csv, 1h.csv, 4h.csv, 1d.csv
+# For F&O data:
+ls "../historical_Indian_equity_data/intraday/fno/index/{SYMBOL}/15min/"
 ```
 
 ---
@@ -266,7 +261,7 @@ ls scripts/data/HDFCBANK_365days_*.csv
 
 3. **Check data quality**: Ensure volume and prices are reasonable
    ```bash
-   python scripts/validate_data.py
+   python scripts/fno_data/validate_community.py --source banknifty_5min
    ```
 
 ---

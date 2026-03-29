@@ -73,19 +73,6 @@ python scripts/compare_strategy.py \
 
 ---
 
-### `hdfc_rsi_backtest_comparison.py` - Example Implementation
-
-**Purpose**: Pre-configured script for HDFCBANK + RSI Mean Reversion strategy.
-
-**Usage**:
-```bash
-python scripts/hdfc_rsi_backtest_comparison.py
-```
-
-**Note**: This serves as a **reference implementation** showing how to create custom comparison scripts. Use `compare_strategy.py` for general testing.
-
----
-
 ### `strategy_comparator.py` - Core Comparison Engine
 
 **Purpose**: Internal library used by `compare_strategy.py` and custom scripts.
@@ -169,29 +156,18 @@ python scripts/test_nubra_intervals.py
 
 ## Data File Structure
 
-### Multi-Timeframe Data (scripts/data/)
+Historical data is stored in the parent folder:
 ```
-scripts/data/
-├── HDFCBANK_365days_15m.csv    # 15-minute candles
-├── HDFCBANK_365days_1h.csv     # Hourly candles
-├── HDFCBANK_365days_4h.csv     # 4-hour candles
-└── HDFCBANK_365days_1d.csv     # Daily candles
+historical_Indian_equity_data/
+├── daily/eod2/                 # 3318 stocks (daily OHLCV)
+├── intraday/corrected/         # 55 validated stocks (with corrections applied)
+├── intraday/raw/              # ~556 stocks (use with caution)
+└── validation_reports/        # Data validation reports
 ```
 
-### Daily Data (data/)
-```
-data/
-├── RELIANCE_365days.csv
-├── INFY_365days.csv
-├── HDFCBANK_365days.csv
-├── TCS_365days.csv
-├── ICICIBANK_365days.csv
-├── BHARTIARTL_365days.csv
-├── ITC_365days.csv
-├── TATASTEEL_365days.csv
-├── SBIN_365days.csv
-└── WIPRO_365days.csv
-```
+### For Backtesting
+- **Daily data**: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
+- **Intraday data**: `../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
 
 **CSV Format**: Index is datetime, columns are `open, high, low, close, volume`
 
@@ -239,9 +215,10 @@ See `strategies/README.md` for complete list and templates.
 
 ### Error: "Data file not found"
 **Cause**: CSV file missing for symbol/interval combination
-**Solution**: Run appropriate scraper:
-- Multi-timeframe: `python scripts/hdfc_multi_timeframe_scraper.py`
-- Daily data: `python scripts/batch_data_scraper.py`
+**Solution**: Check data location:
+- Daily data: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
+- Intraday: `../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
+- Or run scrapers in `scripts/scrapers/` to fetch new data
 
 ### Error: "Strategy class 'XXX' not found"
 **Cause**: Class name doesn't match or file path incorrect

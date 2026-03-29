@@ -1,5 +1,7 @@
 import backtrader as bt
 import pandas as pd
+import os
+import glob
 
 
 class BacktestRunner:
@@ -8,16 +10,84 @@ class BacktestRunner:
     strategy execution, and performance metrics
     """
 
-    def __init__(self, initial_cash=5000000):
+    def __init__(self, initial_cash=5000000, data_dir=None):
         """
         Initialize backtest runner
 
         Args:
             initial_cash: Starting portfolio value (default: 50 lakhs / 5 million for Indian equities)
+            data_dir: Path to data directory (default: project/data/)
         """
         self.cerebro = bt.Cerebro()
         self.cerebro.broker.setcash(initial_cash)
         self.cerebro.broker.setcommission(commission=0.001)  # 0.1% commission
+        
+        # Set data directory
+        if data_dir is None:
+            self.data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+        else:
+            self.data_dir = data_dir
+
+    def find_data_folder(self, symbol):
+        """
+        Find the most recent data folder for a symbol.
+        
+        Args:
+            symbol: Trading symbol (e.g., 'RELIANCE')
+            
+        Returns:
+            Path to the data folder, or None if not found
+        """
+        # Look for folders matching pattern SYMBOL_*
+        pattern = os.path.join(self.data_dir, f"{symbol}_*")
+        folders = glob.glob(pattern)
+        
+        if not folders:
+            return None
+        
+        # Return most recently modified folder
+        folders_with_mtime = [(f, os.path.getmtime(f)) for f in folders if os.path.isdir(f)]
+        if not folders_with_mtime:
+            return None
+        
+        folders_with_mtime.sort(key=lambda x: x[1], reverse=True)
+        return folders_with_mtime[0][0]
+
+    def find_timeframe_file(self, symbol, timeframe):
+        """
+        Find the CSV file for a specific symbol and timeframe.
+        
+        Args:
+            symbol: Trading symbol (e.g., 'RELIANCE')
+            timeframe: Timeframe ('5min', '15min', '60min', '4hour', 'daily', 'weekly')
+            
+        Returns:
+            Path to CSV file, or None if not found
+        """
+        timeframe_filename = {
+            '5min': '5min.csv',
+            '15min': '15min.csv',
+            '60min': '60min.csv',
+            '4hour': '4hour.csv',
+            'daily': 'daily.csv',
+            'weekly': 'weekly.csv'
+        }.get(timeframe)
+        
+        if not timeframe_filename:
+            return None
+        
+        # Find data folder
+        folder = self.find_data_folder(symbol)
+        if not folder:
+            return None
+        
+        # Build file path
+        filepath = os.path.join(folder, timeframe_filename)
+        
+        if os.path.exists(filepath):
+            return filepath
+        
+        return None
 
     def load_data(self, csv_path, symbol_name):
         """
@@ -43,6 +113,79 @@ class BacktestRunner:
             close='close',
             volume='volume',
             openinterest=-1  # No open interest data
+        )
+        self.cerebro.adddata(data, name=symbol_name)
+
+    def load_eod2_data(self, csv_path, symbol_name):
+        """
+        Load eod2 format daily data into backtrader.
+
+        Args:
+            csv_path: Path to eod2 CSV file
+            symbol_name: Name for the data feed
+
+        eod2 CSV Format:
+            Date, Open, High, Low, Close, Volume, Series, TOTAL_TRADES, QTY_PER_TRADE, DLV_QTY
+        """
+        df = pd.read_csv(csv_path, parse_dates=['Date'])
+        df = df.set_index('Date')
+
+        # Map to backtrader expected columns (lowercase)
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        df.columns = [c.lower() for c in df.columns]
+
+        # Drop rows with missing data
+        df = df.dropna()
+
+        # Convert to backtrader PandasData format
+        data = bt.feeds.PandasData(
+            dataname=df,
+            datetime=None,
+            open='open',
+            high='high',
+            low='low',
+            close='close',
+            volume='volume',
+            openinterest=-1
+        )
+        self.cerebro.adddata(data, name=symbol_name)
+
+    def load_eod2_data_filtered(self, csv_path, symbol_name, start_date=None, end_date=None):
+        """
+        Load eod2 data with optional date filtering.
+
+        Args:
+            csv_path: Path to eod2 CSV file
+            symbol_name: Name for the data feed
+            start_date: Start date string 'YYYY-MM-DD' (optional)
+            end_date: End date string 'YYYY-MM-DD' (optional)
+        """
+        df = pd.read_csv(csv_path, parse_dates=['Date'])
+        df = df.set_index('Date')
+
+        # Apply date filtering
+        if start_date:
+            df = df[df.index >= start_date]
+        if end_date:
+            df = df[df.index <= end_date]
+
+        # Map columns
+        df = df[['Open', 'High', 'Low', 'Close', 'Volume']]
+        df.columns = [c.lower() for c in df.columns]
+
+        # Drop missing data
+        df = df.dropna()
+
+        # Convert to backtrader format
+        data = bt.feeds.PandasData(
+            dataname=df,
+            datetime=None,
+            open='open',
+            high='high',
+            low='low',
+            close='close',
+            volume='volume',
+            openinterest=-1
         )
         self.cerebro.adddata(data, name=symbol_name)
 

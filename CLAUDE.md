@@ -22,13 +22,15 @@ SimpleTrader/
 ├── apis/                      # Broker API handlers (Nubra, Upstox)
 ├── strategies/                # Strategy templates and implementations
 ├── backtesting/              # Data scraper, backtest runner
-├── dashboard/                # Streamlit UI
+├── scripts/                   # Utility scripts (scrapers, validators)
+├── simple-trader-api/         # FastAPI backend
+├── simple-trader-web/         # React frontend
 ├── docs/                     # Documentation (see Quick Links)
 │   ├── quick_start/          # 5-minute orientation guides
 │   ├── strategy_development/ # Complete workflow (6 phases)
 │   ├── indian_markets/       # Market-specific rules and patterns
 │   └── backtesting/          # System architecture and guides
-└── data/                     # Historical OHLCV data (CSV)
+└── historical_Indian_equity_data/  # Historical data (in parent folder)
 ```
 
 ## Core Concepts
@@ -62,9 +64,17 @@ source venv/Scripts/activate  # Git Bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Launch dashboard (recommended)
-streamlit run dashboard/streamlit_app.py
-# Access at http://localhost:8501
+# Start FastAPI backend
+cd simple-trader-api
+pip install -r requirements.txt
+python -m app.main
+# API runs at http://localhost:8000
+
+# Start React frontend (in another terminal)
+cd simple-trader-web
+npm install
+npm run dev
+# App runs at http://localhost:5173
 ```
 
 ## Configuration
@@ -79,10 +89,36 @@ UPSTOX_ACCESS_TOKEN="your_token"
 ## Key Dependencies
 
 - **backtrader**: Strategy backtesting framework with 100+ indicators
-- **streamlit**: Web dashboard for auth, data scraping, backtesting UI
+- **fastapi**: REST API backend
+- **react**: Frontend web application
 - **nubra-sdk**: Nubra broker API (NSE/BSE market data)
 - **upstox-python-sdk**: Upstox broker API
 - **pandas**: Data manipulation and time series analysis
+
+## Historical Data
+
+Historical data is stored in the parent folder:
+```
+../historical_Indian_equity_data/
+├── daily/eod2/                 # 3318 stocks (daily OHLCV, split-adjusted)
+├── intraday/corrected/         # 55 validated stocks (with corporate actions corrected)
+├── intraday/raw/              # ~556 stocks (use with caution)
+├── intraday/fno/              # Futures & Options data
+│   ├── options/NIFTY/5min/    # 5,786 contracts (2022-2024, 706 MB)
+│   ├── options/NIFTY/15min/   # 5,563 contracts (250 MB)
+│   ├── index/BANKNIFTY/5min/  # 171K candles (2015-2024, 98.9% validated)
+│   ├── index/NIFTY/5min/      # 41K candles (2021-2023, 99.8% validated)
+│   ├── futures/               # Recent futures from Nubra (3 months)
+│   └── daily/                 # NSE bhavcopy 2021-Jul 2024
+└── validation_reports/        # Data validation reports
+```
+
+**For Backtesting:**
+- Daily: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
+- Intraday: `../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
+- F&O Options: `../historical_Indian_equity_data/intraday/fno/options/NIFTY/{TF}/{CONTRACT}_{TF}.csv`
+- F&O Index: `../historical_Indian_equity_data/intraday/fno/index/{SYMBOL}/{TF}/{SYMBOL}_{TF}.csv`
+- F&O Daily: `../historical_Indian_equity_data/intraday/fno/daily/{SYMBOL}/{YEAR}/fo_bhav_{YEAR}.csv`
 
 ## Documentation Index
 

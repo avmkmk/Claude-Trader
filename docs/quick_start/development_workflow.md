@@ -113,10 +113,17 @@ Key metrics:
 
 ## Common Commands
 
-**Launch dashboard (recommended):**
+**Launch web application (recommended):**
 ```bash
-streamlit run dashboard/streamlit_app.py
-# Access at http://localhost:8501
+# Terminal 1 - Start FastAPI backend
+cd simple-trader-api
+python -m app.main
+
+# Terminal 2 - Start React frontend
+cd simple-trader-web
+npm run dev
+
+# Access at http://localhost:5173
 ```
 
 **Quick backtest (command line):**

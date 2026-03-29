@@ -1,0 +1,2 @@
+status,error,symbol,strategy,strategy_params,start_date,end_date,initial_cash
+BACKTEST_ERROR,Backtest failed: module 'backtrader.indicators' has no attribute 'VWAP',RELIANCE,VWAP_MeanReversion,"{""deviation_threshold"": 0.02, ""rsi_oversold"": 40}",2024-01-01,2026-03-27,5000000

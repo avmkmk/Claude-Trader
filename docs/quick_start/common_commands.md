@@ -2,28 +2,36 @@
 
 Quick command reference for SimpleTrader development.
 
-## Dashboard (Recommended Interface)
+## Web Application (Recommended Interface)
 
 ```bash
-streamlit run dashboard/streamlit_app.py
+# Start FastAPI backend
+cd simple-trader-api
+python -m app.main
+
+# Start React frontend
+cd simple-trader-web
+npm run dev
 ```
 
-Access at: http://localhost:8501
+Access at: http://localhost:5173
 
 **Features:**
-- Nubra authentication
-- Batch data scraping (50+ equities)
-- Interactive backtesting with charts
-- Real-time metrics display
+- Authentication (MPIN-based)
+- Portfolio holdings and orders
+- Backtesting with charts
+- Watchlist management
+- AI Chat (Gemini-powered)
+- Real news (Marketaux + Alpha Vantage)
 
 ---
 
 ## Testing Strategies
 
-### Via Dashboard (Preferred)
-1. Launch dashboard: `streamlit run dashboard/streamlit_app.py`
-2. Navigate to "Backtesting" page
-3. Select data file and strategy
+### Via Web Application
+1. Launch the app (see above)
+2. Navigate to "Strategies" page
+3. Select symbol and strategy
 4. Click "Run Backtest"
 5. View metrics and charts
 
@@ -41,7 +49,7 @@ print(f\"Sharpe: {metrics['sharpe_ratio']}, Return: {metrics['returns']['total_r
 ```
 
 ### Test Custom Strategy
-```python
+```bash
 python my_strategy.py  # If strategy includes __main__ block
 ```
 
@@ -61,16 +69,6 @@ s.save_to_csv(df, 'RELIANCE', 90)"
 ```
 
 Saves to: `data/RELIANCE_90days.csv`
-
-### Batch Scraping (Via Dashboard)
-1. Launch dashboard
-2. Go to "Data Scraping" page
-3. Select equities from dropdown (multi-select)
-4. Choose period (90 days, 180 days, 1 year)
-5. Click "Start Scraping"
-6. Monitor progress bar
-
-**Rate limit:** 60 requests/minute (Nubra API limit)
 
 ---
 
@@ -100,11 +98,15 @@ source venv/Scripts/activate  # Git Bash
 ### Install/Update Dependencies
 ```bash
 pip install -r requirements.txt
+
+# API dependencies
+cd simple-trader-api
+pip install -r requirements.txt
 ```
 
 ### Check Installed Packages
 ```bash
-pip list | grep -E "backtrader|streamlit|nubra|upstox"
+pip list | grep -E "backtrader|fastapi|nubra|upstox"
 ```
 
 ---
@@ -126,28 +128,30 @@ pip install -r requirements.txt
 python -c "import os; from dotenv import load_dotenv; load_dotenv(); print('CLIENT_ID:', os.getenv('NUBRA_CLIENT_ID')[:10] if os.getenv('NUBRA_CLIENT_ID') else 'NOT SET')"
 ```
 
-Ensure `.env` exists in project root with:
+Ensure `.env` exists in simple-trader-api/ with:
 ```
 NUBRA_CLIENT_ID="your_client_id"
 NUBRA_MPIN="your_mpin"
 ```
 
-### Dashboard Port Already in Use
+### Port Already in Use
 ```bash
-# Use different port
-streamlit run dashboard/streamlit_app.py --server.port 8502
+# Use different port for backend
+cd simple-trader-api
+python -m app.main --port 8001
 ```
 
 ### Data File Not Found
 ```bash
 # List available data files
-ls -lh data/*.csv
+ls -lh ../historical_Indian_equity_data/daily/eod2/*.csv | head -20
 
 # Check file path in backtest code
-# Ensure relative path from project root: data/SYMBOL_XXdays.csv
+# Ensure relative path from project root
 ```
 
 ---
 
-**Navigation:**
+## Navigation
+
 [CLAUDE.md](../../CLAUDE.md) | [Development Workflow](development_workflow.md) | [Market Essentials](market_essentials.md)
