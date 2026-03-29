@@ -1,2 +1,0 @@
-status,sharpe_ratio,total_return_pct,max_drawdown_pct,total_trades,won_trades,lost_trades,win_rate_pct,pnl_total,pnl_avg,data_path,data_type,symbol,strategy,strategy_params,start_date,end_date,initial_cash
-NEGATIVE_SHARPE,-558.6478459073263,-0.006530367223800748,0.008551652113702374,10,2,8,20.0,-326.5076999999999,-32.65076999999999,D:\Professional Journey\Personal Software Projects\historical_Indian_equity_data\daily\eod2\reliance.csv,eod2_daily,RELIANCE,SMA_Crossover,"{""fast_period"": 10, ""slow_period"": 30}",2024-01-01,2026-03-27,5000000

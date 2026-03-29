@@ -1,6 +1,0 @@
-status,error,symbol,strategy,strategy_params,start_date,end_date,initial_cash
-BACKTEST_ERROR,Backtest failed: SupertrendTrendStrategy.__init__() got an unexpected keyword argument 'supertrend_period',RELIANCE,Supertrend,"{""supertrend_period"": 10, ""supertrend_multiplier"": 3.0}",2024-01-01,2026-03-27,5000000
-BACKTEST_ERROR,Backtest failed: SupertrendTrendStrategy.__init__() got an unexpected keyword argument 'supertrend_period',HDFCBANK,Supertrend,"{""supertrend_period"": 10, ""supertrend_multiplier"": 3.0}",2024-01-01,2026-03-27,5000000
-BACKTEST_ERROR,Backtest failed: SupertrendTrendStrategy.__init__() got an unexpected keyword argument 'supertrend_period',INFY,Supertrend,"{""supertrend_period"": 10, ""supertrend_multiplier"": 3.0}",2024-01-01,2026-03-27,5000000
-BACKTEST_ERROR,Backtest failed: SupertrendTrendStrategy.__init__() got an unexpected keyword argument 'supertrend_period',TATASTEEL,Supertrend,"{""supertrend_period"": 10, ""supertrend_multiplier"": 3.0}",2024-01-01,2026-03-27,5000000
-BACKTEST_ERROR,Backtest failed: SupertrendTrendStrategy.__init__() got an unexpected keyword argument 'supertrend_period',HINDUNILVR,Supertrend,"{""supertrend_period"": 10, ""supertrend_multiplier"": 3.0}",2024-01-01,2026-03-27,5000000

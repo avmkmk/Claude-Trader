@@ -1,3 +1,0 @@
-status,error,symbol,strategy,strategy_params,start_date,end_date,initial_cash
-BACKTEST_ERROR,Backtest failed: 'Lines_LineSeries_LineIterator_DataAccessor_StrategyBase_Strategy_GapTradingStrategy' object has no attribute 'buy_to_close',RELIANCE,Gap_Trading,"{""min_gap_pct"": 0.01, ""max_gap_pct"": 0.04}",2024-01-01,2026-03-27,5000000
-BACKTEST_ERROR,Backtest failed: 'Lines_LineSeries_LineIterator_DataAccessor_StrategyBase_Strategy_GapTradingStrategy' object has no attribute 'buy_to_close',HDFCBANK,Gap_Trading,"{""min_gap_pct"": 0.01, ""max_gap_pct"": 0.04}",2024-01-01,2026-03-27,5000000

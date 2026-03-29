@@ -1,3 +1,0 @@
-status,error,symbol,strategy,strategy_params,start_date,end_date,initial_cash
-BACKTEST_ERROR,Backtest failed: float division by zero,RELIANCE,VSA_Breakout,"{""volume_threshold"": 1.3, ""atr_target_mult"": 3.0}",2024-01-01,2026-03-27,5000000
-BACKTEST_ERROR,Backtest failed: float division by zero,HDFCBANK,VSA_Breakout,"{""volume_threshold"": 1.3, ""atr_target_mult"": 3.0}",2024-01-01,2026-03-27,5000000
