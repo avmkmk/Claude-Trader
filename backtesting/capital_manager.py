@@ -47,11 +47,12 @@ class CapitalManager:
         Args:
             current_date: Current backtest date
         """
-        self.current_date = current_date
         current_month = (current_date.year, current_date.month)
 
-        # Check if new month
-        if current_month != self.last_injection_month:
+        # Check if new month and moving forward in time
+        if current_month != self.last_injection_month and current_date > self.current_date:
             self.available_cash += self.monthly_injection
             self.total_injected += self.monthly_injection
             self.last_injection_month = current_month
+
+        self.current_date = current_date
