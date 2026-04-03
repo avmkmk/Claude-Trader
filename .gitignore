@@ -201,5 +201,21 @@ reports/*.xlsx
 .claude/
 .planning/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+simple-trader-web/dist/
+simple-trader-web/.vite/
+next-env.d.ts
+
+# Results
+results/
+
+
 # Empty data directory (keep scripts/data/ with CSV files)
 data/
+.worktrees/
