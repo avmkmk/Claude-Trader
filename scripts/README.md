@@ -1,247 +1,135 @@
 # SimpleTrader Scripts
 
-This directory contains utility scripts for data scraping, backtesting, and strategy comparison.
+This directory contains the core backtesting script for the ATH Reclaim strategy.
 
-## Core Scripts
+## Core Script
 
-### `compare_strategy.py` - Generic Strategy Comparison CLI ⭐
+### `backtest_portfolio_chronological.py` - Portfolio-Level Chronological Backtest ⭐
 
-**Purpose**: Compare ANY strategy across multiple timeframes for ANY symbol.
+**Purpose**: Run realistic portfolio-level backtest with capital constraints and monthly SIP injections.
 
-**Basic Usage**:
-```bash
-python scripts/compare_strategy.py \
-  --symbol <SYMBOL> \
-  --strategy-module <PATH> \
-  --strategy-class <CLASS_NAME>
-```
-
-**Required Arguments**:
-- `--symbol`: Trading symbol (e.g., HDFCBANK, RELIANCE, INFY, TCS)
-- `--strategy-module`: Path to Python file (e.g., strategies/sma_crossover.py)
-- `--strategy-class`: Class name (e.g., SMACrossoverStrategy)
-
-**Optional Arguments**:
-- `--intervals`: Timeframes to test (default: 15m 1h 4h 1d)
-- `--strategy-params`: JSON dict of parameters (default: {})
-- `--initial-cash`: Capital in Rs (default: 5000000 = 50 lakhs)
-- `--commission`: Commission rate (default: 0.001 = 0.1%)
-
-**Example 1**: SMA Crossover on HDFCBANK (all timeframes)
-```bash
-python scripts/compare_strategy.py \
-  --symbol HDFCBANK \
-  --strategy-module strategies/sma_crossover.py \
-  --strategy-class SMACrossoverStrategy
-```
-
-**Example 2**: RSI Mean Reversion with custom parameters
-```bash
-python scripts/compare_strategy.py \
-  --symbol RELIANCE \
-  --strategy-module strategies/rsi_mean_reversion_india.py \
-  --strategy-class RSIMeanReversionIndia \
-  --strategy-params '{"rsi_period": 21, "rsi_oversold": 25, "rsi_exit": 55}'
-```
-
-**Example 3**: Test single timeframe
-```bash
-python scripts/compare_strategy.py \
-  --symbol INFY \
-  --strategy-module strategies/sma_crossover.py \
-  --strategy-class SMACrossoverStrategy \
-  --intervals 1d
-```
-
-**Example 4**: Custom capital and commission
-```bash
-python scripts/compare_strategy.py \
-  --symbol TCS \
-  --strategy-module strategies/sma_crossover.py \
-  --strategy-class SMACrossoverStrategy \
-  --initial-cash 1000000 \
-  --commission 0.0015
-```
-
-**What It Does**:
-1. Dynamically loads the strategy class from the specified Python file
-2. Tests the strategy on each timeframe (15m, 1h, 4h, 1d)
-3. Runs backtest with backtrader engine
-4. Calculates performance metrics (Sharpe, returns, drawdown, win rate)
-5. Displays comparison table across all timeframes
-6. Identifies the best-performing timeframe
-
----
-
-### `strategy_comparator.py` - Core Comparison Engine
-
-**Purpose**: Internal library used by `compare_strategy.py` and custom scripts.
-
-**Key Function**: `run_strategy_comparison(symbol, data_path_template, strategy_module_path, strategy_class_name, intervals, strategy_params, initial_cash, commission)`
-
-**Note**: You typically don't call this directly - use `compare_strategy.py` instead.
-
----
-
-## Data Management Scripts
-
-### `hdfc_multi_timeframe_scraper.py` - Multi-Timeframe Data Scraper
-
-**Purpose**: Scrapes HDFCBANK data across multiple timeframes (15m, 1h, 4h, 1d) for 365 days.
+**Key Features**:
+- Processes trades chronologically day-by-day across ALL stocks
+- Shared capital pool with monthly injections
+- Skips trades when capital is insufficient
+- Position sizing based on portfolio value (10%)
+- Realistic capital management simulation
 
 **Usage**:
 ```bash
-# Scrape 365 days (default)
-python scripts/hdfc_multi_timeframe_scraper.py
-
-# Scrape 90 days
-python scripts/hdfc_multi_timeframe_scraper.py --days 90
-
-# Override chunk size
-python scripts/hdfc_multi_timeframe_scraper.py --chunk 14
+python scripts/backtest_portfolio_chronological.py \
+  --symbols-file data/nifty_500_valid.csv \
+  --start-date 2016-01-01 \
+  --end-date 2024-12-31
 ```
 
-**Features**:
-- Intelligent rate limiting (60 requests/minute)
-- Automatic chunking for intraday intervals
-- Converts prices from paise to rupees
-- Saves to `scripts/data/HDFCBANK_365days_{interval}.csv`
+**Arguments**:
+- `--symbols-file`: Path to CSV file with stock symbols (required)
+- `--start-date`: Backtest start date YYYY-MM-DD (required)
+- `--end-date`: Backtest end date YYYY-MM-DD (required)
+- `--starting-cash`: Initial capital in Rs (default: 70000)
+- `--monthly-injection`: Monthly SIP amount in Rs (default: 70000)
+- `--position-pct`: Position size as % of portfolio (default: 0.10)
+- `--data-dir`: Custom historical data directory (optional)
 
----
+**Examples**:
 
-### `batch_data_scraper.py` - Batch Symbol Scraper
-
-**Purpose**: Scrapes 365-day historical data for multiple Nifty 50 symbols.
-
-**Usage**:
 ```bash
-python scripts/batch_data_scraper.py
+# Nifty 500 backtest (2016-2024)
+python scripts/backtest_portfolio_chronological.py \
+  --symbols-file data/nifty_500_valid.csv \
+  --start-date 2016-01-01 \
+  --end-date 2024-12-31 \
+  --starting-cash 70000 \
+  --monthly-injection 70000
+
+# Small-cap backtest
+python scripts/backtest_portfolio_chronological.py \
+  --symbols-file data/nifty_smallcap_250_valid.csv \
+  --start-date 2016-01-01 \
+  --end-date 2024-12-31
+
+# Full dataset backtest (lower capital)
+python scripts/backtest_portfolio_chronological.py \
+  --symbols-file data/eod2_full_valid_2023_2025.csv \
+  --start-date 2023-01-01 \
+  --end-date 2025-12-31 \
+  --starting-cash 50000 \
+  --monthly-injection 50000
+
+# Historical stress test (2008 crash)
+python scripts/backtest_portfolio_chronological.py \
+  --symbols-file data/nifty_500_valid.csv \
+  --start-date 2008-01-01 \
+  --end-date 2015-12-31
 ```
 
-**Symbols**: RELIANCE, INFY, HDFCBANK, TCS, ICICIBANK, BHARTIARTL, ITC, TATASTEEL, SBIN, WIPRO
+**Output**:
+- Creates `results/portfolio_backtest.csv` with all trades
+- Logs detailed execution to console
+- Shows performance metrics (CAGR, win rate, P&L)
 
-**Output**: `data/{symbol}_365days.csv` (daily OHLCV data)
+## Backtest Results
 
----
+| Universe | Period | CAGR | Win Rate | Trades | Verdict |
+|----------|--------|------|----------|--------|---------|
+| Nifty 500 | 2016-2024 | 18.5% | 43.1% | 211 | ⭐⭐⭐⭐⭐ BEST |
+| Nifty 500 | 2008-2015 | 11.9% | 36.9% | 160 | ⭐⭐⭐⭐⭐ Proven |
+| Smallcap 250 | 2016-2024 | 14.4% | 47.5% | 139 | ⭐⭐⭐⭐ Good |
+| Full 2,020 | 2023-2025 | 4.8% | 31.5% | 216 | ❌ Poor |
 
-### `validate_data.py` - Data Quality Validator
+**Recommendation**: Deploy on **Nifty 500** universe for best risk-adjusted returns.
 
-**Purpose**: Validates scraped CSV files for integrity and completeness.
+## Strategy Overview
 
-**Usage**:
-```bash
-python scripts/validate_data.py
-```
+**ATH Reclaim Strategy** (3-Phase State Machine):
+1. **Phase 1: ATH Tracking** - Track all-time highs
+2. **Phase 2: Below EMA 200** - Wait for correction below 200-day EMA
+3. **Phase 3: ATH Reclaim Entry** - Buy when price reclaims ATH (with gap filter)
 
-**Checks**:
-- File existence
-- Row count (240-270 for 365 days)
-- Null values
-- Date ranges
+**Exit**: Close below EMA 200
 
----
+**Position Sizing**: 10% of portfolio value per trade
 
-## Testing Scripts
+**Capital Management**:
+- Starting: Rs 70,000
+- Monthly SIP: Rs 70,000
+- Max concurrent positions: ~10 (based on capital)
 
-### `test_nubra_intervals.py` - Nubra API Interval Tester
+## Archived Scripts
 
-**Purpose**: Tests different interval formats with Nubra API.
+Utility and analysis scripts have been moved to `../SimpleTrader_Archive/` for cleanup:
+- **Validation scripts**: `validate_*.py`, `create_nifty500_list.py`, etc.
+- **Analysis scripts**: `analyze_portfolio_backtest.py`, `debug_reliance_signal.py`
+- **FNO data scripts**: `scripts/fno_data/`
+- **Old backtest scripts**: `backtest_ath_reclaim_v1.py` (per-stock approach)
 
-**Usage**:
-```bash
-python scripts/test_nubra_intervals.py
-```
+See `../SimpleTrader_Archive/README.md` for details.
 
----
+## Stock Universe Files
 
-## Data File Structure
+Located in `data/` directory:
+- `nifty_500_valid.csv` - 478 validated Nifty 500 stocks ⭐ **RECOMMENDED**
+- `nifty_smallcap_250_valid.csv` - 236 validated small-cap stocks
+- `eod2_full_valid_2023_2025.csv` - 2,020 stocks (full dataset, not recommended)
 
-Historical data is stored in the parent folder:
-```
-historical_Indian_equity_data/
-├── daily/eod2/                 # 3318 stocks (daily OHLCV)
-├── intraday/corrected/         # 55 validated stocks (with corrections applied)
-├── intraday/raw/              # ~556 stocks (use with caution)
-└── validation_reports/        # Data validation reports
-```
+## Historical Data Path
 
-### For Backtesting
-- **Daily data**: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
-- **Intraday data**: `../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
+Default: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
 
-**CSV Format**: Index is datetime, columns are `open, high, low, close, volume`
+Override with `--data-dir` if your data is elsewhere.
 
----
+## Notes
 
-## Quick Reference
+- Always use chronological portfolio-level backtest for realistic results
+- Per-stock independent backtests overestimate returns (no capital constraints)
+- Win rate of 40-47% is normal for trend-following strategies
+- CAGR of 18.5% is achieved through position sizing and capital compounding
+- Strategy proven across 17 years including 2008 financial crisis
 
-### Compare Strategy on Symbol
-```bash
-python scripts/compare_strategy.py \
-  --symbol <SYMBOL> \
-  --strategy-module strategies/<STRATEGY_FILE>.py \
-  --strategy-class <StrategyClassName>
-```
+## Support
 
-### Scrape Multi-Timeframe Data
-```bash
-python scripts/hdfc_multi_timeframe_scraper.py
-```
-
-### Scrape Daily Data for 10 Symbols
-```bash
-python scripts/batch_data_scraper.py
-```
-
-### Validate Data Quality
-```bash
-python scripts/validate_data.py
-```
-
----
-
-## Available Strategies
-
-| Strategy File | Class Name | Type | Parameters |
-|---------------|------------|------|------------|
-| `strategies/sma_crossover.py` | `SMACrossoverStrategy` | Momentum | fast_period, slow_period |
-| `strategies/rsi_mean_reversion_india.py` | `RSIMeanReversionIndia` | Mean Reversion | rsi_period, rsi_oversold, rsi_exit, bb_period, bb_std |
-
-See `strategies/README.md` for complete list and templates.
-
----
-
-## Troubleshooting
-
-### Error: "Data file not found"
-**Cause**: CSV file missing for symbol/interval combination
-**Solution**: Check data location:
-- Daily data: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
-- Intraday: `../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
-- Or run scrapers in `scripts/scrapers/` to fetch new data
-
-### Error: "Strategy class 'XXX' not found"
-**Cause**: Class name doesn't match or file path incorrect
-**Solution**: Check exact class name (case-sensitive) and verify file exists
-
-### Error: "Invalid JSON in --strategy-params"
-**Cause**: Malformed JSON string
-**Solution**: Use single quotes around JSON, double quotes inside:
-```bash
---strategy-params '{"fast_period": 10, "slow_period": 30}'
-```
-
-### Error: "No trades executed"
-**Cause**: Strategy conditions not met in timeframe
-**Solution**: Try different timeframe or adjust parameters
-
----
-
-## Next Steps
-
-1. **Run First Backtest**: Use `compare_strategy.py` with HDFCBANK + SMA
-2. **Analyze Results**: Focus on Sharpe ratio and max drawdown
-3. **Optimize Parameters**: Test different parameter combinations
-4. **Validate on Multiple Symbols**: Ensure strategy is robust
-
-See `docs/quick_start/backtest_comparison.md` for a 5-minute quick start guide.
+For questions or issues, refer to:
+- Main documentation: `docs/`
+- Strategy guide: `docs/strategy_development/`
+- CLAUDE.md: Project overview and setup
