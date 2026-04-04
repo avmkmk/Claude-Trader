@@ -4,56 +4,89 @@ This file provides guidance to Claude Code when working in this repository.
 
 ## Project Overview
 
-SimpleTrader is a Python-based algorithmic trading bot for Indian equity markets (NSE/BSE). Supports Nubra and Upstox broker APIs with a complete backtesting framework based on Backtrader. Implements systematic strategy development workflow with templates for momentum, mean reversion, and breakout strategies.
-
-## Quick Links
-
-- **Getting Started**: [Development Workflow](docs/quick_start/development_workflow.md)
-- **Strategy Development**: [Strategy Development Guide](docs/strategy_development/README.md)
-- **Indian Markets**: [Market Essentials](docs/quick_start/market_essentials.md) | [Full Guide](docs/indian_markets/README.md)
-- **Backtesting**: [System Architecture](docs/backtesting/README.md)
-- **Commands**: [Common Commands](docs/quick_start/common_commands.md)
+SimpleTrader is a production-ready algorithmic trading platform for Indian equity markets (NSE/BSE). Features React frontend, FastAPI backend, and supports Nubra and Upstox broker APIs.
 
 ## Project Structure
 
 ```
 SimpleTrader/
-├── main.py                    # Entry point
+├── main.py                    # CLI entry point
 ├── apis/                      # Broker API handlers (Nubra, Upstox)
-├── strategies/                # Strategy templates and implementations
-├── backtesting/              # Data scraper, backtest runner
-├── scripts/                   # Utility scripts (scrapers, validators)
-├── simple-trader-api/         # FastAPI backend
-├── simple-trader-web/         # React frontend
-├── docs/                     # Documentation (see Quick Links)
-│   ├── quick_start/          # 5-minute orientation guides
-│   ├── strategy_development/ # Complete workflow (6 phases)
-│   ├── indian_markets/       # Market-specific rules and patterns
-│   └── backtesting/          # System architecture and guides
-└── historical_Indian_equity_data/  # Historical data (in parent folder)
+├── strategies/                # Trading strategy implementations
+│   ├── ath_reclaim_daily_v1.py       # ATH Reclaim strategy
+│   ├── sma_crossover.py              # SMA crossover
+│   ├── rsi_mean_reversion_india.py   # RSI mean reversion
+│   └── ema_crossover.py              # EMA crossover
+├── backtesting/              # Backtesting engine
+│   ├── backtest_runner.py   # Backtrader orchestration
+│   └── capital_manager.py   # Portfolio capital management
+├── simple-trader-api/        # FastAPI backend
+│   ├── app/
+│   │   ├── main.py         # API entry point
+│   │   ├── routers/        # API endpoints
+│   │   └── services/       # AI and news services
+│   └── data/               # SQLite database
+└── simple-trader-web/       # React frontend
+    ├── src/
+    │   ├── api/           # API client
+    │   ├── pages/         # Page components
+    │   └── components/    # Reusable components
+    └── package.json
+```
+
+## External Resources (Parent Folder)
+
+All documentation, data, and archives are consolidated in a single master folder:
+
+```
+../Professional Journey/Personal Software Projects/
+├── SimpleTrader/              # This repo (production code)
+└── SimpleTraderExternal/      # Master external resources folder
+    ├── data/                  # All historical market data
+    │   ├── daily/
+    │   │   └── eod2/         # 3,318 stocks (daily OHLCV)
+    │   ├── intraday/
+    │   │   ├── corrected/    # Validated intraday data
+    │   │   ├── raw/          # Raw intraday data
+    │   │   └── fno/          # F&O options, futures, index
+    │   ├── stock_lists/      # Stock universe definitions
+    │   └── validation_reports/
+    ├── docs/                  # All documentation
+    │   ├── backtesting/
+    │   ├── indian_markets/
+    │   ├── quick_start/
+    │   ├── strategy_development/
+    │   └── optimization_results/
+    ├── backtest_results/      # All backtest results
+    │   ├── ath_ema200_reclaim_codex/
+    │   ├── batch_backtests/
+    │   ├── research/
+    │   └── vwap_experiments/
+    └── archive/               # Archived code and utilities
+        ├── scripts/
+        ├── data/
+        ├── results/
+        └── tests/
 ```
 
 ## Core Concepts
 
-**Broker APIs**: Nubra (production) and Upstox for market data and order placement. NubraAPIHandler wraps SDK with methods for historical data, WebSocket streaming, and 3-month equity fetching.
+**Broker APIs**: Nubra (production) and Upstox for market data and order placement.
 
-**Backtesting System**: Backtrader-based framework for testing strategies on historical data.
+**Backtesting System**: Backtrader-based framework.
 - Strategies inherit from `bt.Strategy` with `params`, `__init__()`, and `next()` methods
-- BacktestRunner orchestrates execution: load_data → add_strategy → add_analyzers → run → get_metrics
-- Performance metrics: Sharpe ratio (>1.0 target), max drawdown (<15% target), win rate, P&L
-- [Full details →](docs/backtesting/README.md)
+- BacktestRunner orchestrates execution
+- Performance metrics: Sharpe ratio, max drawdown, win rate, P&L
 
-**Strategy Development**: Systematic 6-phase workflow ensures positive PnL in backtests.
-- Research & Selection → Parameter Design → Implementation → Backtesting → Optimization → Validation
-- Templates available: mean reversion (RSI + BB), momentum (MACD + volume), breakout (ATR + volume)
-- [Full workflow →](docs/strategy_development/README.md)
+**Strategy Development**: Systematic workflow ensures positive PnL in backtests.
+- See `../SimpleTrader_Documentation/strategy_development/README.md`
 
-**Indian Market Specifics**: Critical rules for NSE/BSE algorithmic trading.
-- Trading hours: 9:30 AM - 3:30 PM IST (algo window: 9:45 AM - 2:30 PM)
-- Min liquidity: 5 lakh daily volume, prefer Nifty 50 stocks
-- Circuit breakers: ±5/10/20% halts trading (avoid stocks near ±4%)
-- Risk limits: Max 3% per trade, Max 10% per position, -5% daily loss = stop
-- [Full guide →](docs/indian_markets/README.md)
+**Indian Market Specifics**: Critical rules for NSE/BSE.
+- Trading hours: 9:30 AM - 3:30 PM IST
+- Min liquidity: 5 lakh daily volume
+- Circuit breakers: ±5/10/20%
+- Risk limits: 3% per trade, 10% per position, -5% daily loss = stop
+- See `../SimpleTrader_Documentation/indian_markets/README.md`
 
 ## Development Setup
 
@@ -70,7 +103,7 @@ pip install -r requirements.txt
 python -m app.main
 # API runs at http://localhost:8000
 
-# Start React frontend (in another terminal)
+# Start React frontend (new terminal)
 cd simple-trader-web
 npm install
 npm run dev
@@ -79,79 +112,94 @@ npm run dev
 
 ## Configuration
 
-Create `.env` file with broker credentials:
+Create `simple-trader-api/.env`:
 ```
 NUBRA_CLIENT_ID="your_client_id"
 NUBRA_MPIN="your_mpin"
-UPSTOX_ACCESS_TOKEN="your_token"
+GEMINI_API_KEY="your_gemini_key"
+MARKETAUX_API_KEY="your_marketaux_key"
+ALPHA_VANTAGE_API_KEY="your_alphavantage_key"
 ```
 
 ## Key Dependencies
 
-- **backtrader**: Strategy backtesting framework with 100+ indicators
+- **backtrader**: Strategy backtesting framework
 - **fastapi**: REST API backend
 - **react**: Frontend web application
-- **nubra-sdk**: Nubra broker API (NSE/BSE market data)
+- **nubra-sdk**: Nubra broker API
 - **upstox-python-sdk**: Upstox broker API
-- **pandas**: Data manipulation and time series analysis
+- **pandas**: Data manipulation
+- **google-generativeai**: Gemini AI integration
 
 ## Historical Data
 
-Historical data is stored in the parent folder:
-```
-../historical_Indian_equity_data/
-├── daily/eod2/                 # 3318 stocks (daily OHLCV, split-adjusted)
-├── intraday/corrected/         # 55 validated stocks (with corporate actions corrected)
-├── intraday/raw/              # ~556 stocks (use with caution)
-├── intraday/fno/              # Futures & Options data
-│   ├── options/NIFTY/5min/    # 5,786 contracts (2022-2024, 706 MB)
-│   ├── options/NIFTY/15min/   # 5,563 contracts (250 MB)
-│   ├── index/BANKNIFTY/5min/  # 171K candles (2015-2024, 98.9% validated)
-│   ├── index/NIFTY/5min/      # 41K candles (2021-2023, 99.8% validated)
-│   ├── futures/               # Recent futures from Nubra (3 months)
-│   └── daily/                 # NSE bhavcopy 2021-Jul 2024
-└── validation_reports/        # Data validation reports
-```
+All historical data is organized in `../SimpleTraderExternal/data/`:
 
-**For Backtesting:**
-- Daily: `../historical_Indian_equity_data/daily/eod2/{SYMBOL}.csv`
-- Intraday: `../historical_Indian_equity_data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
-- F&O Options: `../historical_Indian_equity_data/intraday/fno/options/NIFTY/{TF}/{CONTRACT}_{TF}.csv`
-- F&O Index: `../historical_Indian_equity_data/intraday/fno/index/{SYMBOL}/{TF}/{SYMBOL}_{TF}.csv`
-- F&O Daily: `../historical_Indian_equity_data/intraday/fno/daily/{SYMBOL}/{YEAR}/fo_bhav_{YEAR}.csv`
+**Daily Data** (3,318 stocks):
+- Path: `../SimpleTraderExternal/data/daily/eod2/{SYMBOL}.csv`
+- Format: CSV with Date, Open, High, Low, Close, Volume
+- Split-adjusted with corporate actions applied
+
+**Intraday Data** (validated stocks):
+- Path: `../SimpleTraderExternal/data/intraday/corrected/{SYMBOL}/{TF}/{TF}.csv`
+- Timeframes: 1min, 5min, 15min, 1hr
+- 55 validated stocks with verified corporate actions
+
+**F&O Data**:
+- Options: `../SimpleTraderExternal/data/intraday/fno/options/{INDEX}/{TF}/{CONTRACT}_{TF}.csv`
+  - 5,786 NIFTY contracts (5min, 2022-2024)
+  - 5,563 contracts (15min)
+- Index: `../SimpleTraderExternal/data/intraday/fno/index/{INDEX}/{TF}/{INDEX}_{TF}.csv`
+  - NIFTY: 41K candles (99.8% validated)
+  - BANKNIFTY: 171K candles (98.9% validated)
+- Futures: `../SimpleTraderExternal/data/intraday/fno/futures/`
+- Daily: `../SimpleTraderExternal/data/intraday/fno/daily/`
+
+**Stock Lists**:
+- `../SimpleTraderExternal/data/stock_lists/nifty_200_constituents.csv`
+- `../SimpleTraderExternal/data/stock_lists/nifty_sector_mapping.csv`
+- `../SimpleTraderExternal/data/stock_lists/nifty_test_set_20.csv`
+
+## Available Strategies
+
+**Production Strategies** (used by API):
+- `ath_reclaim_daily_v1.py` - ATH Reclaim with EMA 200 (18.5% CAGR proven)
+- `sma_crossover.py` - SMA crossover strategy
+- `rsi_mean_reversion_india.py` - RSI mean reversion
+- `ema_crossover.py` - EMA crossover
 
 ## Documentation Index
 
-**Quick Start (5-minute orientation):**
-- [Development Workflow](docs/quick_start/development_workflow.md) - Condensed workflow reference
-- [Market Essentials](docs/quick_start/market_essentials.md) - Critical Indian market rules
-- [Common Commands](docs/quick_start/common_commands.md) - Quick command reference
+**Quick Start:**
+- [Development Workflow](../SimpleTraderExternal/docs/quick_start/development_workflow.md)
+- [Market Essentials](../SimpleTraderExternal/docs/quick_start/market_essentials.md)
+- [Common Commands](../SimpleTraderExternal/docs/quick_start/common_commands.md)
 
 **Strategy Development:**
-- [Complete Workflow](docs/strategy_development/README.md) - 6-phase systematic process
-- [Phase 1: Research & Selection](docs/strategy_development/research_selection.md)
-- [Phase 2: Parameter Design](docs/strategy_development/parameter_design.md)
-- [Phase 3: Implementation](docs/strategy_development/implementation.md)
-- [Phase 4: Backtesting](docs/strategy_development/backtesting.md)
-- [Phase 5: Optimization](docs/strategy_development/optimization.md)
-- [Phase 6: Validation](docs/strategy_development/validation.md)
+- [Complete Workflow](../SimpleTraderExternal/docs/strategy_development/README.md)
+- [Phase 1: Research & Selection](../SimpleTraderExternal/docs/strategy_development/research_selection.md)
+- [Phase 2: Parameter Design](../SimpleTraderExternal/docs/strategy_development/parameter_design.md)
+- [Phase 3: Implementation](../SimpleTraderExternal/docs/strategy_development/implementation.md)
+- [Phase 4: Backtesting](../SimpleTraderExternal/docs/strategy_development/backtesting.md)
+- [Phase 5: Optimization](../SimpleTraderExternal/docs/strategy_development/optimization.md)
+- [Phase 6: Validation](../SimpleTraderExternal/docs/strategy_development/validation.md)
 
 **Indian Markets:**
-- [Indian Market Trading Guide](docs/indian_markets/README.md) - Complete reference
-- [Trading Hours](docs/indian_markets/trading_hours.md) - Sessions and best windows
-- [Liquidity Requirements](docs/indian_markets/liquidity.md) - Volume and position limits
-- [Circuit Breakers](docs/indian_markets/circuit_breakers.md) - Price bands and halts
-- [Volatility Patterns](docs/indian_markets/volatility.md) - Intraday/weekly/seasonal
-- [Risk Management](docs/indian_markets/risk_management.md) - Position sizing and stops
-- [High-Impact Events](docs/indian_markets/events.md) - RBI, Budget, Elections
+- [Complete Guide](../SimpleTraderExternal/docs/indian_markets/README.md)
+- [Trading Hours](../SimpleTraderExternal/docs/indian_markets/trading_hours.md)
+- [Liquidity Requirements](../SimpleTraderExternal/docs/indian_markets/liquidity.md)
+- [Circuit Breakers](../SimpleTraderExternal/docs/indian_markets/circuit_breakers.md)
+- [Risk Management](../SimpleTraderExternal/docs/indian_markets/risk_management.md)
 
-**Backtesting System:**
-- [System Architecture](docs/backtesting/README.md) - Components and data flow
-- [Architecture Details](docs/backtesting/architecture.md) - BacktestRunner API
-- [Creating Strategies](docs/backtesting/creating_strategies.md) - Implementation patterns
+**Backtesting:**
+- [System Architecture](../SimpleTraderExternal/docs/backtesting/README.md)
+- [Architecture Details](../SimpleTraderExternal/docs/backtesting/architecture.md)
+- [Creating Strategies](../SimpleTraderExternal/docs/backtesting/creating_strategies.md)
 
-**Strategy Templates:**
-- [Template Usage](strategies/README.md) - How to use and customize templates
-- Mean Reversion: `strategies/templates/mean_reversion_template.py`
-- Momentum: `strategies/templates/momentum_template.py`
-- Breakout: `strategies/templates/breakout_template.py`
+## Important Notes
+
+- Only modify code in this repository
+- All external resources are in `../SimpleTraderExternal/` (read-only for data/docs)
+- Save new backtest results to `../SimpleTraderExternal/backtest_results/{STRATEGY}/{DATE}/`
+- Archive old/experimental code to `../SimpleTraderExternal/archive/`
+- See `../SimpleTraderExternal/README.md` for complete data paths and structure

@@ -10,12 +10,12 @@ class BacktestRunner:
     strategy execution, and performance metrics
     """
 
-    def __init__(self, initial_cash=5000000, data_dir=None):
+    def __init__(self, initial_cash=100000, data_dir=None):
         """
         Initialize backtest runner
 
         Args:
-            initial_cash: Starting portfolio value (default: 50 lakhs / 5 million for Indian equities)
+            initial_cash: Starting portfolio value (default: 1 lakh / 1 million for Indian equities)
             data_dir: Path to data directory (default: project/data/)
         """
         self.cerebro = bt.Cerebro()
