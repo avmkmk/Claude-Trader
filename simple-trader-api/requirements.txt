@@ -8,3 +8,4 @@ selenium==4.17.2
 webdriver-manager==4.0.1
 pandas>=1.5.0
 numpy>=1.24.0
+filelock>=3.13.0  # Cross-platform file locking
