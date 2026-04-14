@@ -1,0 +1,1121 @@
+- generic [ref=e6]:
+  - generic [ref=e7]:
+    - generic [ref=e10]:
+      - generic [ref=e12]: Markets will be closed Tomorrow for Dr. Baba Saheb Ambedkar Jayanti.
+      - button "Dismiss this notice" [ref=e13] [cursor=pointer]:
+        - button [ref=e14]
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - link "Chartink Logo" [ref=e20] [cursor=pointer]:
+          - /url: /
+          - img "Chartink Logo" [ref=e21]
+        - generic [ref=e22]:
+          - textbox "Chart Search..." [ref=e23]
+          - button [ref=e24] [cursor=pointer]
+      - generic [ref=e26]:
+        - link "Atlas" [ref=e27] [cursor=pointer]:
+          - /url: /atlas
+        - link "Screens" [ref=e29] [cursor=pointer]:
+          - /url: /screeners
+        - link "Charts" [ref=e31] [cursor=pointer]:
+          - /url: /stocks-new
+        - link "Dashboard" [ref=e33] [cursor=pointer]:
+          - /url: /scan_dashboard
+        - link "Premium" [ref=e34] [cursor=pointer]:
+          - /url: /subscription
+        - link "Help" [ref=e35] [cursor=pointer]:
+          - /url: /articles/contact-us
+        - link "Sign in" [ref=e37] [cursor=pointer]:
+          - /url: /login
+        - generic "System Theme" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: System
+          - button [ref=e40]
+      - text:  
+  - text:  +      +
+  - generic [ref=e43]:
+    - generic [ref=e44]:
+      - link "New LIVE Alerts now available!" [ref=e46] [cursor=pointer]:
+        - /url: /subscription
+      - generic [ref=e47]:
+        - link "Scanner Guide" [ref=e48] [cursor=pointer]:
+          - /url: /articles/scanner/scanner-user-guide
+          - generic [ref=e49]: Scanner
+          - text: Guide
+        - link "Scan Examples" [ref=e50] [cursor=pointer]:
+          - /url: /screeners
+        - link "Feedback" [ref=e51] [cursor=pointer]:
+          - /url: /articles/contact-us
+    - separator [ref=e52]
+    - generic [ref=e54]: Stage 2 Trend Template
+  - generic [ref=e55]:
+    - generic [ref=e56]: Stage 2 Trend Template
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - img [ref=e61]
+            - generic [ref=e64]: Magic Filters
+          - generic [ref=e65]:
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - text: 
+                - generic [ref=e69]: Append
+              - generic [ref=e70] [cursor=pointer]:
+                - text: 
+                - generic [ref=e71]: Replace
+            - button "Draw" [ref=e72] [cursor=pointer]:
+              - generic [ref=e73]: 
+              - generic [ref=e74]: Draw
+            - textbox "Scan stocks using simple language like 'stocks up by 4% and rising volume'" [ref=e76]
+            - button "Generate" [ref=e77] [cursor=pointer]:
+              - button [ref=e78]
+              - generic [ref=e81]: Generate
+        - generic [ref=e82]:
+          - generic [ref=e83] [cursor=pointer]:
+            - generic [ref=e84]: YoY sales greater than 20%
+            - img [ref=e86]
+          - generic [ref=e89] [cursor=pointer]:
+            - generic [ref=e90]: stocks at 52 week high
+            - img [ref=e92]
+          - generic [ref=e95] [cursor=pointer]:
+            - generic [ref=e96]: Green candle on 15-min
+            - img [ref=e98]
+          - generic [ref=e101] [cursor=pointer]:
+            - generic [ref=e102]: EPS greater than 0
+            - img [ref=e104]
+      - separator [ref=e107]
+      - generic [ref=e111]:
+        - generic [ref=e115]:
+          - generic [ref=e116]: Stock
+          - generic [ref=e117]: passes
+          - generic [ref=e118]: all
+          - generic [ref=e119]: of the below filters
+          - generic [ref=e120]: in
+          - generic [ref=e121]: cash
+          - generic [ref=e122]: "segment:"
+          - generic [ref=e123]:
+            - button [ref=e125] [cursor=pointer]
+            - button [ref=e129] [cursor=pointer]
+        - list [ref=e133]:
+          - listitem [ref=e134]:
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - generic [ref=e138]: Daily
+                - generic [ref=e141]:
+                  - generic [ref=e142]: Close
+                  - button [ref=e144] [cursor=pointer]
+                - generic [ref=e147]: Greater than
+                - generic [ref=e148]:
+                  - generic [ref=e150]: Daily
+                  - generic [ref=e151]:
+                    - generic [ref=e153]:
+                      - generic [ref=e154]: Sma
+                      - button [ref=e156] [cursor=pointer]
+                    - generic [ref=e159]:
+                      - text: (
+                      - generic [ref=e162]: close,150
+                      - text: )
+                  - button [ref=e164] [cursor=pointer]
+              - generic [ref=e168]:
+                - button [ref=e170] [cursor=pointer]
+                - button [ref=e174] [cursor=pointer]
+                - button [ref=e178] [cursor=pointer]
+                - button [ref=e182] [cursor=pointer]
+                - button [ref=e186] [cursor=pointer]
+          - listitem [ref=e188]:
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - generic [ref=e192]: Daily
+                - generic [ref=e195]:
+                  - generic [ref=e196]: Close
+                  - button [ref=e198] [cursor=pointer]
+                - generic [ref=e201]: Greater than
+                - generic [ref=e202]:
+                  - generic [ref=e204]: Daily
+                  - generic [ref=e205]:
+                    - generic [ref=e207]:
+                      - generic [ref=e208]: Sma
+                      - button [ref=e210] [cursor=pointer]
+                    - generic [ref=e213]:
+                      - text: (
+                      - generic [ref=e216]: close,200
+                      - text: )
+                  - button [ref=e218] [cursor=pointer]
+              - generic [ref=e222]:
+                - button [ref=e224] [cursor=pointer]
+                - button [ref=e228] [cursor=pointer]
+                - button [ref=e232] [cursor=pointer]
+                - button [ref=e236] [cursor=pointer]
+                - button [ref=e240] [cursor=pointer]
+          - listitem [ref=e242]:
+            - generic [ref=e243]:
+              - generic [ref=e244]:
+                - generic [ref=e246]: Daily
+                - generic [ref=e247]:
+                  - generic [ref=e249]:
+                    - generic [ref=e250]: Sma
+                    - button [ref=e252] [cursor=pointer]
+                  - generic [ref=e255]:
+                    - text: (
+                    - generic [ref=e258]: close,150
+                    - text: )
+                - generic [ref=e259]: Greater than
+                - generic [ref=e260]:
+                  - generic [ref=e262]: Daily
+                  - generic [ref=e263]:
+                    - generic [ref=e265]:
+                      - generic [ref=e266]: Sma
+                      - button [ref=e268] [cursor=pointer]
+                    - generic [ref=e271]:
+                      - text: (
+                      - generic [ref=e274]: close,200
+                      - text: )
+                  - button [ref=e276] [cursor=pointer]
+              - generic [ref=e280]:
+                - button [ref=e282] [cursor=pointer]
+                - button [ref=e286] [cursor=pointer]
+                - button [ref=e290] [cursor=pointer]
+                - button [ref=e294] [cursor=pointer]
+                - button [ref=e298] [cursor=pointer]
+          - listitem [ref=e300]:
+            - generic [ref=e301]:
+              - generic [ref=e305]:
+                - generic [ref=e306]: Stock
+                - generic [ref=e307]: passes
+                - generic [ref=e308]: any 1
+                - generic [ref=e309]: of the below filters
+                - generic [ref=e310]: in
+                - generic [ref=e311]: cash
+                - generic [ref=e312]: "segment:"
+                - generic [ref=e313]:
+                  - button [ref=e315] [cursor=pointer]
+                  - button [ref=e319] [cursor=pointer]
+                  - button [ref=e323] [cursor=pointer]
+                  - button [ref=e327] [cursor=pointer]
+                  - button [ref=e331] [cursor=pointer]
+              - list [ref=e334]:
+                - listitem [ref=e335]:
+                  - generic [ref=e336]:
+                    - generic [ref=e337]:
+                      - generic [ref=e339]: Daily
+                      - generic [ref=e340]:
+                        - generic [ref=e342]:
+                          - generic [ref=e343]: Sma
+                          - button [ref=e345] [cursor=pointer]
+                        - generic [ref=e348]:
+                          - text: (
+                          - generic [ref=e351]: close,200
+                          - text: )
+                      - generic [ref=e352]: Greater than
+                      - generic [ref=e353]:
+                        - generic [ref=e354]:
+                          - generic [ref=e356]:
+                            - generic [ref=e357]: Bracket
+                            - button [ref=e359] [cursor=pointer]
+                          - generic [ref=e362]:
+                            - text: (
+                            - generic [ref=e365]:
+                              - generic [ref=e367]: 20 days ago
+                              - generic [ref=e368]:
+                                - generic [ref=e370]:
+                                  - generic [ref=e371]: Sma
+                                  - button [ref=e373] [cursor=pointer]
+                                - generic [ref=e376]:
+                                  - text: (
+                                  - generic [ref=e379]: close,200
+                                  - text: )
+                              - button [ref=e381] [cursor=pointer]
+                            - text: )
+                        - button [ref=e385] [cursor=pointer]
+                    - generic [ref=e389]:
+                      - button [ref=e391] [cursor=pointer]
+                      - button [ref=e395] [cursor=pointer]
+                      - button [ref=e399] [cursor=pointer]
+                      - button [ref=e403] [cursor=pointer]
+                      - button [ref=e407] [cursor=pointer]
+                - listitem [ref=e409]:
+                  - generic [ref=e410]:
+                    - generic [ref=e411]:
+                      - generic [ref=e413]: Daily
+                      - generic [ref=e414]:
+                        - generic [ref=e416]:
+                          - generic [ref=e417]: Sma
+                          - button [ref=e419] [cursor=pointer]
+                        - generic [ref=e422]:
+                          - text: (
+                          - generic [ref=e425]: close,200
+                          - text: )
+                      - generic [ref=e426]: Greater than
+                      - generic [ref=e427]:
+                        - generic [ref=e428]:
+                          - generic [ref=e430]:
+                            - generic [ref=e431]: Bracket
+                            - button [ref=e433] [cursor=pointer]
+                          - generic [ref=e436]:
+                            - text: (
+                            - generic [ref=e439]:
+                              - generic [ref=e441]: 80 days ago
+                              - generic [ref=e442]:
+                                - generic [ref=e444]:
+                                  - generic [ref=e445]: Sma
+                                  - button [ref=e447] [cursor=pointer]
+                                - generic [ref=e450]:
+                                  - text: (
+                                  - generic [ref=e453]: close,200
+                                  - text: )
+                              - button [ref=e455] [cursor=pointer]
+                            - text: )
+                        - button [ref=e459] [cursor=pointer]
+                    - generic [ref=e463]:
+                      - button [ref=e465] [cursor=pointer]
+                      - button [ref=e469] [cursor=pointer]
+                      - button [ref=e473] [cursor=pointer]
+                      - button [ref=e477] [cursor=pointer]
+                      - button [ref=e481] [cursor=pointer]
+                - listitem [ref=e483]:
+                  - generic [ref=e484]:
+                    - generic [ref=e485]:
+                      - generic [ref=e487]: Daily
+                      - generic [ref=e488]:
+                        - generic [ref=e490]:
+                          - generic [ref=e491]: Sma
+                          - button [ref=e493] [cursor=pointer]
+                        - generic [ref=e496]:
+                          - text: (
+                          - generic [ref=e499]: close,200
+                          - text: )
+                      - generic [ref=e500]: Greater than
+                      - generic [ref=e501]:
+                        - generic [ref=e502]:
+                          - generic [ref=e504]:
+                            - generic [ref=e505]: Bracket
+                            - button [ref=e507] [cursor=pointer]
+                          - generic [ref=e510]:
+                            - text: (
+                            - generic [ref=e513]:
+                              - generic [ref=e515]: 100 days ago
+                              - generic [ref=e516]:
+                                - generic [ref=e518]:
+                                  - generic [ref=e519]: Sma
+                                  - button [ref=e521] [cursor=pointer]
+                                - generic [ref=e524]:
+                                  - text: (
+                                  - generic [ref=e527]: close,200
+                                  - text: )
+                              - button [ref=e529] [cursor=pointer]
+                            - text: )
+                        - button [ref=e533] [cursor=pointer]
+                    - generic [ref=e537]:
+                      - button [ref=e539] [cursor=pointer]
+                      - button [ref=e543] [cursor=pointer]
+                      - button [ref=e547] [cursor=pointer]
+                      - button [ref=e551] [cursor=pointer]
+                      - button [ref=e555] [cursor=pointer]
+                - listitem [ref=e557]:
+                  - button [ref=e560] [cursor=pointer]
+                  - button [ref=e564] [cursor=pointer]
+          - listitem [ref=e567]:
+            - generic [ref=e568]:
+              - generic [ref=e569]:
+                - generic [ref=e571]: Daily
+                - generic [ref=e572]:
+                  - generic [ref=e574]:
+                    - generic [ref=e575]: Sma
+                    - button [ref=e577] [cursor=pointer]
+                  - generic [ref=e580]:
+                    - text: (
+                    - generic [ref=e583]: close,50
+                    - text: )
+                - generic [ref=e584]: Greater than
+                - generic [ref=e585]:
+                  - generic [ref=e587]: Daily
+                  - generic [ref=e588]:
+                    - generic [ref=e590]:
+                      - generic [ref=e591]: Sma
+                      - button [ref=e593] [cursor=pointer]
+                    - generic [ref=e596]:
+                      - text: (
+                      - generic [ref=e599]: close,150
+                      - text: )
+                  - button [ref=e601] [cursor=pointer]
+              - generic [ref=e605]:
+                - button [ref=e607] [cursor=pointer]
+                - button [ref=e611] [cursor=pointer]
+                - button [ref=e615] [cursor=pointer]
+                - button [ref=e619] [cursor=pointer]
+                - button [ref=e623] [cursor=pointer]
+          - listitem [ref=e625]:
+            - generic [ref=e626]:
+              - generic [ref=e627]:
+                - generic [ref=e628]:
+                  - generic [ref=e630]:
+                    - generic [ref=e631]: Bracket
+                    - button [ref=e633] [cursor=pointer]
+                  - generic [ref=e636]:
+                    - text: (
+                    - generic [ref=e639]:
+                      - generic [ref=e641]: Weekly
+                      - generic [ref=e642]:
+                        - generic [ref=e644]:
+                          - generic [ref=e645]: Min
+                          - button [ref=e647] [cursor=pointer]
+                        - generic [ref=e650]:
+                          - text: (
+                          - generic [ref=e651]:
+                            - generic [ref=e653]: "52"
+                            - text: ","
+                          - generic [ref=e656]:
+                            - generic [ref=e658]: Weekly
+                            - generic [ref=e661]:
+                              - generic [ref=e662]: Low
+                              - button [ref=e664] [cursor=pointer]
+                            - button [ref=e668] [cursor=pointer]
+                          - text: )
+                      - button [ref=e672] [cursor=pointer]
+                    - text: )
+                - generic [ref=e675]: "*"
+                - generic [ref=e676]:
+                  - generic [ref=e677]:
+                    - generic [ref=e678]: Number
+                    - generic [ref=e682]: "1.5"
+                  - generic [ref=e683]: Less than equal to
+                  - generic [ref=e684]:
+                    - generic [ref=e686]: Daily
+                    - generic [ref=e689]:
+                      - generic [ref=e690]: Low
+                      - button [ref=e692] [cursor=pointer]
+                    - button [ref=e696] [cursor=pointer]
+              - generic [ref=e700]:
+                - button [ref=e702] [cursor=pointer]
+                - button [ref=e706] [cursor=pointer]
+                - button [ref=e710] [cursor=pointer]
+                - button [ref=e714] [cursor=pointer]
+                - button [ref=e718] [cursor=pointer]
+          - listitem [ref=e720]:
+            - generic [ref=e721]:
+              - generic [ref=e722]:
+                - generic [ref=e723]:
+                  - generic [ref=e725]:
+                    - generic [ref=e726]: Bracket
+                    - button [ref=e728] [cursor=pointer]
+                  - generic [ref=e731]:
+                    - text: (
+                    - generic [ref=e734]:
+                      - generic [ref=e736]: Weekly
+                      - generic [ref=e737]:
+                        - generic [ref=e739]:
+                          - generic [ref=e740]: Max
+                          - button [ref=e742] [cursor=pointer]
+                        - generic [ref=e745]:
+                          - text: (
+                          - generic [ref=e746]:
+                            - generic [ref=e748]: "52"
+                            - text: ","
+                          - generic [ref=e751]:
+                            - generic [ref=e753]: Weekly
+                            - generic [ref=e756]:
+                              - generic [ref=e757]: High
+                              - button [ref=e759] [cursor=pointer]
+                            - button [ref=e763] [cursor=pointer]
+                          - text: )
+                      - button [ref=e767] [cursor=pointer]
+                    - text: )
+                - generic [ref=e770]: "*"
+                - generic [ref=e771]:
+                  - generic [ref=e772]:
+                    - generic [ref=e773]: Number
+                    - generic [ref=e777]: "0.75"
+                  - generic [ref=e778]: Less than equal to
+                  - generic [ref=e779]:
+                    - generic [ref=e781]: Daily
+                    - generic [ref=e784]:
+                      - generic [ref=e785]: High
+                      - button [ref=e787] [cursor=pointer]
+                    - button [ref=e791] [cursor=pointer]
+              - generic [ref=e795]:
+                - button [ref=e797] [cursor=pointer]
+                - button [ref=e801] [cursor=pointer]
+                - button [ref=e805] [cursor=pointer]
+                - button [ref=e809] [cursor=pointer]
+                - button [ref=e813] [cursor=pointer]
+          - listitem [ref=e815]:
+            - generic [ref=e816]:
+              - generic [ref=e817]:
+                - generic [ref=e819]: Daily
+                - generic [ref=e822]:
+                  - generic [ref=e823]: Close
+                  - button [ref=e825] [cursor=pointer]
+                - generic [ref=e828]: Greater than
+                - generic [ref=e829]:
+                  - generic [ref=e830]:
+                    - generic [ref=e831]: Number
+                    - generic [ref=e835]: "10"
+                  - button [ref=e837] [cursor=pointer]
+              - generic [ref=e841]:
+                - button [ref=e843] [cursor=pointer]
+                - button [ref=e847] [cursor=pointer]
+                - button [ref=e851] [cursor=pointer]
+                - button [ref=e855] [cursor=pointer]
+                - button [ref=e859] [cursor=pointer]
+          - listitem [ref=e861]:
+            - generic [ref=e862]:
+              - generic [ref=e863]:
+                - generic [ref=e865]: Daily
+                - generic [ref=e868]:
+                  - generic [ref=e869]: Close
+                  - button [ref=e871] [cursor=pointer]
+                - generic [ref=e874]: "*"
+                - generic [ref=e875]:
+                  - generic [ref=e877]: Daily
+                  - generic [ref=e878]:
+                    - generic [ref=e880]:
+                      - generic [ref=e881]: Sma
+                      - button [ref=e883] [cursor=pointer]
+                    - generic [ref=e886]:
+                      - text: (
+                      - generic [ref=e889]: volume,50
+                      - text: )
+                  - generic [ref=e890]: Greater than
+                  - generic [ref=e891]:
+                    - generic [ref=e892]:
+                      - generic [ref=e893]: Number
+                      - generic [ref=e897]: "1000000"
+                    - button [ref=e899] [cursor=pointer]
+              - generic [ref=e903]:
+                - button [ref=e905] [cursor=pointer]
+                - button [ref=e909] [cursor=pointer]
+                - button [ref=e913] [cursor=pointer]
+                - button [ref=e917] [cursor=pointer]
+                - button [ref=e921] [cursor=pointer]
+          - listitem [ref=e923]:
+            - generic [ref=e924]:
+              - generic [ref=e925]:
+                - generic [ref=e927]: Daily
+                - generic [ref=e930]:
+                  - generic [ref=e931]: Close
+                  - button [ref=e933] [cursor=pointer]
+                - generic [ref=e936]: Greater than
+                - generic [ref=e937]:
+                  - generic [ref=e939]: Daily
+                  - generic [ref=e940]:
+                    - generic [ref=e942]:
+                      - generic [ref=e943]: Sma
+                      - button [ref=e945] [cursor=pointer]
+                    - generic [ref=e948]:
+                      - text: (
+                      - generic [ref=e951]: close,50
+                      - text: )
+                  - button [ref=e953] [cursor=pointer]
+              - generic [ref=e957]:
+                - button [ref=e959] [cursor=pointer]
+                - button [ref=e963] [cursor=pointer]
+                - button [ref=e967] [cursor=pointer]
+                - button [ref=e971] [cursor=pointer]
+                - button [ref=e975] [cursor=pointer]
+          - listitem [ref=e977]:
+            - generic [ref=e978]:
+              - generic [ref=e979]:
+                - generic [ref=e981]: Daily
+                - generic [ref=e984]:
+                  - generic [ref=e985]: Volume
+                  - button [ref=e987] [cursor=pointer]
+                - generic [ref=e990]: Greater than
+                - generic [ref=e991]:
+                  - generic [ref=e992]:
+                    - generic [ref=e993]: Number
+                    - generic [ref=e997]: "0"
+                  - button [ref=e999] [cursor=pointer]
+              - generic [ref=e1003]:
+                - button [ref=e1005] [cursor=pointer]
+                - button [ref=e1009] [cursor=pointer]
+                - button [ref=e1013] [cursor=pointer]
+                - button [ref=e1017] [cursor=pointer]
+                - button [ref=e1021] [cursor=pointer]
+          - listitem [ref=e1023]:
+            - button [ref=e1026] [cursor=pointer]
+            - button [ref=e1030] [cursor=pointer]
+      - generic [ref=e1033]:
+        - generic [ref=e1034]:
+          - generic "Click to run scan" [ref=e1035] [cursor=pointer]:
+            - generic [ref=e1036]:
+              - button [ref=e1037]
+              - generic [ref=e1040]: Run Scan
+          - generic "Save Scan" [ref=e1041] [cursor=pointer]:
+            - generic [ref=e1042]:
+              - generic [ref=e1043]: 
+              - generic [ref=e1044]: Save Scan
+          - generic "Go to backtest results" [ref=e1045] [cursor=pointer]:
+            - generic [ref=e1046]:
+              - generic [ref=e1047]: 
+              - generic [ref=e1048]: Backtest Results
+          - generic [ref=e1050] [cursor=pointer]:
+            - generic [ref=e1051]: 
+            - generic [ref=e1052]: Create Alert
+          - generic "Click to display all buttons" [ref=e1054] [cursor=pointer]:
+            - generic [ref=e1055]: More
+            - generic [ref=e1056]:
+              - generic [ref=e1058]: 
+              - generic [ref=e1060]: 
+          - generic [ref=e1061]:
+            - generic [ref=e1062]: 
+            - generic [ref=e1063]:
+              - text: "58"
+              - generic [ref=e1064]: people love this
+        - alert [ref=e1066]:
+          - generic [ref=e1067]:
+            - text: Get Realtime data for scanner in our
+            - link "premium subscription." [ref=e1068] [cursor=pointer]:
+              - /url: /subscription
+    - insertion [ref=e1070]:
+      - iframe [ref=e1072]:
+        - generic [active] [ref=f2e1]:
+          - generic [ref=f2e6]:
+            - generic [ref=f2e7]:
+              - generic "wavebasis.com/bitcoin" [ref=f2e8]:
+                - link "Advanced Elliott Wave Software - Technical Analysis Platform" [ref=f2e9] [cursor=pointer]:
+                  - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CiuQXVd7cac65MLKbssUPpoeM6QnX8MCzhgHZopSnkRDS4dLgsgEQASDkr8sJYOXq4wOgAe_0i_cCyAEBqAMByAPDBKoEpwJP0BLzQJLXyZhLiLlrQO9PlAtDIVOnXRTAmj22JMN7Y5XfC51b5s6IU2HDuF2ISeLT_fX-SFuf9RRH8ojZkPgaOu4IN1KOKeVxblR1uBZt20jBj7oVKbA2TzU-FIvTJNe272gMTdNW2az_LK31IIjfiPTBTD_O2dCFZ5LoHCN3ybSAvte9Q19Hl1Ooi0i0r0YZ-tmODY_gDDq5m9uhPyHMG0QppQ53DrnwvksPoKO8R3xQ1QDnEEALf6Loi3e9oqGsPPG7MCwUF8kCDVHUhvv8c8qNF2DOJVoDETiwTo5cI8xJXAfY331wUxKpTBhrBFyf31MKjW_7X3BZgyTaAMb1PcTvsvEitCz1ehTB8Bfhzf6pSAQP6YIs5QqC4CWDXtKsHg9HB5h2wATjn8aoiASIBd7tma4ooAZRgAf5ivSIAagHp8yxAqgHpr4bqAfMzrECqAfz0RuoB5bYG6gHqpuxAqgHjs4bqAeT2BuoB_DgG6gH7paxAqgH_p6xAqgHr76xAqgHmuGxAqgH1ckbqAfZtrECqAeaBqgH_56xAqgH35-xAqgH-MKxAqgH-8KxAtgHAdIILwiAYRABGJ8DMgiKgoCAgICACDoNgECAwICAgICogAKoA0i9_cE6WPqWwvzm6pMDsQl7Uy2Rl-l2ioAKAZgLAcgLAaoNAklOyA0B6g0TCNe8wvzm6pMDFbKNrAIdpgMjnfANAogOCdgTDNAVAcoWAgoA-BYBgBcBshcQGAEqCjk2NTYzNzc1MzBQBroXAjgBqhgXCQAAAACElhNBEgo5NjU2Mzc3NTMwGAGyGAkSAqtcGFEiAQDQGAHCGQIIAQ&ae=1&gclid=EAIaIQobChMIjrjC_ObqkwMVso2sAh2mAyOdEAEYASAAEgKievD_BwE&num=1&cid=CAQS_AEABaugfb6PfBlmO6bBvkCDPDhTN9OGIUP1uc9E27mBiSyWO-rKSim7mukWj6deXDQorrslCOi9ExaD6vpEuqlv2ueSswC6OrEDNlobU1-2QP3R7VHiT4ZK9-kHi9qLWqy2fMZqFG45NkFqux0OUKam5FP4JU9T_-SrWDtnOMrIU743_D7j1pB13naV8NMvhIk-WU7zDljtfH0sK3GXFC8RB1LaI3aS1HUamjKJEAkcJHIXjL04ITXdPQ6nZ1jBbUM5r8K6QgToNKxZaFNFNlbd5cjgdemwld8z9KqCV5hjZh8s9X-OTZDas2LYNSz1pzc16sTrzxG0xbLiFgAYAQ&sig=AOD64_2cbU7kIsVKV1IIoOCg97W4pdbjyg&client=ca-pub-0463152717119457&rf=1&nb=0&adurl=https://wavebasis.com%3Fgad_source%3D5%26gad_campaignid%3D10834310878%26gclid%3DEAIaIQobChMIjrjC_ObqkwMVso2sAh2mAyOdEAEYASAAEgKievD_BwE
+              - link "Detect and analyze Elliott Wave patterns like a pro. Exclusive tools & automation. wavebasis.com/bitcoin" [ref=f2e11] [cursor=pointer]:
+                - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CiuQXVd7cac65MLKbssUPpoeM6QnX8MCzhgHZopSnkRDS4dLgsgEQASDkr8sJYOXq4wOgAe_0i_cCyAEBqAMByAPDBKoEpwJP0BLzQJLXyZhLiLlrQO9PlAtDIVOnXRTAmj22JMN7Y5XfC51b5s6IU2HDuF2ISeLT_fX-SFuf9RRH8ojZkPgaOu4IN1KOKeVxblR1uBZt20jBj7oVKbA2TzU-FIvTJNe272gMTdNW2az_LK31IIjfiPTBTD_O2dCFZ5LoHCN3ybSAvte9Q19Hl1Ooi0i0r0YZ-tmODY_gDDq5m9uhPyHMG0QppQ53DrnwvksPoKO8R3xQ1QDnEEALf6Loi3e9oqGsPPG7MCwUF8kCDVHUhvv8c8qNF2DOJVoDETiwTo5cI8xJXAfY331wUxKpTBhrBFyf31MKjW_7X3BZgyTaAMb1PcTvsvEitCz1ehTB8Bfhzf6pSAQP6YIs5QqC4CWDXtKsHg9HB5h2wATjn8aoiASIBd7tma4ooAZRgAf5ivSIAagHp8yxAqgHpr4bqAfMzrECqAfz0RuoB5bYG6gHqpuxAqgHjs4bqAeT2BuoB_DgG6gH7paxAqgH_p6xAqgHr76xAqgHmuGxAqgH1ckbqAfZtrECqAeaBqgH_56xAqgH35-xAqgH-MKxAqgH-8KxAtgHAdIILwiAYRABGJ8DMgiKgoCAgICACDoNgECAwICAgICogAKoA0i9_cE6WPqWwvzm6pMDsQl7Uy2Rl-l2ioAKAZgLAcgLAaoNAklOyA0B6g0TCNe8wvzm6pMDFbKNrAIdpgMjnfANAogOCdgTDNAVAcoWAgoA-BYBgBcBshcQGAEqCjk2NTYzNzc1MzBQBroXAjgBqhgXCQAAAACElhNBEgo5NjU2Mzc3NTMwGAGyGAkSAqtcGFEiAQDQGAHCGQIIAQ&ae=1&gclid=EAIaIQobChMIjrjC_ObqkwMVso2sAh2mAyOdEAEYASAAEgKievD_BwE&num=1&cid=CAQS_AEABaugfb6PfBlmO6bBvkCDPDhTN9OGIUP1uc9E27mBiSyWO-rKSim7mukWj6deXDQorrslCOi9ExaD6vpEuqlv2ueSswC6OrEDNlobU1-2QP3R7VHiT4ZK9-kHi9qLWqy2fMZqFG45NkFqux0OUKam5FP4JU9T_-SrWDtnOMrIU743_D7j1pB13naV8NMvhIk-WU7zDljtfH0sK3GXFC8RB1LaI3aS1HUamjKJEAkcJHIXjL04ITXdPQ6nZ1jBbUM5r8K6QgToNKxZaFNFNlbd5cjgdemwld8z9KqCV5hjZh8s9X-OTZDas2LYNSz1pzc16sTrzxG0xbLiFgAYAQ&sig=AOD64_2cbU7kIsVKV1IIoOCg97W4pdbjyg&client=ca-pub-0463152717119457&rf=1&nb=7&adurl=https://wavebasis.com%3Fgad_source%3D5%26gad_campaignid%3D10834310878%26gclid%3DEAIaIQobChMIjrjC_ObqkwMVso2sAh2mAyOdEAEYASAAEgKievD_BwE
+            - link "OPEN" [ref=f2e14] [cursor=pointer]:
+              - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CiuQXVd7cac65MLKbssUPpoeM6QnX8MCzhgHZopSnkRDS4dLgsgEQASDkr8sJYOXq4wOgAe_0i_cCyAEBqAMByAPDBKoEpwJP0BLzQJLXyZhLiLlrQO9PlAtDIVOnXRTAmj22JMN7Y5XfC51b5s6IU2HDuF2ISeLT_fX-SFuf9RRH8ojZkPgaOu4IN1KOKeVxblR1uBZt20jBj7oVKbA2TzU-FIvTJNe272gMTdNW2az_LK31IIjfiPTBTD_O2dCFZ5LoHCN3ybSAvte9Q19Hl1Ooi0i0r0YZ-tmODY_gDDq5m9uhPyHMG0QppQ53DrnwvksPoKO8R3xQ1QDnEEALf6Loi3e9oqGsPPG7MCwUF8kCDVHUhvv8c8qNF2DOJVoDETiwTo5cI8xJXAfY331wUxKpTBhrBFyf31MKjW_7X3BZgyTaAMb1PcTvsvEitCz1ehTB8Bfhzf6pSAQP6YIs5QqC4CWDXtKsHg9HB5h2wATjn8aoiASIBd7tma4ooAZRgAf5ivSIAagHp8yxAqgHpr4bqAfMzrECqAfz0RuoB5bYG6gHqpuxAqgHjs4bqAeT2BuoB_DgG6gH7paxAqgH_p6xAqgHr76xAqgHmuGxAqgH1ckbqAfZtrECqAeaBqgH_56xAqgH35-xAqgH-MKxAqgH-8KxAtgHAdIILwiAYRABGJ8DMgiKgoCAgICACDoNgECAwICAgICogAKoA0i9_cE6WPqWwvzm6pMDsQl7Uy2Rl-l2ioAKAZgLAcgLAaoNAklOyA0B6g0TCNe8wvzm6pMDFbKNrAIdpgMjnfANAogOCdgTDNAVAcoWAgoA-BYBgBcBshcQGAEqCjk2NTYzNzc1MzBQBroXAjgBqhgXCQAAAACElhNBEgo5NjU2Mzc3NTMwGAGyGAkSAqtcGFEiAQDQGAHCGQIIAQ&ae=1&gclid=EAIaIQobChMIjrjC_ObqkwMVso2sAh2mAyOdEAEYASAAEgKievD_BwE&num=1&cid=CAQS_AEABaugfb6PfBlmO6bBvkCDPDhTN9OGIUP1uc9E27mBiSyWO-rKSim7mukWj6deXDQorrslCOi9ExaD6vpEuqlv2ueSswC6OrEDNlobU1-2QP3R7VHiT4ZK9-kHi9qLWqy2fMZqFG45NkFqux0OUKam5FP4JU9T_-SrWDtnOMrIU743_D7j1pB13naV8NMvhIk-WU7zDljtfH0sK3GXFC8RB1LaI3aS1HUamjKJEAkcJHIXjL04ITXdPQ6nZ1jBbUM5r8K6QgToNKxZaFNFNlbd5cjgdemwld8z9KqCV5hjZh8s9X-OTZDas2LYNSz1pzc16sTrzxG0xbLiFgAYAQ&sig=AOD64_2cbU7kIsVKV1IIoOCg97W4pdbjyg&client=ca-pub-0463152717119457&rf=1&nb=8&adurl=https://wavebasis.com%3Fgad_source%3D5%26gad_campaignid%3D10834310878%26gclid%3DEAIaIQobChMIjrjC_ObqkwMVso2sAh2mAyOdEAEYASAAEgKievD_BwE
+              - generic [ref=f2e17]:
+                - generic [ref=f2e18]: OPEN
+                - img [ref=f2e19]
+          - img [ref=f2e24] [cursor=pointer]
+          - button [ref=f2e26] [cursor=pointer]:
+            - img [ref=f2e27]
+          - iframe
+    - generic [ref=e1074]:
+      - generic [ref=e1076]:
+        - generic [ref=e1078]: Stocks
+        - generic [ref=e1079]:
+          - generic [ref=e1080]:
+            - generic [ref=e1081]:
+              - generic [ref=e1083] [cursor=pointer]:
+                - text: +
+                - generic [ref=e1084]: Customize columns
+              - generic [ref=e1086] [cursor=pointer]:
+                - text: 
+                - generic [ref=e1087]: Copy
+              - generic [ref=e1089] [cursor=pointer]:
+                - text: 
+                - generic [ref=e1090]: CSV
+              - generic [ref=e1092] [cursor=pointer]:
+                - text: 
+                - generic [ref=e1093]: Excel
+            - generic [ref=e1094]:
+              - generic [ref=e1095]:
+                - textbox "Search stocks" [ref=e1096]
+                - button [ref=e1097] [cursor=pointer]
+              - generic "Settings Dropdown" [ref=e1100] [cursor=pointer]:
+                - generic [ref=e1101]: Settings
+                - button [ref=e1102]
+          - generic [ref=e1108]:
+            - table [ref=e1109]:
+              - rowgroup [ref=e1118]:
+                - row "Sr. Stock Name Sort table by Stock Name in ascending order Symbol Sort table by Symbol in ascending order close Sort table by close in ascending order %_change Sort table by %_change in descending order volume Sort table by volume in ascending order +" [ref=e1119]:
+                  - columnheader "Sr." [ref=e1120]:
+                    - generic [ref=e1124]: Sr.
+                  - columnheader "Stock Name Sort table by Stock Name in ascending order" [ref=e1125]:
+                    - button "Stock Name Sort table by Stock Name in ascending order" [ref=e1126] [cursor=pointer]:
+                      - generic [ref=e1129]: Stock Name
+                      - button "Sort table by Stock Name in ascending order" [ref=e1130]
+                  - columnheader "Symbol Sort table by Symbol in ascending order" [ref=e1132]:
+                    - button "Symbol Sort table by Symbol in ascending order" [ref=e1133] [cursor=pointer]:
+                      - generic [ref=e1136]: Symbol
+                      - button "Sort table by Symbol in ascending order" [ref=e1137]
+                  - columnheader "close Sort table by close in ascending order" [ref=e1139]:
+                    - button "close Sort table by close in ascending order" [ref=e1140]:
+                      - generic [ref=e1141]:
+                        - button [ref=e1143]
+                        - generic [ref=e1148]: close
+                      - button "Sort table by close in ascending order" [ref=e1149] [cursor=pointer]
+                  - columnheader "%_change Sort table by %_change in descending order" [ref=e1151]:
+                    - button "%_change Sort table by %_change in descending order" [ref=e1152]:
+                      - generic [ref=e1153]:
+                        - button [ref=e1155]
+                        - generic [ref=e1159]:
+                          - generic [ref=e1160]: "%_change"
+                          - generic:
+                            - button
+                            - button
+                      - button "Sort table by %_change in descending order" [ref=e1161] [cursor=pointer]
+                  - columnheader "volume Sort table by volume in ascending order" [ref=e1163]:
+                    - button "volume Sort table by volume in ascending order" [ref=e1164]:
+                      - generic [ref=e1165]:
+                        - button [ref=e1167]
+                        - generic [ref=e1172]: volume
+                      - button "Sort table by volume in ascending order" [ref=e1173] [cursor=pointer]
+                  - columnheader "+" [ref=e1174]:
+                    - button "+" [ref=e1179] [cursor=pointer]:
+                      - generic [ref=e1180]: +
+              - rowgroup [ref=e1181]:
+                - row "21 Welspun Investments And Commercials Limited WELINV 1,317.5 1.93% 578" [ref=e1790]:
+                  - cell "21" [ref=e1791]:
+                    - generic [ref=e1793]: "21"
+                  - cell "Welspun Investments And Commercials Limited" [ref=e1794]:
+                    - link "Welspun Investments And Commercials Limited" [ref=e1797] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=WELINV
+                  - cell "WELINV" [ref=e1798]:
+                    - link "WELINV" [ref=e1800] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=WELINV
+                  - cell "1,317.5" [ref=e1801]:
+                    - generic [ref=e1803]: 1,317.5
+                  - cell "1.93%" [ref=e1804]:
+                    - generic [ref=e1806]: 1.93%
+                  - cell "578" [ref=e1807]:
+                    - generic [ref=e1809]: "578"
+                  - cell [ref=e1810]
+                - row "22 Senores Pharmaceuticals Ltd SENORES 837.1 1.91% 3,58,136" [ref=e1811]:
+                  - cell "22" [ref=e1812]:
+                    - generic [ref=e1814]: "22"
+                  - cell "Senores Pharmaceuticals Ltd" [ref=e1815]:
+                    - link "Senores Pharmaceuticals Ltd" [ref=e1818] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=SENORES
+                  - cell "SENORES" [ref=e1819]:
+                    - link "SENORES" [ref=e1821] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=SENORES
+                  - cell "837.1" [ref=e1822]:
+                    - generic [ref=e1824]: "837.1"
+                  - cell "1.91%" [ref=e1825]:
+                    - generic [ref=e1827]: 1.91%
+                  - cell "3,58,136" [ref=e1828]:
+                    - generic [ref=e1830]: 3,58,136
+                  - cell [ref=e1831]
+                - row "23 Gujarat Mineral Development Corporation Limited GMDCLTD 614.6 1.91% 44,31,710" [ref=e1832]:
+                  - cell "23" [ref=e1833]:
+                    - generic [ref=e1835]: "23"
+                  - cell "Gujarat Mineral Development Corporation Limited" [ref=e1836]:
+                    - link "Gujarat Mineral Development Corporation Limited" [ref=e1839] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=GMDCLTD
+                  - cell "GMDCLTD" [ref=e1840]:
+                    - link "GMDCLTD" [ref=e1842] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=GMDCLTD
+                  - cell "614.6" [ref=e1843]:
+                    - generic [ref=e1845]: "614.6"
+                  - cell "1.91%" [ref=e1846]:
+                    - generic [ref=e1848]: 1.91%
+                  - cell "44,31,710" [ref=e1849]:
+                    - generic [ref=e1851]: 44,31,710
+                  - cell [ref=e1852]
+                - row "24 Emcure Pharmaceuticals Ltd EMCURE 1,630.4 1.87% 2,14,416" [ref=e1853]:
+                  - cell "24" [ref=e1854]:
+                    - generic [ref=e1856]: "24"
+                  - cell "Emcure Pharmaceuticals Ltd" [ref=e1857]:
+                    - link "Emcure Pharmaceuticals Ltd" [ref=e1860] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=EMCURE
+                  - cell "EMCURE" [ref=e1861]:
+                    - link "EMCURE" [ref=e1863] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=EMCURE
+                  - cell "1,630.4" [ref=e1864]:
+                    - generic [ref=e1866]: 1,630.4
+                  - cell "1.87%" [ref=e1867]:
+                    - generic [ref=e1869]: 1.87%
+                  - cell "2,14,416" [ref=e1870]:
+                    - generic [ref=e1872]: 2,14,416
+                  - cell [ref=e1873]
+                - row "25 Bhagyanagar India BHAGYANGR 185.09 1.59% 4,17,843" [ref=e1874]:
+                  - cell "25" [ref=e1875]:
+                    - generic [ref=e1877]: "25"
+                  - cell "Bhagyanagar India" [ref=e1878]:
+                    - link "Bhagyanagar India" [ref=e1881] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=BHAGYANGR
+                  - cell "BHAGYANGR" [ref=e1882]:
+                    - link "BHAGYANGR" [ref=e1884] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=BHAGYANGR
+                  - cell "185.09" [ref=e1885]:
+                    - generic [ref=e1887]: "185.09"
+                  - cell "1.59%" [ref=e1888]:
+                    - generic [ref=e1890]: 1.59%
+                  - cell "4,17,843" [ref=e1891]:
+                    - generic [ref=e1893]: 4,17,843
+                  - cell [ref=e1894]
+                - row "26 Ccl Products (india) Limited CCL 1,095.3 1.58% 2,12,043" [ref=e1895]:
+                  - cell "26" [ref=e1896]:
+                    - generic [ref=e1898]: "26"
+                  - cell "Ccl Products (india) Limited" [ref=e1899]:
+                    - link "Ccl Products (india) Limited" [ref=e1902] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=CCL
+                  - cell "CCL" [ref=e1903]:
+                    - link "CCL" [ref=e1905] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=CCL
+                  - cell "1,095.3" [ref=e1906]:
+                    - generic [ref=e1908]: 1,095.3
+                  - cell "1.58%" [ref=e1909]:
+                    - generic [ref=e1911]: 1.58%
+                  - cell "2,12,043" [ref=e1912]:
+                    - generic [ref=e1914]: 2,12,043
+                  - cell [ref=e1915]
+                - row "27 Glenmark Pharmaceuticals Limited GLENMARK 2,193.1 1.38% 7,24,083" [ref=e1916]:
+                  - cell "27" [ref=e1917]:
+                    - generic [ref=e1919]: "27"
+                  - cell "Glenmark Pharmaceuticals Limited" [ref=e1920]:
+                    - link "Glenmark Pharmaceuticals Limited" [ref=e1923] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=GLENMARK
+                  - cell "GLENMARK" [ref=e1924]:
+                    - link "GLENMARK" [ref=e1926] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=GLENMARK
+                  - cell "2,193.1" [ref=e1927]:
+                    - generic [ref=e1929]: 2,193.1
+                  - cell "1.38%" [ref=e1930]:
+                    - generic [ref=e1932]: 1.38%
+                  - cell "7,24,083" [ref=e1933]:
+                    - generic [ref=e1935]: 7,24,083
+                  - cell [ref=e1936]
+                - row "28 Lumax Auto Technologies Limited LUMAXTECH 1,847.8 1.34% 4,71,591" [ref=e1937]:
+                  - cell "28" [ref=e1938]:
+                    - generic [ref=e1940]: "28"
+                  - cell "Lumax Auto Technologies Limited" [ref=e1941]:
+                    - link "Lumax Auto Technologies Limited" [ref=e1944] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=LUMAXTECH
+                  - cell "LUMAXTECH" [ref=e1945]:
+                    - link "LUMAXTECH" [ref=e1947] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=LUMAXTECH
+                  - cell "1,847.8" [ref=e1948]:
+                    - generic [ref=e1950]: 1,847.8
+                  - cell "1.34%" [ref=e1951]:
+                    - generic [ref=e1953]: 1.34%
+                  - cell "4,71,591" [ref=e1954]:
+                    - generic [ref=e1956]: 4,71,591
+                  - cell [ref=e1957]
+                - row "29 Acutaas Chemicals Ltd ACUTAAS 2,393.6 1.33% 3,72,046" [ref=e1958]:
+                  - cell "29" [ref=e1959]:
+                    - generic [ref=e1961]: "29"
+                  - cell "Acutaas Chemicals Ltd" [ref=e1962]:
+                    - link "Acutaas Chemicals Ltd" [ref=e1965] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=ACUTAAS
+                  - cell "ACUTAAS" [ref=e1966]:
+                    - link "ACUTAAS" [ref=e1968] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=ACUTAAS
+                  - cell "2,393.6" [ref=e1969]:
+                    - generic [ref=e1971]: 2,393.6
+                  - cell "1.33%" [ref=e1972]:
+                    - generic [ref=e1974]: 1.33%
+                  - cell "3,72,046" [ref=e1975]:
+                    - generic [ref=e1977]: 3,72,046
+                  - cell [ref=e1978]
+                - row "30 Madhya Bharat Agro Products Ltd MBAPL 529.95 1.17% 1,94,758" [ref=e1979]:
+                  - cell "30" [ref=e1980]:
+                    - generic [ref=e1982]: "30"
+                  - cell "Madhya Bharat Agro Products Ltd" [ref=e1983]:
+                    - link "Madhya Bharat Agro Products Ltd" [ref=e1986] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=MBAPL
+                  - cell "MBAPL" [ref=e1987]:
+                    - link "MBAPL" [ref=e1989] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=MBAPL
+                  - cell "529.95" [ref=e1990]:
+                    - generic [ref=e1992]: "529.95"
+                  - cell "1.17%" [ref=e1993]:
+                    - generic [ref=e1995]: 1.17%
+                  - cell "1,94,758" [ref=e1996]:
+                    - generic [ref=e1998]: 1,94,758
+                  - cell [ref=e1999]
+                - row "31 Steel Authority Of India Limited SAIL 167.88 1.12% 2,91,16,842" [ref=e2000]:
+                  - cell "31" [ref=e2001]:
+                    - generic [ref=e2003]: "31"
+                  - cell "Steel Authority Of India Limited" [ref=e2004]:
+                    - link "Steel Authority Of India Limited" [ref=e2007] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=SAIL
+                  - cell "SAIL" [ref=e2008]:
+                    - link "SAIL" [ref=e2010] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=SAIL
+                  - cell "167.88" [ref=e2011]:
+                    - generic [ref=e2013]: "167.88"
+                  - cell "1.12%" [ref=e2014]:
+                    - generic [ref=e2016]: 1.12%
+                  - cell "2,91,16,842" [ref=e2017]:
+                    - generic [ref=e2019]: 2,91,16,842
+                  - cell [ref=e2020]
+                - row "32 Oricon Enterprises Limited ORICONENT 68 1.04% 2,20,725" [ref=e2021]:
+                  - cell "32" [ref=e2022]:
+                    - generic [ref=e2024]: "32"
+                  - cell "Oricon Enterprises Limited" [ref=e2025]:
+                    - link "Oricon Enterprises Limited" [ref=e2028] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=ORICONENT
+                  - cell "ORICONENT" [ref=e2029]:
+                    - link "ORICONENT" [ref=e2031] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=ORICONENT
+                  - cell "68" [ref=e2032]:
+                    - generic [ref=e2034]: "68"
+                  - cell "1.04%" [ref=e2035]:
+                    - generic [ref=e2037]: 1.04%
+                  - cell "2,20,725" [ref=e2038]:
+                    - generic [ref=e2040]: 2,20,725
+                  - cell [ref=e2041]
+                - row "33 Privi Speciality Chemicals Ltd PRIVISCL 2,930.1 1.03% 3,37,600" [ref=e2042]:
+                  - cell "33" [ref=e2043]:
+                    - generic [ref=e2045]: "33"
+                  - cell "Privi Speciality Chemicals Ltd" [ref=e2046]:
+                    - link "Privi Speciality Chemicals Ltd" [ref=e2049] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=PRIVISCL
+                  - cell "PRIVISCL" [ref=e2050]:
+                    - link "PRIVISCL" [ref=e2052] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=PRIVISCL
+                  - cell "2,930.1" [ref=e2053]:
+                    - generic [ref=e2055]: 2,930.1
+                  - cell "1.03%" [ref=e2056]:
+                    - generic [ref=e2058]: 1.03%
+                  - cell "3,37,600" [ref=e2059]:
+                    - generic [ref=e2061]: 3,37,600
+                  - cell [ref=e2062]
+                - row "34 Vedanta Limited VEDL 752.55 0.99% 1,25,86,088" [ref=e2063]:
+                  - cell "34" [ref=e2064]:
+                    - generic [ref=e2066]: "34"
+                  - cell "Vedanta Limited" [ref=e2067]:
+                    - link "Vedanta Limited" [ref=e2070] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=VEDL
+                  - cell "VEDL" [ref=e2071]:
+                    - link "VEDL" [ref=e2073] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=VEDL
+                  - cell "752.55" [ref=e2074]:
+                    - generic [ref=e2076]: "752.55"
+                  - cell "0.99%" [ref=e2077]:
+                    - generic [ref=e2079]: 0.99%
+                  - cell "1,25,86,088" [ref=e2080]:
+                    - generic [ref=e2082]: 1,25,86,088
+                  - cell [ref=e2083]
+                - row "35 Motilal Oswal Nasdaq Q 50 ETF Exclude ETFs MONQ50 116.12 0.95% 2,11,288" [ref=e2084]:
+                  - cell "35" [ref=e2085]:
+                    - generic [ref=e2087]: "35"
+                  - cell "Motilal Oswal Nasdaq Q 50 ETF Exclude ETFs" [ref=e2088]:
+                    - generic [ref=e2090]:
+                      - link "Motilal Oswal Nasdaq Q 50 ETF" [ref=e2091] [cursor=pointer]:
+                        - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=MONQ50
+                      - button "Exclude ETFs" [ref=e2092] [cursor=pointer]
+                  - cell "MONQ50" [ref=e2093]:
+                    - link "MONQ50" [ref=e2095] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=MONQ50
+                  - cell "116.12" [ref=e2096]:
+                    - generic [ref=e2098]: "116.12"
+                  - cell "0.95%" [ref=e2099]:
+                    - generic [ref=e2101]: 0.95%
+                  - cell "2,11,288" [ref=e2102]:
+                    - generic [ref=e2104]: 2,11,288
+                  - cell [ref=e2105]
+                - row "36 Prime Focus Limited PFOCUS 337.55 0.91% 13,47,135" [ref=e2106]:
+                  - cell "36" [ref=e2107]:
+                    - generic [ref=e2109]: "36"
+                  - cell "Prime Focus Limited" [ref=e2110]:
+                    - link "Prime Focus Limited" [ref=e2113] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=PFOCUS
+                  - cell "PFOCUS" [ref=e2114]:
+                    - link "PFOCUS" [ref=e2116] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=PFOCUS
+                  - cell "337.55" [ref=e2117]:
+                    - generic [ref=e2119]: "337.55"
+                  - cell "0.91%" [ref=e2120]:
+                    - generic [ref=e2122]: 0.91%
+                  - cell "13,47,135" [ref=e2123]:
+                    - generic [ref=e2125]: 13,47,135
+                  - cell [ref=e2126]
+                - row "37 Thangamayil Jewellery Limited THANGAMAYL 4,175.4 0.88% 1,66,448" [ref=e2127]:
+                  - cell "37" [ref=e2128]:
+                    - generic [ref=e2130]: "37"
+                  - cell "Thangamayil Jewellery Limited" [ref=e2131]:
+                    - link "Thangamayil Jewellery Limited" [ref=e2134] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=THANGAMAYL
+                  - cell "THANGAMAYL" [ref=e2135]:
+                    - link "THANGAMAYL" [ref=e2137] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=THANGAMAYL
+                  - cell "4,175.4" [ref=e2138]:
+                    - generic [ref=e2140]: 4,175.4
+                  - cell "0.88%" [ref=e2141]:
+                    - generic [ref=e2143]: 0.88%
+                  - cell "1,66,448" [ref=e2144]:
+                    - generic [ref=e2146]: 1,66,448
+                  - cell [ref=e2147]
+                - row "38 Bliss Gvs Pharma Limited BLISSGVS 260.98 0.78% 11,70,739" [ref=e2148]:
+                  - cell "38" [ref=e2149]:
+                    - generic [ref=e2151]: "38"
+                  - cell "Bliss Gvs Pharma Limited" [ref=e2152]:
+                    - link "Bliss Gvs Pharma Limited" [ref=e2155] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=BLISSGVS
+                  - cell "BLISSGVS" [ref=e2156]:
+                    - link "BLISSGVS" [ref=e2158] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=BLISSGVS
+                  - cell "260.98" [ref=e2159]:
+                    - generic [ref=e2161]: "260.98"
+                  - cell "0.78%" [ref=e2162]:
+                    - generic [ref=e2164]: 0.78%
+                  - cell "11,70,739" [ref=e2165]:
+                    - generic [ref=e2167]: 11,70,739
+                  - cell [ref=e2168]
+                - row "39 Tamilnad Mercantile Bank Ltd TMB 657.25 0.69% 2,34,317" [ref=e2169]:
+                  - cell "39" [ref=e2170]:
+                    - generic [ref=e2172]: "39"
+                  - cell "Tamilnad Mercantile Bank Ltd" [ref=e2173]:
+                    - link "Tamilnad Mercantile Bank Ltd" [ref=e2176] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=TMB
+                  - cell "TMB" [ref=e2177]:
+                    - link "TMB" [ref=e2179] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=TMB
+                  - cell "657.25" [ref=e2180]:
+                    - generic [ref=e2182]: "657.25"
+                  - cell "0.69%" [ref=e2183]:
+                    - generic [ref=e2185]: 0.69%
+                  - cell "2,34,317" [ref=e2186]:
+                    - generic [ref=e2188]: 2,34,317
+                  - cell [ref=e2189]
+                - row "40 BSE (Bombay stock exchange) Ltd BSE 3,303.6 0.68% 58,86,170" [ref=e2190]:
+                  - cell "40" [ref=e2191]:
+                    - generic [ref=e2193]: "40"
+                  - cell "BSE (Bombay stock exchange) Ltd" [ref=e2194]:
+                    - link "BSE (Bombay stock exchange) Ltd" [ref=e2197] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=BSE
+                  - cell "BSE" [ref=e2198]:
+                    - link "BSE" [ref=e2200] [cursor=pointer]:
+                      - /url: /stocks-new?from_scan=1&scan_link=scanlink:fb2fd27e53119f32958b83c1bc4491ae&timeframe=daily&symbol=BSE
+                  - cell "3,303.6" [ref=e2201]:
+                    - generic [ref=e2203]: 3,303.6
+                  - cell "0.68%" [ref=e2204]:
+                    - generic [ref=e2206]: 0.68%
+                  - cell "58,86,170" [ref=e2207]:
+                    - generic [ref=e2209]: 58,86,170
+                  - cell [ref=e2210]
+            - button "Add column" [ref=e1602] [cursor=pointer]
+        - generic [ref=e1603]:
+          - generic [ref=e1604]:
+            - generic [ref=e1605]: "Page #"
+            - combobox [ref=e1607] [cursor=pointer]:
+              - generic [ref=e1609]:
+                - textbox [ref=e1610]
+                - generic [ref=e1612]: "2"
+            - generic [ref=e1613]:
+              - text: 102 stocks
+              - generic [ref=e1614]: (21 to 40)
+          - generic [ref=e1615]:
+            - generic [ref=e1616]: Per Page
+            - combobox [ref=e1618] [cursor=pointer]:
+              - generic [ref=e1622]: "20"
+          - generic [ref=e1623]:
+            - button " Previous" [ref=e2212] [cursor=pointer]:
+              - generic [ref=e2213]: 
+              - generic [ref=e2214]: Previous
+            - button "1" [ref=e1629] [cursor=pointer]
+            - button "2" [disabled] [ref=e1631]
+            - button "3" [ref=e1633] [cursor=pointer]
+            - button "4" [ref=e2216] [cursor=pointer]
+            - button "5" [ref=e2218] [cursor=pointer]
+            - button "6" [ref=e2220] [cursor=pointer]
+            - button "Next " [ref=e2222] [cursor=pointer]:
+              - generic [ref=e2223]: Next
+              - generic [ref=e2224]: 
+      - insertion [ref=e1644]:
+        - iframe [ref=e1646]:
+          - generic [active] [ref=f4e1]:
+            - generic [ref=f4e7]:
+              - generic [ref=f4e8]:
+                - generic [ref=f4e9]: Midcaps.in
+                - generic [ref=f4e10]: Midcaps.in
+              - generic [ref=f4e13]:
+                - generic "Midcaps.in" [ref=f4e14]:
+                  - link "2 Stocks Recommendation Weekly" [ref=f4e15] [cursor=pointer]:
+                    - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CbzPmVd7caYGaM5messUPw_rkwAOh_abZhQHZo-aS-RPU5t_cTxABIOSvywlg5erjA6AB-diZ-APIAQGpArZtl07EAkc-qAMByAPLBKoEmwJP0GidH3gFaqzUWdxq_BiQv6t8DFvGG38Fwj1MDM3L4MRF62PzJGDqAsXo2QbCyVDPGEi3b_3wiIfZDGhMlJfP7KR1TZ2f4mlNB8mZtnBGm75cTfxaiawN-l9ADu0dhcup_4IPzhVmhTQSvR6iES-ftkqjoL1qAU3RYDpyOd59eopdJt7um525iwS27TwxK57rwqKp80zvjLeZwDUN6ACZvtISnOWVZ_USlw5SXT-cGYdVq2fWbAOgUPGMlLydSoEfk3OS9_UvrsaK4ZUxeLskKaVa_tKNjR0FvYhVuys4Ur7UbJoRdhc3pu1jZk_mqagmWxkcxL3XNdI_XNTmLzbi5Xg4_ctycNc3-UmOnHzb2nwNge-oQhXL6qlrwATm5-6PhQOIBanypPwkgAfvpuYHqAenzLECqAemvhuoB8zOsQKoB_PRG6gHltgbqAeqm7ECqAeOzhuoB5PYG6gH8OAbqAfulrECqAf-nrECqAevvrECqAea4bECqAfVyRuoB9m2sQKoB5oGqAf_nrECqAffn7ECqAf4wrECqAf7wrEC2AcB0ggvCIBhEAEYnwMyCIqCgICAgIAIOg2AQIDAgICAgKiAAqgDSL39wTpY0dzE_ObqkwOxCRvrPyRb8_ZjgAoBmAsByAsBqg0CSU7IDQHqDRMIpZ_F_ObqkwMVGY-sAh1DPRk48A0CiA4J2BMMiBQU0BUByhYCCgD4FgGAFwGyFxAYASoKMjM2MjkxODY2OFAGuhcCOAGqGBcJAAAAAPBLAEESCjIzNjI5MTg2NjgYAbIYCRICk2kYASIBANAYAcIZAggB&ae=1&gclid=EAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE&num=1&cid=CAQSnwIABaugfc-jDwR3C-IvJllJ2prBhqf4_C5gCKzksMFpZNP2OLuBbIglHDi6Bw3TRifCLM2JogFhw0SohqXedX7b-zUxUbt5Jq_mF0S3vIk9YSuACh9PDN3s7hXsF008ihVoIT6FtYJt5FlWRViXmC7ikr6kNbb0n_gO8xr8guwGpPEyqjr6W2MEbwHrolefe5Gx3vDQ-d_ziiO3zRSQlmZjWrg2A5igmIe_HW8EzzO9cKJDAsyf2_pZUwsVWSWSNrwuo_nykuB7NtaAQbYSWX1zTXTGVu-rxz1cqG4sZfw1q2Ps5zbDjd-nyIBpxnkhXKusYh7RIUTlqeu9UAGfZAZkRZUZdUUMI3mB_XdTe7Vx6H-SbaynT5nqM-U78C-6KxgB&sig=AOD64_3xmUlNMe4M1v14fOANoqdkFUHsGQ&client=ca-pub-0463152717119457&rf=1&nb=0&adurl=https://www.midcaps.in%3Fgad_source%3D5%26gad_campaignid%3D9924327721%26gclid%3DEAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE
+                    - text: 2 Stocks
+                    - text: Recommendation
+                    - text: Weekly
+                - link "Midcap Stocks Gaining Momentum after 30-40% fall from 52 Week High. Grab Now." [ref=f4e17] [cursor=pointer]:
+                  - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CbzPmVd7caYGaM5messUPw_rkwAOh_abZhQHZo-aS-RPU5t_cTxABIOSvywlg5erjA6AB-diZ-APIAQGpArZtl07EAkc-qAMByAPLBKoEmwJP0GidH3gFaqzUWdxq_BiQv6t8DFvGG38Fwj1MDM3L4MRF62PzJGDqAsXo2QbCyVDPGEi3b_3wiIfZDGhMlJfP7KR1TZ2f4mlNB8mZtnBGm75cTfxaiawN-l9ADu0dhcup_4IPzhVmhTQSvR6iES-ftkqjoL1qAU3RYDpyOd59eopdJt7um525iwS27TwxK57rwqKp80zvjLeZwDUN6ACZvtISnOWVZ_USlw5SXT-cGYdVq2fWbAOgUPGMlLydSoEfk3OS9_UvrsaK4ZUxeLskKaVa_tKNjR0FvYhVuys4Ur7UbJoRdhc3pu1jZk_mqagmWxkcxL3XNdI_XNTmLzbi5Xg4_ctycNc3-UmOnHzb2nwNge-oQhXL6qlrwATm5-6PhQOIBanypPwkgAfvpuYHqAenzLECqAemvhuoB8zOsQKoB_PRG6gHltgbqAeqm7ECqAeOzhuoB5PYG6gH8OAbqAfulrECqAf-nrECqAevvrECqAea4bECqAfVyRuoB9m2sQKoB5oGqAf_nrECqAffn7ECqAf4wrECqAf7wrEC2AcB0ggvCIBhEAEYnwMyCIqCgICAgIAIOg2AQIDAgICAgKiAAqgDSL39wTpY0dzE_ObqkwOxCRvrPyRb8_ZjgAoBmAsByAsBqg0CSU7IDQHqDRMIpZ_F_ObqkwMVGY-sAh1DPRk48A0CiA4J2BMMiBQU0BUByhYCCgD4FgGAFwGyFxAYASoKMjM2MjkxODY2OFAGuhcCOAGqGBcJAAAAAPBLAEESCjIzNjI5MTg2NjgYAbIYCRICk2kYASIBANAYAcIZAggB&ae=1&gclid=EAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE&num=1&cid=CAQSnwIABaugfc-jDwR3C-IvJllJ2prBhqf4_C5gCKzksMFpZNP2OLuBbIglHDi6Bw3TRifCLM2JogFhw0SohqXedX7b-zUxUbt5Jq_mF0S3vIk9YSuACh9PDN3s7hXsF008ihVoIT6FtYJt5FlWRViXmC7ikr6kNbb0n_gO8xr8guwGpPEyqjr6W2MEbwHrolefe5Gx3vDQ-d_ziiO3zRSQlmZjWrg2A5igmIe_HW8EzzO9cKJDAsyf2_pZUwsVWSWSNrwuo_nykuB7NtaAQbYSWX1zTXTGVu-rxz1cqG4sZfw1q2Ps5zbDjd-nyIBpxnkhXKusYh7RIUTlqeu9UAGfZAZkRZUZdUUMI3mB_XdTe7Vx6H-SbaynT5nqM-U78C-6KxgB&sig=AOD64_3xmUlNMe4M1v14fOANoqdkFUHsGQ&client=ca-pub-0463152717119457&rf=1&nb=7&adurl=https://www.midcaps.in%3Fgad_source%3D5%26gad_campaignid%3D9924327721%26gclid%3DEAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE
+                  - text: Midcap Stocks
+                  - text: Gaining Momentum
+                  - text: after 30-40% fall from
+                  - text: 52 Week High. Grab
+                  - text: Now.
+                - generic "Midcaps.in" [ref=f4e19]:
+                  - link "Midcaps.in" [ref=f4e21] [cursor=pointer]:
+                    - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CbzPmVd7caYGaM5messUPw_rkwAOh_abZhQHZo-aS-RPU5t_cTxABIOSvywlg5erjA6AB-diZ-APIAQGpArZtl07EAkc-qAMByAPLBKoEmwJP0GidH3gFaqzUWdxq_BiQv6t8DFvGG38Fwj1MDM3L4MRF62PzJGDqAsXo2QbCyVDPGEi3b_3wiIfZDGhMlJfP7KR1TZ2f4mlNB8mZtnBGm75cTfxaiawN-l9ADu0dhcup_4IPzhVmhTQSvR6iES-ftkqjoL1qAU3RYDpyOd59eopdJt7um525iwS27TwxK57rwqKp80zvjLeZwDUN6ACZvtISnOWVZ_USlw5SXT-cGYdVq2fWbAOgUPGMlLydSoEfk3OS9_UvrsaK4ZUxeLskKaVa_tKNjR0FvYhVuys4Ur7UbJoRdhc3pu1jZk_mqagmWxkcxL3XNdI_XNTmLzbi5Xg4_ctycNc3-UmOnHzb2nwNge-oQhXL6qlrwATm5-6PhQOIBanypPwkgAfvpuYHqAenzLECqAemvhuoB8zOsQKoB_PRG6gHltgbqAeqm7ECqAeOzhuoB5PYG6gH8OAbqAfulrECqAf-nrECqAevvrECqAea4bECqAfVyRuoB9m2sQKoB5oGqAf_nrECqAffn7ECqAf4wrECqAf7wrEC2AcB0ggvCIBhEAEYnwMyCIqCgICAgIAIOg2AQIDAgICAgKiAAqgDSL39wTpY0dzE_ObqkwOxCRvrPyRb8_ZjgAoBmAsByAsBqg0CSU7IDQHqDRMIpZ_F_ObqkwMVGY-sAh1DPRk48A0CiA4J2BMMiBQU0BUByhYCCgD4FgGAFwGyFxAYASoKMjM2MjkxODY2OFAGuhcCOAGqGBcJAAAAAPBLAEESCjIzNjI5MTg2NjgYAbIYCRICk2kYASIBANAYAcIZAggB&ae=1&gclid=EAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE&num=1&cid=CAQSnwIABaugfc-jDwR3C-IvJllJ2prBhqf4_C5gCKzksMFpZNP2OLuBbIglHDi6Bw3TRifCLM2JogFhw0SohqXedX7b-zUxUbt5Jq_mF0S3vIk9YSuACh9PDN3s7hXsF008ihVoIT6FtYJt5FlWRViXmC7ikr6kNbb0n_gO8xr8guwGpPEyqjr6W2MEbwHrolefe5Gx3vDQ-d_ziiO3zRSQlmZjWrg2A5igmIe_HW8EzzO9cKJDAsyf2_pZUwsVWSWSNrwuo_nykuB7NtaAQbYSWX1zTXTGVu-rxz1cqG4sZfw1q2Ps5zbDjd-nyIBpxnkhXKusYh7RIUTlqeu9UAGfZAZkRZUZdUUMI3mB_XdTe7Vx6H-SbaynT5nqM-U78C-6KxgB&sig=AOD64_3xmUlNMe4M1v14fOANoqdkFUHsGQ&client=ca-pub-0463152717119457&rf=1&nb=1&adurl=https://www.midcaps.in%3Fgad_source%3D5%26gad_campaignid%3D9924327721%26gclid%3DEAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE
+              - generic [ref=f4e24]:
+                - link "Subscribe" [ref=f4e26] [cursor=pointer]:
+                  - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CbzPmVd7caYGaM5messUPw_rkwAOh_abZhQHZo-aS-RPU5t_cTxABIOSvywlg5erjA6AB-diZ-APIAQGpArZtl07EAkc-qAMByAPLBKoEmwJP0GidH3gFaqzUWdxq_BiQv6t8DFvGG38Fwj1MDM3L4MRF62PzJGDqAsXo2QbCyVDPGEi3b_3wiIfZDGhMlJfP7KR1TZ2f4mlNB8mZtnBGm75cTfxaiawN-l9ADu0dhcup_4IPzhVmhTQSvR6iES-ftkqjoL1qAU3RYDpyOd59eopdJt7um525iwS27TwxK57rwqKp80zvjLeZwDUN6ACZvtISnOWVZ_USlw5SXT-cGYdVq2fWbAOgUPGMlLydSoEfk3OS9_UvrsaK4ZUxeLskKaVa_tKNjR0FvYhVuys4Ur7UbJoRdhc3pu1jZk_mqagmWxkcxL3XNdI_XNTmLzbi5Xg4_ctycNc3-UmOnHzb2nwNge-oQhXL6qlrwATm5-6PhQOIBanypPwkgAfvpuYHqAenzLECqAemvhuoB8zOsQKoB_PRG6gHltgbqAeqm7ECqAeOzhuoB5PYG6gH8OAbqAfulrECqAf-nrECqAevvrECqAea4bECqAfVyRuoB9m2sQKoB5oGqAf_nrECqAffn7ECqAf4wrECqAf7wrEC2AcB0ggvCIBhEAEYnwMyCIqCgICAgIAIOg2AQIDAgICAgKiAAqgDSL39wTpY0dzE_ObqkwOxCRvrPyRb8_ZjgAoBmAsByAsBqg0CSU7IDQHqDRMIpZ_F_ObqkwMVGY-sAh1DPRk48A0CiA4J2BMMiBQU0BUByhYCCgD4FgGAFwGyFxAYASoKMjM2MjkxODY2OFAGuhcCOAGqGBcJAAAAAPBLAEESCjIzNjI5MTg2NjgYAbIYCRICk2kYASIBANAYAcIZAggB&ae=1&gclid=EAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE&num=1&cid=CAQSnwIABaugfc-jDwR3C-IvJllJ2prBhqf4_C5gCKzksMFpZNP2OLuBbIglHDi6Bw3TRifCLM2JogFhw0SohqXedX7b-zUxUbt5Jq_mF0S3vIk9YSuACh9PDN3s7hXsF008ihVoIT6FtYJt5FlWRViXmC7ikr6kNbb0n_gO8xr8guwGpPEyqjr6W2MEbwHrolefe5Gx3vDQ-d_ziiO3zRSQlmZjWrg2A5igmIe_HW8EzzO9cKJDAsyf2_pZUwsVWSWSNrwuo_nykuB7NtaAQbYSWX1zTXTGVu-rxz1cqG4sZfw1q2Ps5zbDjd-nyIBpxnkhXKusYh7RIUTlqeu9UAGfZAZkRZUZdUUMI3mB_XdTe7Vx6H-SbaynT5nqM-U78C-6KxgB&sig=AOD64_3xmUlNMe4M1v14fOANoqdkFUHsGQ&client=ca-pub-0463152717119457&rf=1&nb=8&adurl=https://www.midcaps.in%3Fgad_source%3D5%26gad_campaignid%3D9924327721%26gclid%3DEAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE
+                - link [ref=f4e27] [cursor=pointer]:
+                  - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CbzPmVd7caYGaM5messUPw_rkwAOh_abZhQHZo-aS-RPU5t_cTxABIOSvywlg5erjA6AB-diZ-APIAQGpArZtl07EAkc-qAMByAPLBKoEmwJP0GidH3gFaqzUWdxq_BiQv6t8DFvGG38Fwj1MDM3L4MRF62PzJGDqAsXo2QbCyVDPGEi3b_3wiIfZDGhMlJfP7KR1TZ2f4mlNB8mZtnBGm75cTfxaiawN-l9ADu0dhcup_4IPzhVmhTQSvR6iES-ftkqjoL1qAU3RYDpyOd59eopdJt7um525iwS27TwxK57rwqKp80zvjLeZwDUN6ACZvtISnOWVZ_USlw5SXT-cGYdVq2fWbAOgUPGMlLydSoEfk3OS9_UvrsaK4ZUxeLskKaVa_tKNjR0FvYhVuys4Ur7UbJoRdhc3pu1jZk_mqagmWxkcxL3XNdI_XNTmLzbi5Xg4_ctycNc3-UmOnHzb2nwNge-oQhXL6qlrwATm5-6PhQOIBanypPwkgAfvpuYHqAenzLECqAemvhuoB8zOsQKoB_PRG6gHltgbqAeqm7ECqAeOzhuoB5PYG6gH8OAbqAfulrECqAf-nrECqAevvrECqAea4bECqAfVyRuoB9m2sQKoB5oGqAf_nrECqAffn7ECqAf4wrECqAf7wrEC2AcB0ggvCIBhEAEYnwMyCIqCgICAgIAIOg2AQIDAgICAgKiAAqgDSL39wTpY0dzE_ObqkwOxCRvrPyRb8_ZjgAoBmAsByAsBqg0CSU7IDQHqDRMIpZ_F_ObqkwMVGY-sAh1DPRk48A0CiA4J2BMMiBQU0BUByhYCCgD4FgGAFwGyFxAYASoKMjM2MjkxODY2OFAGuhcCOAGqGBcJAAAAAPBLAEESCjIzNjI5MTg2NjgYAbIYCRICk2kYASIBANAYAcIZAggB&ae=1&gclid=EAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE&num=1&cid=CAQSnwIABaugfc-jDwR3C-IvJllJ2prBhqf4_C5gCKzksMFpZNP2OLuBbIglHDi6Bw3TRifCLM2JogFhw0SohqXedX7b-zUxUbt5Jq_mF0S3vIk9YSuACh9PDN3s7hXsF008ihVoIT6FtYJt5FlWRViXmC7ikr6kNbb0n_gO8xr8guwGpPEyqjr6W2MEbwHrolefe5Gx3vDQ-d_ziiO3zRSQlmZjWrg2A5igmIe_HW8EzzO9cKJDAsyf2_pZUwsVWSWSNrwuo_nykuB7NtaAQbYSWX1zTXTGVu-rxz1cqG4sZfw1q2Ps5zbDjd-nyIBpxnkhXKusYh7RIUTlqeu9UAGfZAZkRZUZdUUMI3mB_XdTe7Vx6H-SbaynT5nqM-U78C-6KxgB&sig=AOD64_3xmUlNMe4M1v14fOANoqdkFUHsGQ&client=ca-pub-0463152717119457&rf=1&nb=8&adurl=https://www.midcaps.in%3Fgad_source%3D5%26gad_campaignid%3D9924327721%26gclid%3DEAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE
+                  - img [ref=f4e29]
+                - link [ref=f4e31] [cursor=pointer]:
+                  - /url: https://googleads.g.doubleclick.net/aclk?sa=l&ai=CbzPmVd7caYGaM5messUPw_rkwAOh_abZhQHZo-aS-RPU5t_cTxABIOSvywlg5erjA6AB-diZ-APIAQGpArZtl07EAkc-qAMByAPLBKoEmwJP0GidH3gFaqzUWdxq_BiQv6t8DFvGG38Fwj1MDM3L4MRF62PzJGDqAsXo2QbCyVDPGEi3b_3wiIfZDGhMlJfP7KR1TZ2f4mlNB8mZtnBGm75cTfxaiawN-l9ADu0dhcup_4IPzhVmhTQSvR6iES-ftkqjoL1qAU3RYDpyOd59eopdJt7um525iwS27TwxK57rwqKp80zvjLeZwDUN6ACZvtISnOWVZ_USlw5SXT-cGYdVq2fWbAOgUPGMlLydSoEfk3OS9_UvrsaK4ZUxeLskKaVa_tKNjR0FvYhVuys4Ur7UbJoRdhc3pu1jZk_mqagmWxkcxL3XNdI_XNTmLzbi5Xg4_ctycNc3-UmOnHzb2nwNge-oQhXL6qlrwATm5-6PhQOIBanypPwkgAfvpuYHqAenzLECqAemvhuoB8zOsQKoB_PRG6gHltgbqAeqm7ECqAeOzhuoB5PYG6gH8OAbqAfulrECqAf-nrECqAevvrECqAea4bECqAfVyRuoB9m2sQKoB5oGqAf_nrECqAffn7ECqAf4wrECqAf7wrEC2AcB0ggvCIBhEAEYnwMyCIqCgICAgIAIOg2AQIDAgICAgKiAAqgDSL39wTpY0dzE_ObqkwOxCRvrPyRb8_ZjgAoBmAsByAsBqg0CSU7IDQHqDRMIpZ_F_ObqkwMVGY-sAh1DPRk48A0CiA4J2BMMiBQU0BUByhYCCgD4FgGAFwGyFxAYASoKMjM2MjkxODY2OFAGuhcCOAGqGBcJAAAAAPBLAEESCjIzNjI5MTg2NjgYAbIYCRICk2kYASIBANAYAcIZAggB&ae=1&gclid=EAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE&num=1&cid=CAQSnwIABaugfc-jDwR3C-IvJllJ2prBhqf4_C5gCKzksMFpZNP2OLuBbIglHDi6Bw3TRifCLM2JogFhw0SohqXedX7b-zUxUbt5Jq_mF0S3vIk9YSuACh9PDN3s7hXsF008ihVoIT6FtYJt5FlWRViXmC7ikr6kNbb0n_gO8xr8guwGpPEyqjr6W2MEbwHrolefe5Gx3vDQ-d_ziiO3zRSQlmZjWrg2A5igmIe_HW8EzzO9cKJDAsyf2_pZUwsVWSWSNrwuo_nykuB7NtaAQbYSWX1zTXTGVu-rxz1cqG4sZfw1q2Ps5zbDjd-nyIBpxnkhXKusYh7RIUTlqeu9UAGfZAZkRZUZdUUMI3mB_XdTe7Vx6H-SbaynT5nqM-U78C-6KxgB&sig=AOD64_3xmUlNMe4M1v14fOANoqdkFUHsGQ&client=ca-pub-0463152717119457&rf=1&nb=8&adurl=https://www.midcaps.in%3Fgad_source%3D5%26gad_campaignid%3D9924327721%26gclid%3DEAIaIQobChMIwZjF_ObqkwMVGY-sAh1DPRk4EAEYASAAEgLAJ_D_BwE
+            - img [ref=f4e35] [cursor=pointer]
+            - button [ref=f4e37] [cursor=pointer]:
+              - img [ref=f4e38]
+            - iframe
+    - generic [ref=e1649]:
+      - generic [ref=e1650]:
+        - generic [ref=e1651]:
+          - generic [ref=e1652]: Backtest History
+          - combobox [ref=e1699] [cursor=pointer]:
+            - generic [ref=e1702]: 9 months
+        - text: 
+      - generic [ref=e1654]:
+        - generic [ref=e1655]:
+          - generic [ref=e1656]: Click on bars to view stock details filtered at the given time
+          - generic [ref=e1658] [cursor=pointer]: 
+        - generic [ref=e1659]:
+          - generic [ref=e1660]:
+            - button "Bars" [ref=e1661] [cursor=pointer]
+            - button "Stocks" [ref=e1662] [cursor=pointer]
+          - button "Download" [ref=e1664] [cursor=pointer]:
+            - button [ref=e1665]
+            - generic [ref=e1668]: Download
+            - generic [ref=e1669]: 
+      - generic [ref=e1671]:
+        - generic [ref=e1672]:
+          - generic [ref=e1705] [cursor=pointer]: industrials
+          - generic [ref=e1708] [cursor=pointer]: metals & mining
+          - generic [ref=e1711] [cursor=pointer]: healthcare
+          - generic [ref=e1714] [cursor=pointer]: auto
+          - generic [ref=e1717] [cursor=pointer]: fmcg
+          - generic [ref=e1720] [cursor=pointer]: financials
+          - generic [ref=e1723] [cursor=pointer]: bank
+          - generic [ref=e1726] [cursor=pointer]: realty
+          - generic [ref=e1729] [cursor=pointer]: consumer discretionary
+          - generic [ref=e1732] [cursor=pointer]: chemicals
+          - generic [ref=e1735] [cursor=pointer]: aerospace & defence
+          - generic [ref=e1738] [cursor=pointer]: power & utilities
+          - generic [ref=e1741] [cursor=pointer]: services
+          - generic [ref=e1744] [cursor=pointer]: miscellaneous
+          - generic [ref=e1747] [cursor=pointer]: textiles
+          - generic [ref=e1750] [cursor=pointer]: energy
+          - generic [ref=e1753] [cursor=pointer]: building materials
+          - generic [ref=e1756] [cursor=pointer]: transportation
+          - generic [ref=e1759] [cursor=pointer]: indices
+          - generic [ref=e1762] [cursor=pointer]: telecom
+          - generic [ref=e1765] [cursor=pointer]: i.t
+          - generic [ref=e1768] [cursor=pointer]: plastic products
+          - generic [ref=e1771] [cursor=pointer]: telecom-service
+          - generic [ref=e1774] [cursor=pointer]: media
+          - generic [ref=e1777] [cursor=pointer]: n/a
+          - generic [ref=e1780] [cursor=pointer]: co-working
+        - text:  
+        - generic [ref=e1782]:
+          - generic [ref=e1783]:
+            - generic [ref=e1784]: 
+            - generic [ref=e1785]:
+              - text: Backtest results will change/repaint as 2 different timeframes (daily & weekly) are used in the scan. The bigger weekly bar is spread against all daily bars causing
+              - link "them to repaint." [ref=e1786] [cursor=pointer]:
+                - /url: https://chartink.com/articles/backtest/backtest-results-faq/
+              - text: The results shown in the backtest are for informational purpose only, please
+              - link "contact us" [ref=e1787] [cursor=pointer]:
+                - /url: /articles/contact-us
+              - text: for queries relating to this.
+          - generic [ref=e1788] [cursor=pointer]: Close
+        - text: 
+  - generic [ref=e1679]:
+    - generic [ref=e1680]:
+      - generic [ref=e1681]:
+        - link [ref=e1682] [cursor=pointer]:
+          - /url: https://www.facebook.com/Chartink/
+          - button [ref=e1683]
+        - link [ref=e1686] [cursor=pointer]:
+          - /url: https://www.twitter.com/ChartinkConnect
+          - button [ref=e1687]
+      - generic [ref=e1691]:
+        - link "Terms of usage" [ref=e1692] [cursor=pointer]:
+          - /url: /articles/terms-of-usage/
+        - link "Privacy Policy" [ref=e1693] [cursor=pointer]:
+          - /url: /articles/privacy-policy/
+        - link "About Us" [ref=e1694] [cursor=pointer]:
+          - /url: /articles/about-us/
+        - link "Contact Us" [ref=e1695] [cursor=pointer]:
+          - /url: /articles/contact-us/
+    - generic [ref=e1696]: Price Data sourced from NSE feed, price updates are near real-time, unless indicated. Financial data sourced from CapitalMarket. Technical/Fundamental Analysis Charts & Tools provided for research purpose. Please be aware of the risk's involved in trading & seek independent advice, if necessary.
+    - generic [ref=e1698]: 2026 Chartink
+  - generic:
+    - generic: 

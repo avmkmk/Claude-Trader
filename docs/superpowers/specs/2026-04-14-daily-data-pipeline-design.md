@@ -150,6 +150,71 @@ CREATE INDEX idx_last_updated ON data_updates(last_updated_date);
 
 **Location**: `simple-trader-api/data/dashboard.db` (alongside existing database)
 
+**Database Migration**:
+```python
+# Migration script: create_data_updates_table.py
+import sqlite3
+
+conn = sqlite3.connect('data/dashboard.db')
+cursor = conn.cursor()
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS data_updates (
+        symbol TEXT PRIMARY KEY,
+        last_updated_date DATE NOT NULL,
+        last_run_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status TEXT NOT NULL CHECK(status IN ('success', 'failed', 'pending')),
+        error_message TEXT
+    )
+""")
+
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_status ON data_updates(status)")
+cursor.execute("CREATE INDEX IF NOT EXISTS idx_last_updated ON data_updates(last_updated_date)")
+
+conn.commit()
+conn.close()
+print("✓ data_updates table created successfully")
+```
+
+**Bootstrap Process** (first-time initialization):
+```python
+def bootstrap_from_csvs(self, csv_directory, symbols):
+    """Scan existing CSVs to populate initial metadata"""
+    for symbol in symbols:
+        try:
+            csv_path = f"{csv_directory}/{symbol}.csv"
+            if not os.path.exists(csv_path):
+                # Stock not yet downloaded - mark as needing full history
+                last_date = '1990-01-01'
+            else:
+                # Read last row from CSV to get most recent date
+                df = pd.read_csv(csv_path)
+                if df.empty:
+                    last_date = '1990-01-01'
+                else:
+                    # Parse date from last row (handle different date formats)
+                    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+                    df = df.dropna(subset=['Date'])
+                    if df.empty:
+                        last_date = '1990-01-01'
+                    else:
+                        last_date = df['Date'].max().strftime('%Y-%m-%d')
+
+            # Insert into database
+            self.cursor.execute("""
+                INSERT OR REPLACE INTO data_updates
+                (symbol, last_updated_date, status)
+                VALUES (?, ?, 'pending')
+            """, (symbol, last_date))
+
+        except Exception as e:
+            print(f"Warning: Bootstrap failed for {symbol}: {e}")
+            # Continue with other symbols
+
+    self.conn.commit()
+    print(f"✓ Bootstrapped {len(symbols)} symbols")
+```
+
 ### 2. DataFetcher (Worker Process)
 
 **Purpose**: Fetches and validates data for a single stock
@@ -161,13 +226,14 @@ CREATE INDEX idx_last_updated ON data_updates(last_updated_date);
 - Return success/failure result
 
 **Data Validation Rules**:
-- All dates in range must be present (account for market holidays)
+- Check for missing weekdays in range (NSE market holidays will cause gaps - acceptable)
 - Prices must be positive: open, high, low, close > 0
 - High >= Low, High >= Open, High >= Close
 - Daily price change <= 20% (circuit breaker check)
 - Min price: 0.10, Max price: 100,000
+- **Market Holidays**: Gaps on known NSE holidays are expected and valid (see CONFIG.nse_holidays)
 
-**File Locking**: Uses `fcntl.flock()` on Unix or `msvcrt.locking()` on Windows
+**File Locking**: Uses `filelock` library (cross-platform: `pip install filelock`)
 
 ### 3. DataUpdateOrchestrator (Parallel Coordinator)
 
@@ -198,10 +264,23 @@ CREATE INDEX idx_last_updated ON data_updates(last_updated_date);
    - Attempt 4: Wait 20 seconds (final)
 4. Update DB with final status
 
-**Error Categories**:
-- **Retriable**: Network timeouts, rate limits, temporary server errors
-- **Non-retriable**: Data validation errors, missing CSV files
-- **Fatal**: Authentication failures, invalid credentials
+**Error Categories** (determines retry behavior):
+
+1. **Retriable Errors** (retry with exponential backoff):
+   - Network timeouts (socket timeout, connection refused)
+   - HTTP 429 (rate limit exceeded)
+   - HTTP 5xx (server errors)
+   - File lock timeouts (CSV locked by another process)
+
+2. **Non-Retriable Errors** (log and skip):
+   - Data validation failures (missing dates, invalid prices)
+   - HTTP 400 (bad request - invalid symbol)
+   - HTTP 404 (symbol not found)
+
+3. **Fatal Errors** (stop entire execution):
+   - HTTP 401/403 (authentication/authorization failures)
+   - Missing .env credentials
+   - Database connection failures
 
 ### 5. UpdateReporter (Reporting)
 
@@ -232,13 +311,48 @@ ICICIBANK
 
 **Location**: `simple-trader-api/data/nifty_750.csv`
 
-**Generation**: Combine NIFTY 500 + Midcap 150 + Smallcap 100
+**Generation Methods**:
+
+1. **Option A - Index Combination** (Recommended):
+   ```python
+   # Use existing nifty_200_constituents.csv as base
+   # Download NIFTY 500, Midcap 150, Smallcap 100 from NSE India
+   # Combine and deduplicate to get top 750
+   ```
+
+2. **Option B - Market Cap Sorting**:
+   - Export all NSE stocks with market cap
+   - Sort by market cap (descending)
+   - Take top 750
+   - Save as CSV with single column "symbol"
+
+3. **Option C - Use Existing Dataset**:
+   ```bash
+   # Generate from existing CSV directory
+   cd ../SimpleTraderExternal/data/daily/eod2
+   ls *.csv | head -750 | sed 's/.csv$//' > nifty_750.csv
+   ```
+
+**Initial Setup Script** (`generate_stock_list.py`):
+```python
+import os
+import pandas as pd
+
+# Option C implementation
+csv_dir = '../SimpleTraderExternal/data/daily/eod2'
+symbols = [f.replace('.csv', '') for f in os.listdir(csv_dir)
+           if f.endswith('.csv')][:750]
+
+df = pd.DataFrame({'symbol': symbols})
+df.to_csv('data/nifty_750.csv', index=False)
+print(f"Generated nifty_750.csv with {len(symbols)} symbols")
+```
 
 ### Script Configuration (`config.py`)
 
 ```python
 CONFIG = {
-    # Paths
+    # Paths (absolute from project root)
     'csv_base_path': '../SimpleTraderExternal/data/daily/eod2',
     'stock_list_path': 'data/nifty_750.csv',
     'db_path': 'data/dashboard.db',
@@ -248,18 +362,29 @@ CONFIG = {
     'nubra_env': 'PROD',
     'api_timeout': 30,
 
-    # Parallel processing
-    'num_workers': 10,
+    # Parallel processing (start with 5 workers, increase if no rate limits hit)
+    'num_workers': 5,  # Conservative: avoid Nubra API rate limits
     'batch_size': 50,
 
-    # Retry settings
+    # Retry settings (only for retriable errors - see Error Categories)
     'max_retries': 3,
-    'retry_backoff': [5, 10, 20],
+    'retry_backoff': [5, 10, 20],  # seconds
 
     # Data validation
-    'max_price_change': 0.20,
+    'max_price_change': 0.20,  # 20% circuit breaker
     'min_price': 0.10,
     'max_price': 100000,
+
+    # Market holidays (NSE - update annually)
+    'nse_holidays_2026': [
+        '2026-01-26',  # Republic Day
+        '2026-03-14',  # Holi
+        '2026-04-10',  # Good Friday
+        '2026-08-15',  # Independence Day
+        '2026-10-02',  # Gandhi Jayanti
+        '2026-11-01',  # Diwali
+        # Add more as needed
+    ]
 }
 ```
 
@@ -439,8 +564,9 @@ simple-trader-api/
 ```python
 # requirements.txt additions
 nubra-python-sdk>=1.0.0    # Already exists
-filelock>=3.12.0           # For cross-platform file locking
-tqdm>=4.65.0              # For progress bars (optional)
+filelock>=3.13.0           # Cross-platform file locking (REQUIRED)
+pandas>=2.0.0             # Already exists
+tqdm>=4.65.0              # Progress bars (optional, for visual feedback)
 ```
 
 ### Performance Estimates

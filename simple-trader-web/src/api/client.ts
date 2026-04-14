@@ -7,7 +7,7 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000,
+  timeout: 120000, // 2 minutes - needed for Chartink scraping
 })
 
 apiClient.interceptors.request.use((config) => {

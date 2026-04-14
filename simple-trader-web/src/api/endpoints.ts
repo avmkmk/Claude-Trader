@@ -35,6 +35,13 @@ export interface WatchlistItem {
   type: string
   added_at: string
   notes: string | null
+  phase: number | null
+  status_label: string | null
+  ath_value: number | null
+  ath_date: string | null
+  ema_200: number | null
+  distance_from_ath: number | null
+  last_analyzed: string | null
 }
 
 export interface Signal {
@@ -251,5 +258,100 @@ export async function analyzeTrades(trades: Order[]): Promise<AIChatResponse> {
     pnl: t.pnl
   }))
   const { data } = await apiClient.post<AIChatResponse>('/ai/analyze-trades', { trades: tradesData })
+  return data
+}
+
+// Scanner - Chartink scraping and ATH analysis
+export interface Candidate {
+  id: number
+  symbol: string
+  source: string
+  current_price: number | null
+  week_52_high: number | null
+  distance_from_high: number | null
+  scraped_at: string
+  // Phase analysis fields
+  phase: number | null
+  status_label: string | null
+  ath_value: number | null
+  ath_date: string | null
+  ema_200: number | null
+  distance_from_ath: number | null
+  last_analyzed: string | null
+}
+
+export interface ScrapeResponse {
+  success: boolean
+  total_found: number
+  unique_stocks: number
+  overlap_removed: number
+  new_candidates: number
+  duplicates_skipped: number
+  errors: string[]
+}
+
+export interface AddToWatchlistResponse {
+  success: boolean
+  error?: string
+  analysis?: {
+    symbol: string
+    phase: number
+    status_label: string
+    distance_from_ath: number
+  }
+}
+
+export async function scrapeChartink(): Promise<ScrapeResponse> {
+  const { data } = await apiClient.post<ScrapeResponse>('/scanner/scrape-chartink')
+  return data
+}
+
+export async function getCandidates(): Promise<Candidate[]> {
+  const { data } = await apiClient.get<Candidate[]>('/scanner/candidates')
+  return data
+}
+
+export async function addCandidateToWatchlist(symbol: string): Promise<AddToWatchlistResponse> {
+  const { data } = await apiClient.post<AddToWatchlistResponse>(`/scanner/candidates/${symbol}/add-to-watchlist`)
+  return data
+}
+
+export interface AnalyzeWatchlistResponse {
+  success: boolean
+  analyzed: number
+  phase_1: number
+  phase_2: number
+  phase_3: number
+  errors: string[]
+}
+
+export interface AnalyzeCandidatesResponse {
+  success: boolean
+  analyzed: number
+  phase_1: number
+  phase_2: number
+  phase_3: number
+  errors: string[]
+}
+
+export interface BulkAddResponse {
+  success: boolean
+  added: number
+  skipped: number
+  errors: string[]
+}
+
+export async function analyzeWatchlist(): Promise<AnalyzeWatchlistResponse> {
+  const { data } = await apiClient.post<AnalyzeWatchlistResponse>('/scanner/analyze-watchlist')
+  return data
+}
+
+export async function analyzeCandidates(): Promise<AnalyzeCandidatesResponse> {
+  const { data } = await apiClient.post<AnalyzeCandidatesResponse>('/scanner/analyze-candidates')
+  return data
+}
+
+export async function bulkAddToWatchlist(symbols: string[]): Promise<BulkAddResponse> {
+  const { data } = await apiClient.post<BulkAddResponse>('/scanner/candidates/bulk-add-to-watchlist', { symbols })
   return data
 }

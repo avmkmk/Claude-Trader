@@ -7,7 +7,7 @@ Provides endpoints for portfolio management, trading signals, backtesting, and A
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, holdings, orders, watchlist, signals, news, backtest, ai
+from app.routers import auth, holdings, orders, watchlist, signals, news, backtest, ai, scanner
 
 
 # Initialize FastAPI application with metadata
@@ -39,6 +39,7 @@ app.include_router(signals.router)    # Trading signals
 app.include_router(news.router)       # Market news
 app.include_router(backtest.router)    # Strategy backtesting
 app.include_router(ai.router)         # AI chat and analysis
+app.include_router(scanner.router)    # Chartink scraping and ATH analysis
 
 
 @app.get("/api/health")

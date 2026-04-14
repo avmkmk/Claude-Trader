@@ -12,8 +12,9 @@ date: 2026-04-13
 Build a manual on-demand system to:
 1. Scrape stocks from Chartink screeners (Stage 2 Trend + Within 2% of 52W high)
 2. Review and selectively add candidates to watchlist
-3. Analyze watchlist stocks for ATH reclaim phase (1, 2, or 3)
-4. Surface Phase 3 stocks (entry signals) via dashboard alerts
+3. **Auto-analyze newly added stocks** to determine ATH reclaim fitness
+4. Display status labels: "Phase 3 (Entry)", "Approaching Phase 3", "Consolidation", "Not Applicable"
+5. Surface entry-ready stocks (Phase 3) via dashboard alerts
 
 **Approach:** Manual triggers (no scheduled jobs) for maximum flexibility and incremental development.
 
@@ -26,9 +27,11 @@ Build a manual on-demand system to:
 - Handle pagination (results may span multiple pages)
 - Store scraped stocks in candidates table
 - Allow user to review and approve candidates before adding to watchlist
-- Analyze watchlist stocks for ATH reclaim phase using local historical data
-- Display phase badges (Phase 1/2/3) in watchlist UI
+- **Auto-analyze stocks immediately when added to watchlist**
+- Determine if stock fits ATH reclaim pattern with detailed status labels
+- Display status badges: "Phase 3 (Entry)", "Approaching Phase 3", "Consolidation", "Not Applicable"
 - Highlight Phase 3 stocks as entry signals
+- Allow manual re-analysis of all watchlist stocks on-demand
 
 ### Non-Functional
 - No scheduled jobs (100% manual triggers)
@@ -103,13 +106,22 @@ CREATE TABLE candidates (
 
 ```sql
 ALTER TABLE watchlist ADD COLUMN phase INTEGER DEFAULT NULL;      -- 1, 2, or 3
+ALTER TABLE watchlist ADD COLUMN status_label TEXT DEFAULT NULL;  -- Human-readable status
 ALTER TABLE watchlist ADD COLUMN ath_value REAL DEFAULT NULL;
 ALTER TABLE watchlist ADD COLUMN ath_date TEXT DEFAULT NULL;
 ALTER TABLE watchlist ADD COLUMN ema_200 REAL DEFAULT NULL;
+ALTER TABLE watchlist ADD COLUMN distance_from_ath REAL DEFAULT NULL;  -- Percentage
 ALTER TABLE watchlist ADD COLUMN last_analyzed TIMESTAMP DEFAULT NULL;
 ```
 
-**Why:** Enrich watchlist with ATH strategy state for dashboard display.
+**Status Labels:**
+- `"Phase 3 (Entry Signal)"` - Close > ATH (ready to trade)
+- `"Approaching Phase 3"` - Close within 2% of ATH, above EMA 200
+- `"Phase 2 (Consolidation)"` - Close < EMA 200 (building setup)
+- `"Phase 1 (Tracking)"` - Making new ATHs, no consolidation yet
+- `"Not Applicable"` - Doesn't fit ATH reclaim pattern (e.g., never made ATH in history)
+
+**Why:** Enrich watchlist with detailed ATH strategy state for dashboard display and filtering.
 
 ---
 
@@ -174,13 +186,15 @@ webdriver-manager==4.0.1
 
 **Data Source:** `SimpleTraderExternal/data/daily/eod2/{SYMBOL}.csv`
 
-**Phase Logic:**
+**Phase Logic with Status Labels:**
 
-| Phase | Condition | Meaning |
-|-------|-----------|---------|
-| 1 | Default state | Tracking ATH, no setup yet |
-| 2 | Close < EMA 200 | Consolidation below trend (setup building) |
-| 3 | Close > ATH | Reclaimed ATH (entry signal!) |
+| Phase | Condition | Status Label | Badge Color | Meaning |
+|-------|-----------|--------------|-------------|---------|
+| 3 | Close > ATH | "Phase 3 (Entry Signal)" | 🟢 Green | Ready to trade! |
+| 2.5 | Close > EMA 200 AND within 2% of ATH | "Approaching Phase 3" | 🟡 Yellow | Watch closely, near entry |
+| 2 | Close < EMA 200 | "Phase 2 (Consolidation)" | 🟠 Orange | Building setup |
+| 1 | Default | "Phase 1 (Tracking)" | ⚪ Gray | Making ATHs, no setup |
+| 0 | No clear pattern | "Not Applicable" | ⚫ Dark Gray | Doesn't fit strategy |
 
 **Implementation:**
 
@@ -207,12 +221,27 @@ class ATHAnalyzer:
         # 4. Determine phase
         # 5. Return metrics
 
-    def _determine_phase(self, df, current_price, ema_200, ath_value) -> int:
+    def _determine_phase_and_status(self, df, current_price, ema_200, ath_value) -> tuple:
+        """
+        Determine phase (numeric) and status label (human-readable).
+
+        Returns: (phase: int, status_label: str)
+        """
+        # Phase 3: Entry signal
         if current_price > ath_value:
-            return 3  # Entry signal
+            return (3, "Phase 3 (Entry Signal)")
+
+        # Approaching Phase 3: Within 2% of ATH and above EMA 200
+        distance_pct = ((current_price - ath_value) / ath_value) * 100
+        if distance_pct > -2.0 and current_price > ema_200:
+            return (2, "Approaching Phase 3")
+
+        # Phase 2: Consolidation
         if current_price < ema_200:
-            return 2  # Consolidation
-        return 1      # Default
+            return (2, "Phase 2 (Consolidation)")
+
+        # Phase 1: Default tracking
+        return (1, "Phase 1 (Tracking)")
 ```
 
 **Why local data:**
@@ -289,12 +318,28 @@ User confirmed local historical data should NOT be used for screening (not updat
 
 #### POST /scanner/candidates/{symbol}/add-to-watchlist
 
-**Purpose:** Move candidate to watchlist
+**Purpose:** Move candidate to watchlist and auto-analyze
+
+**Response:**
+```json
+{
+  "success": true,
+  "analysis": {
+    "symbol": "RELIANCE",
+    "phase": 2,
+    "status_label": "Approaching Phase 3",
+    "distance_from_ath": -1.5
+  }
+}
+```
 
 **Process:**
 1. INSERT into watchlist
 2. DELETE from candidates
-3. Invalidate caches
+3. **Run ATH analysis immediately** on the newly added stock
+4. UPDATE watchlist with phase, status, ATH metrics
+5. Return analysis result to show in UI toast
+6. Invalidate caches
 
 ---
 
@@ -319,7 +364,8 @@ User confirmed local historical data should NOT be used for screening (not updat
 2. Wait 15-30 seconds (spinner shown)
 3. Review list of candidates
 4. Click "Add to Watchlist" for interesting stocks
-5. Candidates removed from list after adding
+5. **See instant analysis result** in toast: "RELIANCE added → Approaching Phase 3 (-1.5% from ATH)"
+6. Candidates removed from list after adding
 
 ---
 
@@ -328,12 +374,15 @@ User confirmed local historical data should NOT be used for screening (not updat
 **File:** `simple-trader-web/src/pages/Watchlist.tsx`
 
 **Additions:**
-- "Run ATH Analysis" button at top
-- New column: Phase badge (color-coded)
-  - Phase 1: Gray badge
-  - Phase 2: Yellow badge (consolidation)
-  - Phase 3: Green badge (entry signal!)
-- Display phase distribution after analysis
+- "Run ATH Analysis" button at top (re-analyze all stocks)
+- New column: Status badge (color-coded)
+  - Phase 3 (Entry Signal): 🟢 Green badge
+  - Approaching Phase 3: 🟡 Yellow badge
+  - Phase 2 (Consolidation): 🟠 Orange badge
+  - Phase 1 (Tracking): ⚪ Gray badge
+  - Not Applicable: ⚫ Dark gray badge
+- Display status distribution after analysis
+- Sort by phase (Phase 3 stocks at top)
 
 **User flow:**
 1. Click "Run ATH Analysis"

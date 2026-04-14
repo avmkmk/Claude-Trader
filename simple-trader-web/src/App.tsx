@@ -7,6 +7,7 @@ import Holdings from './pages/Holdings'
 import Orders from './pages/Orders'
 import Strategies from './pages/Strategies'
 import Watchlist from './pages/Watchlist'
+import Candidates from './pages/Candidates'
 import Signals from './pages/Signals'
 import News from './pages/News'
 import AIChat from './pages/AIChat'
@@ -33,6 +34,7 @@ function App() {
         <Route path="orders" element={<Orders />} />
         <Route path="strategies" element={<Strategies />} />
         <Route path="watchlist" element={<Watchlist />} />
+        <Route path="candidates" element={<Candidates />} />
         <Route path="signals" element={<Signals />} />
         <Route path="news" element={<News />} />
         <Route path="ai" element={<AIChat />} />

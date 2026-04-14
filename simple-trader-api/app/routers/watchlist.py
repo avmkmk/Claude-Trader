@@ -57,6 +57,13 @@ class WatchlistItem(BaseModel):
     type: str
     added_at: str
     notes: str | None
+    phase: int | None
+    status_label: str | None
+    ath_value: float | None
+    ath_date: str | None
+    ema_200: float | None
+    distance_from_ath: float | None
+    last_analyzed: str | None
 
 
 @router.get("/watchlist")
@@ -76,7 +83,13 @@ async def get_watchlist(x_session_id: str = Header(alias="X-Session-ID")):
     try:
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT id, symbol, name, type, added_at, notes FROM watchlist ORDER BY added_at DESC")
+        c.execute("""
+            SELECT id, symbol, name, type, added_at, notes,
+                   phase, status_label, ath_value, ath_date,
+                   ema_200, distance_from_ath, last_analyzed
+            FROM watchlist
+            ORDER BY added_at DESC
+        """)
         rows = c.fetchall()
         conn.close()
 
@@ -87,7 +100,14 @@ async def get_watchlist(x_session_id: str = Header(alias="X-Session-ID")):
                 "name": row[2],
                 "type": row[3],
                 "added_at": row[4],
-                "notes": row[5]
+                "notes": row[5],
+                "phase": row[6],
+                "status_label": row[7],
+                "ath_value": row[8],
+                "ath_date": row[9],
+                "ema_200": row[10],
+                "distance_from_ath": row[11],
+                "last_analyzed": row[12]
             }
             for row in rows
         ]
