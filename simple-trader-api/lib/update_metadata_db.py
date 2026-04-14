@@ -202,8 +202,12 @@ class UpdateMetadataDB:
         for symbol in symbols:
             csv_path = os.path.join(csv_directory, f"{symbol}.csv")
 
+            # Try lowercase if uppercase doesn't exist
             if not os.path.exists(csv_path):
-                logger.warning(f"CSV not found for {symbol}: {csv_path}")
+                csv_path = os.path.join(csv_directory, f"{symbol.lower()}.csv")
+
+            if not os.path.exists(csv_path):
+                logger.warning(f"CSV not found for {symbol}")
                 continue
 
             try:
