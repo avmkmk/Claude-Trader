@@ -43,12 +43,8 @@ class StatusResponse(BaseModel):
 
 class NubraLoginRequest(BaseModel):
     """Request model for Nubra broker authentication"""
-    phone: str
-    """Phone number registered with broker"""
-    mpin: str
-    """Broker MPIN"""
-    otp: str
-    """OTP received on phone"""
+    totp: str
+    """TOTP code from authenticator app (6 digits)"""
 
 
 class NubraLoginResponse(BaseModel):
@@ -134,7 +130,7 @@ async def status(x_session_id: str = Header(alias="X-Session-ID", default=None))
 @router.post("/nubra/login", response_model=NubraLoginResponse)
 async def nubra_login(request: NubraLoginRequest):
     """
-    Authenticate with Nubra broker using phone, MPIN, and OTP.
+    Authenticate with Nubra broker using TOTP (authenticator app).
 
     This creates a persistent Nubra session that will be used for:
     - Historical data fetching
@@ -144,8 +140,12 @@ async def nubra_login(request: NubraLoginRequest):
 
     The session persists for several days and doesn't require re-authentication.
 
+    Prerequisites:
+    - PHONE_NO and MPIN must be set in server environment variables
+    - User must have TOTP authenticator app (Google Authenticator, etc.)
+
     Args:
-        request: NubraLoginRequest with phone, mpin, and otp
+        request: NubraLoginRequest with totp code
 
     Returns:
         NubraLoginResponse: Success status, session ID, and message
@@ -154,40 +154,60 @@ async def nubra_login(request: NubraLoginRequest):
         # Add parent directory to path to import apis module
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-        from apis.nubra_api import NubraAPIHandler
-        from nubra_python_sdk.start_sdk import NubraEnv
+        from nubra_python_sdk.start_sdk import NubraEnv, InitNubraSdk
+        from nubra_python_sdk.marketdata.market_data import MarketData
 
-        # Create handler and authenticate
-        handler = NubraAPIHandler(env=NubraEnv.PROD)
-        success, error = handler.initialize_sdk_with_credentials(
-            phone=request.phone,
-            mpin=request.mpin,
-            otp=request.otp
+        # Get phone and MPIN from server environment
+        phone = os.getenv('PHONE_NO')
+        mpin = os.getenv('MPIN')
+
+        if not phone or not mpin:
+            return NubraLoginResponse(
+                success=False,
+                message="Server configuration error: PHONE_NO or MPIN not set in environment"
+            )
+
+        # Set TOTP in environment temporarily
+        os.environ['TOTP'] = request.totp
+
+        # Initialize SDK with TOTP login
+        sdk_instance = InitNubraSdk(NubraEnv.PROD, totp_login=True, env_creds=True)
+        market_data_api = MarketData(sdk_instance)
+
+        # Clear TOTP from environment
+        if 'TOTP' in os.environ:
+            del os.environ['TOTP']
+
+        # Test the connection with a simple data fetch
+        from datetime import datetime, timedelta
+        today = datetime.now().strftime('%Y-%m-%d')
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+        # Create session for authenticated user
+        session_id = session_manager.create_session()
+
+        return NubraLoginResponse(
+            success=True,
+            session_id=session_id,
+            message="Successfully authenticated with TOTP. Session will persist for several days."
         )
 
-        if success:
-            # Create session for authenticated user
-            session_id = session_manager.create_session()
+    except Exception as e:
+        # Clear TOTP on error
+        if 'TOTP' in os.environ:
+            del os.environ['TOTP']
 
-            # Test the connection with a simple data fetch
-            test_df = handler.get_historical_data('RELIANCE', '2026-04-14', '2026-04-15', '1d')
-
+        error_msg = str(e)
+        if "440" in error_msg or "Unauthorized" in error_msg:
             return NubraLoginResponse(
-                success=True,
-                session_id=session_id,
-                message="Successfully authenticated with Nubra. Session will persist for several days."
+                success=False,
+                message="Invalid TOTP code. Please check your authenticator app and try again."
             )
         else:
             return NubraLoginResponse(
                 success=False,
-                message=f"Authentication failed: {error}"
+                message=f"Authentication error: {error_msg}"
             )
-
-    except Exception as e:
-        return NubraLoginResponse(
-            success=False,
-            message=f"Error during authentication: {str(e)}"
-        )
 
 
 @router.get("/nubra/status", response_model=NubraStatusResponse)
@@ -202,35 +222,46 @@ async def nubra_status():
         # Add parent directory to path to import apis module
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-        from apis.nubra_api import NubraAPIHandler
-        from nubra_python_sdk.start_sdk import NubraEnv
+        from nubra_python_sdk.start_sdk import NubraEnv, InitNubraSdk
+        from nubra_python_sdk.marketdata.market_data import MarketData
 
-        # Try to initialize SDK (will use saved token if available)
-        handler = NubraAPIHandler(env=NubraEnv.PROD)
-        success = handler.initialize_sdk()
+        # Try to initialize SDK with TOTP (will use saved token if available)
+        sdk_instance = InitNubraSdk(NubraEnv.PROD, totp_login=True, env_creds=True)
+        market_data_api = MarketData(sdk_instance)
 
-        if success:
-            # Test with a simple data fetch
-            test_df = handler.get_historical_data('RELIANCE', '2026-04-14', '2026-04-15', '1d')
+        # Test with a simple data fetch
+        from datetime import datetime, timedelta
+        today = datetime.now().strftime('%Y-%m-%d')
+        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
-            if test_df is not None:
-                return NubraStatusResponse(
-                    authenticated=True,
-                    message="Nubra SDK is authenticated and working"
-                )
-            else:
-                return NubraStatusResponse(
-                    authenticated=False,
-                    message="Nubra SDK initialized but data fetch failed. May need re-authentication."
-                )
+        test_df = market_data_api.historical_data(
+            exchange="NSE",
+            symbol="RELIANCE",
+            from_datetime=yesterday,
+            to_datetime=today,
+            interval="1d"
+        )
+
+        if test_df is not None:
+            return NubraStatusResponse(
+                authenticated=True,
+                message="Nubra is authenticated and working with TOTP"
+            )
         else:
             return NubraStatusResponse(
                 authenticated=False,
-                message="Nubra SDK not authenticated. Please login with phone/MPIN/OTP."
+                message="Nubra initialized but data fetch failed. May need re-authentication."
             )
 
     except Exception as e:
-        return NubraStatusResponse(
-            authenticated=False,
-            message=f"Error checking Nubra status: {str(e)}"
-        )
+        error_msg = str(e)
+        if "440" in error_msg or "Unauthorized" in error_msg or "Missing token" in error_msg:
+            return NubraStatusResponse(
+                authenticated=False,
+                message="Not authenticated. Please login with TOTP code from your authenticator app."
+            )
+        else:
+            return NubraStatusResponse(
+                authenticated=False,
+                message=f"Error: {error_msg}"
+            )

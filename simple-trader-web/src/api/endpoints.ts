@@ -143,9 +143,7 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean }> {
 
 // Nubra Broker Authentication
 export interface NubraLoginRequest {
-  phone: string
-  mpin: string
-  otp: string
+  totp: string
 }
 
 export interface NubraLoginResponse {

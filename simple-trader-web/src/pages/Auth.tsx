@@ -7,15 +7,12 @@ import { useAuthStore } from '@/stores/authStore'
 import { nubraLogin, checkNubraStatus } from '@/api/endpoints'
 
 export default function Auth() {
-  const [phone, setPhone] = useState('')
-  const [mpin, setMpin] = useState('')
-  const [otp, setOtp] = useState('')
+  const [totp, setTotp] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [checkingStatus, setCheckingStatus] = useState(true)
-  const login = useAuthStore((state) => state.login)
   const navigate = useNavigate()
 
   // Check if already authenticated with Nubra
@@ -45,29 +42,15 @@ export default function Auth() {
     setSuccess('')
     setLoading(true)
 
-    if (!phone || phone.length < 10) {
-      setError('Please enter a valid 10-digit phone number')
-      setLoading(false)
-      return
-    }
-
-    if (!mpin || mpin.length < 4) {
-      setError('Please enter a valid MPIN (4-6 digits)')
-      setLoading(false)
-      return
-    }
-
-    if (!otp || otp.length < 4) {
-      setError('Please enter the OTP sent to your phone')
+    if (!totp || totp.length !== 6) {
+      setError('Please enter the 6-digit TOTP code from your authenticator app')
       setLoading(false)
       return
     }
 
     try {
       const response = await nubraLogin({
-        phone,
-        mpin,
-        otp
+        totp
       })
 
       if (response.success) {
@@ -114,7 +97,7 @@ export default function Auth() {
           <p className="mt-2 text-muted-foreground">
             {isAuthenticated
               ? 'Nubra broker is authenticated'
-              : 'Sign in with your Nubra broker credentials'}
+              : 'Enter TOTP code from your authenticator app'}
           </p>
         </div>
 
@@ -144,58 +127,29 @@ export default function Auth() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="phone" className="text-sm font-medium">
-                Phone Number
+            <div className="space-y-2">
+              <label htmlFor="totp" className="text-sm font-medium block">
+                TOTP Code
               </label>
               <Input
-                id="phone"
-                type="tel"
-                placeholder="Enter registered phone (10 digits)"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                maxLength={10}
-                className="mt-1"
-                autoComplete="tel"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Phone number registered with your Nubra broker account
-              </p>
-            </div>
-
-            <div>
-              <label htmlFor="mpin" className="text-sm font-medium">
-                MPIN
-              </label>
-              <Input
-                id="mpin"
-                type="password"
-                placeholder="Enter your broker MPIN"
-                value={mpin}
-                onChange={(e) => setMpin(e.target.value)}
-                maxLength={6}
-                className="mt-1"
-                autoComplete="off"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="otp" className="text-sm font-medium">
-                OTP
-              </label>
-              <Input
-                id="otp"
+                id="totp"
                 type="text"
-                placeholder="Enter OTP sent to your phone"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                placeholder="000000"
+                value={totp}
+                onChange={(e) => setTotp(e.target.value.replace(/\D/g, ''))}
                 maxLength={6}
-                className="mt-1"
+                className="mt-1 text-center text-2xl font-mono tracking-widest"
                 autoComplete="one-time-code"
+                autoFocus
               />
-              <p className="mt-1 text-xs text-muted-foreground">
-                An OTP will be sent when you submit the form
+              <p className="text-xs text-muted-foreground">
+                Enter the 6-digit code from your authenticator app (Google Authenticator, Authy, etc.)
               </p>
+              <div className="p-3 bg-primary/5 border border-primary/10 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  <strong className="text-foreground">First time?</strong> Set up TOTP authentication with Nubra using your authenticator app to scan the QR code
+                </p>
+              </div>
             </div>
 
             {error && (
