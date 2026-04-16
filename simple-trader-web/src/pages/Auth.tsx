@@ -30,11 +30,17 @@ export default function Auth() {
       setIsAuthenticated(status.authenticated)
       if (status.authenticated) {
         setSuccess('Nubra is already authenticated. Session is active.')
-        // Also update auth store so user can access protected routes
-        const sessionId = localStorage.getItem('sessionId')
-        if (sessionId) {
-          setAuthenticated(sessionId)
+        // Update auth store so user can access protected routes
+        let sessionId = localStorage.getItem('sessionId')
+
+        // If no session ID exists, generate one for authenticated session
+        if (!sessionId) {
+          sessionId = `nubra-${Date.now()}-${Math.random().toString(36).substring(7)}`
+          localStorage.setItem('sessionId', sessionId)
         }
+
+        // Always update auth store when authenticated
+        setAuthenticated(sessionId)
       }
     } catch (err) {
       // Not authenticated
