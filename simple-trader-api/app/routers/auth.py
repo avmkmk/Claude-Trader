@@ -269,3 +269,131 @@ async def nubra_status():
                 authenticated=False,
                 message=f"Error: {error_msg}"
             )
+
+
+# TOTP Setup Models
+class TotpGenerateResponse(BaseModel):
+    """Response model for TOTP secret generation"""
+    success: bool
+    secret: str | None = None
+    qr_url: str | None = None
+    message: str
+
+
+class TotpEnableRequest(BaseModel):
+    """Request model for enabling TOTP"""
+    totp: str
+    mpin: str
+
+
+class TotpEnableResponse(BaseModel):
+    """Response model for TOTP enable"""
+    success: bool
+    message: str
+
+
+@router.post("/nubra/totp/generate-secret", response_model=TotpGenerateResponse)
+async def generate_totp_secret():
+    """
+    Step 1: Generate TOTP secret for Nubra account.
+
+    This must be called first to set up TOTP authentication.
+    The returned secret should be added to an authenticator app
+    (Google Authenticator, Authy, etc.).
+
+    Returns:
+        TotpGenerateResponse: TOTP secret and QR code URL
+    """
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        from nubra_python_sdk.start_sdk import InitNubraSdk, NubraEnv
+
+        # Initialize SDK for setup
+        setup_client = InitNubraSdk(NubraEnv.PROD)
+        secret = setup_client.totp_generate_secret()
+
+        if secret:
+            # Generate QR code URL for easier setup
+            # Format: otpauth://totp/Nubra:{phone}?secret={secret}&issuer=Nubra
+            phone = os.getenv('PHONE_NO', 'user')
+            qr_url = f"otpauth://totp/Nubra:{phone}?secret={secret}&issuer=Nubra"
+
+            return TotpGenerateResponse(
+                success=True,
+                secret=secret,
+                qr_url=qr_url,
+                message=f"TOTP secret generated. Add this to your authenticator app: {secret}"
+            )
+        else:
+            return TotpGenerateResponse(
+                success=False,
+                message="Failed to generate TOTP secret"
+            )
+
+    except Exception as e:
+        return TotpGenerateResponse(
+            success=False,
+            message=f"Error generating TOTP secret: {str(e)}"
+        )
+
+
+@router.post("/nubra/totp/enable", response_model=TotpEnableResponse)
+async def enable_totp(request: TotpEnableRequest):
+    """
+    Step 2: Enable TOTP on Nubra account.
+
+    This must be called after generating the secret and adding it to
+    your authenticator app. It verifies that TOTP is working correctly.
+
+    Args:
+        request: TotpEnableRequest with TOTP code and MPIN
+
+    Returns:
+        TotpEnableResponse: Success status and message
+    """
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        from nubra_python_sdk.start_sdk import InitNubraSdk, NubraEnv
+
+        # Set credentials in environment
+        phone = os.getenv('PHONE_NO')
+        if not phone:
+            return TotpEnableResponse(
+                success=False,
+                message="Server configuration error: PHONE_NO not set"
+            )
+
+        # Temporarily set TOTP and MPIN in environment
+        os.environ['TOTP'] = request.totp
+        os.environ['MPIN'] = request.mpin
+
+        try:
+            # Initialize SDK for setup
+            setup_client = InitNubraSdk(NubraEnv.PROD, env_creds=True)
+
+            # Enable TOTP - this will verify the TOTP code and MPIN
+            setup_client.totp_enable()
+
+            return TotpEnableResponse(
+                success=True,
+                message="TOTP enabled successfully! You can now login with TOTP."
+            )
+        finally:
+            # Clean up environment
+            if 'TOTP' in os.environ:
+                del os.environ['TOTP']
+            if 'MPIN' in os.environ:
+                del os.environ['MPIN']
+
+    except Exception as e:
+        error_msg = str(e)
+        if "Invalid" in error_msg or "incorrect" in error_msg:
+            return TotpEnableResponse(
+                success=False,
+                message="Invalid TOTP code or MPIN. Please check and try again."
+            )
+        else:
+            return TotpEnableResponse(
+                success=False,
+                message=f"Error enabling TOTP: {error_msg}"
+            )

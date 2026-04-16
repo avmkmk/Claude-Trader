@@ -174,6 +174,34 @@ export async function checkNubraStatus(): Promise<NubraStatusResponse> {
   return data
 }
 
+// TOTP Setup
+export interface TotpGenerateResponse {
+  success: boolean
+  secret: string | null
+  qr_url: string | null
+  message: string
+}
+
+export interface TotpEnableRequest {
+  totp: string
+  mpin: string
+}
+
+export interface TotpEnableResponse {
+  success: boolean
+  message: string
+}
+
+export async function generateTotpSecret(): Promise<TotpGenerateResponse> {
+  const { data } = await apiClient.post<TotpGenerateResponse>('/auth/nubra/totp/generate-secret')
+  return data
+}
+
+export async function enableTotp(request: TotpEnableRequest): Promise<TotpEnableResponse> {
+  const { data } = await apiClient.post<TotpEnableResponse>('/auth/nubra/totp/enable', request)
+  return data
+}
+
 // Holdings
 export async function getHoldings(): Promise<Holding[]> {
   const { data } = await apiClient.get<Holding[]>('/holdings')
