@@ -9,14 +9,18 @@ import logging
 import os
 import pandas as pd
 import numpy as np
-from typing import Dict, Optional, Tuple
-from datetime import datetime
+import pytz
+from typing import Dict, Optional, Tuple, Any
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
 
 class ATHAnalyzer:
     """Analyzer for ATH reclaim strategy phase detection"""
+
+    # IST timezone for market hours checking
+    IST = pytz.timezone('Asia/Kolkata')
 
     def __init__(self, data_path: Optional[str] = None):
         """
@@ -33,6 +37,85 @@ class ATHAnalyzer:
             self.data_path = data_path
 
         logger.info(f"ATHAnalyzer initialized with data path: {self.data_path}")
+
+    def validate_data_freshness(self, symbol: str) -> Dict[str, Any]:
+        """
+        Check if CSV data is current enough for reliable analysis.
+
+        Validates data timestamp against market hours and current date.
+        During market hours (9:30 AM - 3:30 PM IST), expects yesterday's data.
+        After market close, expects today's data.
+
+        Args:
+            symbol: Stock symbol to check
+
+        Returns:
+            dict with keys:
+                - symbol: Stock symbol
+                - last_data_date: Last date in CSV (YYYY-MM-DD)
+                - expected_date: Expected data date based on current time
+                - is_fresh: True if data is from yesterday or today
+                - days_old: Number of days since last data update
+                - is_market_hours: True if currently in market hours
+                - warning: Warning message if data is stale, None otherwise
+        """
+        csv_path = os.path.join(self.data_path, f"{symbol}.csv")
+
+        if not os.path.exists(csv_path):
+            return {
+                'symbol': symbol,
+                'warning': f'Data file not found for {symbol}',
+                'is_fresh': False,
+                'days_old': 999
+            }
+
+        try:
+            df = pd.read_csv(csv_path)
+            last_date = pd.to_datetime(df['Date'].iloc[-1]).date()
+
+            # Get current time in IST
+            now_ist = datetime.now(self.IST)
+            today = now_ist.date()
+            yesterday = today - timedelta(days=1)
+
+            # Market hours: 9:30 AM - 3:30 PM IST
+            market_open = now_ist.replace(hour=9, minute=30, second=0, microsecond=0)
+            market_close = now_ist.replace(hour=15, minute=30, second=0, microsecond=0)
+            is_market_hours = market_open <= now_ist <= market_close
+
+            # Determine expected data date
+            if is_market_hours:
+                # During market hours, expect yesterday's data (today's close not ready)
+                expected_date = yesterday
+            else:
+                # After close, expect today's data (or yesterday if before market)
+                expected_date = today if now_ist > market_close else yesterday
+
+            days_old = (today - last_date).days
+            is_fresh = last_date >= yesterday  # Yesterday or today is acceptable
+
+            warning = None
+            if days_old > 1:
+                warning = f"Data is {days_old} days old (last updated: {last_date})"
+
+            return {
+                'symbol': symbol,
+                'last_data_date': last_date.isoformat(),
+                'expected_date': expected_date.isoformat(),
+                'is_fresh': is_fresh,
+                'days_old': days_old,
+                'is_market_hours': is_market_hours,
+                'warning': warning
+            }
+
+        except Exception as e:
+            logger.error(f"Error checking data freshness for {symbol}: {e}")
+            return {
+                'symbol': symbol,
+                'warning': f'Error checking data freshness: {e}',
+                'is_fresh': False,
+                'days_old': 999
+            }
 
     def _load_data(self, symbol: str) -> Optional[pd.DataFrame]:
         """
@@ -144,7 +227,7 @@ class ATHAnalyzer:
 
     def analyze_symbol(self, symbol: str) -> Optional[Dict]:
         """
-        Analyze single stock for ATH reclaim phase.
+        Analyze single stock for ATH reclaim phase with data freshness validation.
 
         Phase Logic:
         - Phase 1: At ATH (within 2% of ATH or making new highs)
@@ -155,10 +238,17 @@ class ATHAnalyzer:
             symbol: Stock symbol (e.g., 'RELIANCE')
 
         Returns:
-            Dict with phase, status_label, ATH metrics, or None if analysis failed
+            Dict with phase, status_label, ATH metrics, data freshness info, or None if analysis failed
         """
         try:
             logger.info(f"Analyzing {symbol}...")
+
+            # Check data freshness FIRST
+            freshness = self.validate_data_freshness(symbol)
+
+            # Log warning if data is stale (but continue analysis)
+            if freshness.get('warning'):
+                logger.warning(f"{symbol}: {freshness['warning']}")
 
             # Load data
             df = self._load_data(symbol)
@@ -187,6 +277,7 @@ class ATHAnalyzer:
             # Calculate distance from ATH (percentage)
             distance_from_ath = ((current_price - ath_value) / ath_value) * 100
 
+            # Include freshness data in results
             result = {
                 'symbol': symbol,
                 'phase': phase,
@@ -196,12 +287,16 @@ class ATHAnalyzer:
                 'current_price': current_price,
                 'ema_200': ema_200,
                 'distance_from_ath': distance_from_ath,
-                'last_analyzed': datetime.now().isoformat()
+                'data_as_of_date': freshness.get('last_data_date'),  # NEW
+                'data_days_old': freshness.get('days_old', 0),        # NEW
+                'data_warning': freshness.get('warning'),             # NEW
+                'last_analyzed': datetime.now(self.IST).isoformat()
             }
 
             logger.info(
                 f"{symbol} → {status_label} "
-                f"(Distance: {distance_from_ath:.2f}%, EMA200: {ema_200:.2f})"
+                f"(Distance: {distance_from_ath:.2f}%, EMA200: {ema_200:.2f}, "
+                f"Data: {freshness.get('last_data_date', 'unknown')})"
             )
 
             return result
