@@ -231,16 +231,20 @@ async def nubra_status():
 
         # Test with a simple data fetch
         from datetime import datetime, timedelta
-        today = datetime.now().strftime('%Y-%m-%d')
-        yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+        now = datetime.now()
+        yesterday = now - timedelta(days=1)
 
-        test_df = market_data_api.historical_data(
-            exchange="NSE",
-            symbol="RELIANCE",
-            from_datetime=yesterday,
-            to_datetime=today,
-            interval="1d"
-        )
+        test_request = {
+            "exchange": "NSE",
+            "type": "STOCK",
+            "values": ["RELIANCE"],
+            "fields": ["open", "high", "low", "close", "volume"],
+            "startDate": yesterday.isoformat() + "Z",
+            "endDate": now.isoformat() + "Z",
+            "interval": "1d"
+        }
+
+        test_df = market_data_api.historical_data(test_request)
 
         if test_df is not None:
             return NubraStatusResponse(
