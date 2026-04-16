@@ -43,6 +43,15 @@ class ScrapeResponse(BaseModel):
     errors: List[str] = []
 
 
+class DataFreshnessResponse(BaseModel):
+    """Response model for data freshness check"""
+    all_fresh: bool
+    oldest_data_date: str | None
+    oldest_days: int
+    sample_size: int
+    warning: str | None
+
+
 @router.post("/scanner/scrape-chartink")
 async def scrape_chartink(x_session_id: str = Header(alias="X-Session-ID")) -> ScrapeResponse:
     """
@@ -412,6 +421,7 @@ async def analyze_watchlist(x_session_id: str = Header(alias="X-Session-ID")) ->
                         ath_date = ?,
                         ema_200 = ?,
                         distance_from_ath = ?,
+                        data_as_of_date = ?,
                         last_analyzed = ?
                     WHERE symbol = ?
                 """, (
@@ -421,6 +431,7 @@ async def analyze_watchlist(x_session_id: str = Header(alias="X-Session-ID")) ->
                     result['ath_date'],
                     result['ema_200'],
                     result['distance_from_ath'],
+                    result.get('data_as_of_date'),  # NEW: Store data freshness
                     result['last_analyzed'],
                     symbol
                 ))
@@ -662,4 +673,92 @@ async def bulk_add_to_watchlist(
             added=0,
             skipped=0,
             errors=[str(e)]
+        )
+
+
+@router.get("/scanner/data-freshness")
+async def check_data_freshness(x_session_id: str = Header(alias="X-Session-ID")) -> DataFreshnessResponse:
+    """
+    Check overall data freshness across watchlist stocks.
+
+    Samples first 10 stocks from watchlist and checks how old their CSV data is.
+    This helps users understand if analysis results may be based on stale data.
+
+    Args:
+        x_session_id: Session ID from header for authentication
+
+    Returns:
+        DataFreshnessResponse with freshness summary
+    """
+    if not session_manager.validate_session(x_session_id):
+        return DataFreshnessResponse(
+            all_fresh=False,
+            oldest_data_date=None,
+            oldest_days=999,
+            sample_size=0,
+            warning="Not authenticated"
+        )
+
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute("SELECT symbol FROM watchlist LIMIT 10")
+        rows = cursor.fetchall()
+        symbols = [row["symbol"] for row in rows]
+        conn.close()
+
+        if not symbols:
+            return DataFreshnessResponse(
+                all_fresh=True,
+                oldest_data_date=None,
+                oldest_days=0,
+                sample_size=0,
+                warning=None
+            )
+
+        # Check freshness for sample stocks
+        analyzer = ATHAnalyzer()
+        freshness_results = []
+
+        for symbol in symbols:
+            freshness = analyzer.validate_data_freshness(symbol)
+            if freshness.get('last_data_date'):  # Only include if valid
+                freshness_results.append(freshness)
+
+        if not freshness_results:
+            return DataFreshnessResponse(
+                all_fresh=False,
+                oldest_data_date=None,
+                oldest_days=999,
+                sample_size=0,
+                warning="Unable to check data freshness"
+            )
+
+        # Calculate summary statistics
+        oldest_days = max(f['days_old'] for f in freshness_results)
+        oldest_date = min(f['last_data_date'] for f in freshness_results)
+        all_fresh = all(f['is_fresh'] for f in freshness_results)
+
+        warning = None
+        if not all_fresh:
+            warning = f"Data is {oldest_days} days old (last updated: {oldest_date})"
+
+        logger.info(f"Data freshness check: {sample_size} stocks, oldest: {oldest_days} days")
+
+        return DataFreshnessResponse(
+            all_fresh=all_fresh,
+            oldest_data_date=oldest_date,
+            oldest_days=oldest_days,
+            sample_size=len(freshness_results),
+            warning=warning
+        )
+
+    except Exception as e:
+        logger.error(f"Error checking data freshness: {e}")
+        return DataFreshnessResponse(
+            all_fresh=False,
+            oldest_data_date=None,
+            oldest_days=999,
+            sample_size=0,
+            warning=f"Error: {str(e)}"
         )

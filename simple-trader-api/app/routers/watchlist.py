@@ -121,14 +121,14 @@ async def add_watchlist(
     x_session_id: str = Header(alias="X-Session-ID")
 ):
     """
-    Add a stock to user's watchlist.
-    
+    Add a stock to user's watchlist with source tracking.
+
     Validates that the symbol exists in historical data before adding.
-    
+
     Args:
-        item: Dictionary with symbol and optional name
+        item: Dictionary with symbol, optional name, source, and source_metadata
         x_session_id: Session ID from header for authentication
-        
+
     Returns:
         Success status or error message
     """
@@ -147,17 +147,21 @@ async def add_watchlist(
     try:
         conn = get_db()
         c = conn.cursor()
-        
+
         # Check if already in watchlist
         c.execute("SELECT 1 FROM watchlist WHERE symbol = ?", (symbol,))
         if c.fetchone():
             conn.close()
             return {"success": False, "error": f"{symbol} already in watchlist"}
 
-        # Insert new item
+        # Get source tracking info (defaults to 'manual')
+        source = item.get("source", "manual")
+        source_metadata = item.get("source_metadata", None)
+
+        # Insert new item with source tracking
         c.execute(
-            "INSERT INTO watchlist (symbol, name, type) VALUES (?, ?, ?)",
-            (symbol, item.get("name", ""), "EQUITY")
+            "INSERT INTO watchlist (symbol, name, type, source, source_metadata) VALUES (?, ?, ?, ?, ?)",
+            (symbol, item.get("name", ""), "EQUITY", source, source_metadata)
         )
         conn.commit()
         conn.close()
@@ -199,10 +203,10 @@ async def remove_watchlist(
 async def get_watchlist_symbols(x_session_id: str = Header(alias="X-Session-ID")):
     """
     Get list of valid symbols for autocomplete.
-    
+
     Args:
         x_session_id: Session ID from header for authentication
-        
+
     Returns:
         List of valid stock symbols sorted alphabetically
     """
@@ -214,3 +218,74 @@ async def get_watchlist_symbols(x_session_id: str = Header(alias="X-Session-ID")
         return sorted(valid_symbols)
     except Exception:
         return []
+
+
+@router.get("/watchlist/filter/{source}")
+async def get_watchlist_by_source(
+    source: str,
+    x_session_id: str = Header(alias="X-Session-ID")
+):
+    """
+    Get watchlist items filtered by source.
+
+    Args:
+        source: Filter by source ('all', 'manual', 'chartink')
+        x_session_id: Session ID from header for authentication
+
+    Returns:
+        List of watchlist items filtered by source
+    """
+    if not session_manager.validate_session(x_session_id):
+        return {"error": "Not authenticated"}
+
+    try:
+        conn = get_db()
+        c = conn.cursor()
+
+        if source == 'all':
+            c.execute("""
+                SELECT id, symbol, name, type, added_at, notes,
+                       phase, status_label, ath_value, ath_date,
+                       ema_200, distance_from_ath, last_analyzed,
+                       source, source_metadata, data_as_of_date
+                FROM watchlist
+                ORDER BY phase DESC, added_at DESC
+            """)
+        else:
+            # Use LIKE to match 'chartink%' for both screener types
+            c.execute("""
+                SELECT id, symbol, name, type, added_at, notes,
+                       phase, status_label, ath_value, ath_date,
+                       ema_200, distance_from_ath, last_analyzed,
+                       source, source_metadata, data_as_of_date
+                FROM watchlist
+                WHERE source LIKE ?
+                ORDER BY phase DESC, added_at DESC
+            """, (f'{source}%',))
+
+        rows = c.fetchall()
+        conn.close()
+
+        return [
+            {
+                "id": row[0],
+                "symbol": row[1],
+                "name": row[2],
+                "type": row[3],
+                "added_at": row[4],
+                "notes": row[5],
+                "phase": row[6],
+                "status_label": row[7],
+                "ath_value": row[8],
+                "ath_date": row[9],
+                "ema_200": row[10],
+                "distance_from_ath": row[11],
+                "last_analyzed": row[12],
+                "source": row[13],
+                "source_metadata": row[14],
+                "data_as_of_date": row[15]
+            }
+            for row in rows
+        ]
+    except Exception as e:
+        return [{"error": str(e)}]
