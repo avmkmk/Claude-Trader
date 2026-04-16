@@ -7,6 +7,7 @@ interface AuthState {
   sessionId: string | null
   login: (mpin: string) => Promise<boolean>
   logout: () => Promise<void>
+  setAuthenticated: (sessionId: string) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -35,10 +36,14 @@ export const useAuthStore = create<AuthState>()(
           set({ isAuthenticated: false, sessionId: null })
         }
       },
+
+      setAuthenticated: (sessionId: string) => {
+        set({ isAuthenticated: true, sessionId })
+      },
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ sessionId: state.sessionId }),
+      partialize: (state) => ({ sessionId: state.sessionId, isAuthenticated: state.isAuthenticated }),
     }
   )
 )

@@ -15,6 +15,9 @@ export default function Auth() {
   const [checkingStatus, setCheckingStatus] = useState(true)
   const navigate = useNavigate()
 
+  // Get auth store method
+  const setAuthenticated = useAuthStore((state) => state.setAuthenticated)
+
   // Check if already authenticated with Nubra
   useEffect(() => {
     checkNubraAuth()
@@ -27,6 +30,11 @@ export default function Auth() {
       setIsAuthenticated(status.authenticated)
       if (status.authenticated) {
         setSuccess('Nubra is already authenticated. Session is active.')
+        // Also update auth store so user can access protected routes
+        const sessionId = localStorage.getItem('sessionId')
+        if (sessionId) {
+          setAuthenticated(sessionId)
+        }
       }
     } catch (err) {
       // Not authenticated
@@ -56,6 +64,11 @@ export default function Auth() {
       if (response.success) {
         setSuccess(response.message || 'Successfully authenticated!')
         setIsAuthenticated(true)
+
+        // Update auth store to mark as authenticated
+        if (response.session_id) {
+          setAuthenticated(response.session_id)
+        }
 
         // Wait a moment to show success message
         setTimeout(() => {
