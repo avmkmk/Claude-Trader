@@ -141,6 +141,38 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean }> {
   return data
 }
 
+// Nubra Broker Authentication
+export interface NubraLoginRequest {
+  phone: string
+  mpin: string
+  otp: string
+}
+
+export interface NubraLoginResponse {
+  success: boolean
+  session_id?: string
+  message?: string
+}
+
+export interface NubraStatusResponse {
+  authenticated: boolean
+  message?: string
+}
+
+export async function nubraLogin(request: NubraLoginRequest): Promise<NubraLoginResponse> {
+  const { data } = await apiClient.post<NubraLoginResponse>('/auth/nubra/login', request)
+  if (data.session_id) {
+    localStorage.setItem('sessionId', data.session_id)
+    localStorage.setItem('nubraAuthenticated', 'true')
+  }
+  return data
+}
+
+export async function checkNubraStatus(): Promise<NubraStatusResponse> {
+  const { data } = await apiClient.get<NubraStatusResponse>('/auth/nubra/status')
+  return data
+}
+
 // Holdings
 export async function getHoldings(): Promise<Holding[]> {
   const { data } = await apiClient.get<Holding[]>('/holdings')

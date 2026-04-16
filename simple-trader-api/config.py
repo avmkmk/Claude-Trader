@@ -4,7 +4,7 @@ Configuration for Daily Data Update Pipeline
 
 CONFIG = {
     # Paths (relative to simple-trader-api directory)
-    'csv_base_path': '../SimpleTraderExternal/data/daily/eod2',
+    'csv_base_path': '../../SimpleTraderExternal/data/daily/eod2',
     'stock_list_path': 'data/nifty_750.csv',
     'db_path': 'data/dashboard.db',
     'log_file': 'data_updates.log',
