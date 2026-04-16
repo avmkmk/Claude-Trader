@@ -42,6 +42,9 @@ export interface WatchlistItem {
   ema_200: number | null
   distance_from_ath: number | null
   last_analyzed: string | null
+  source?: string
+  source_metadata?: string | null
+  data_as_of_date?: string | null
 }
 
 export interface Signal {
@@ -195,8 +198,18 @@ export async function getWatchlist(): Promise<WatchlistItem[]> {
   return data
 }
 
-export async function addToWatchlist(symbol: string, name?: string): Promise<{ success: boolean }> {
-  const { data } = await apiClient.post<{ success: boolean }>('/watchlist', { symbol, name })
+export async function addToWatchlist(
+  symbol: string,
+  name?: string,
+  source?: string,
+  source_metadata?: string
+): Promise<{ success: boolean }> {
+  const { data } = await apiClient.post<{ success: boolean }>('/watchlist', {
+    symbol,
+    name,
+    source,
+    source_metadata
+  })
   return data
 }
 
@@ -383,5 +396,24 @@ export async function analyzeCandidates(): Promise<AnalyzeCandidatesResponse> {
 
 export async function bulkAddToWatchlist(symbols: string[]): Promise<BulkAddResponse> {
   const { data } = await apiClient.post<BulkAddResponse>('/scanner/candidates/bulk-add-to-watchlist', { symbols })
+  return data
+}
+
+// Data Freshness
+export interface DataFreshnessInfo {
+  all_fresh: boolean
+  oldest_data_date: string | null
+  oldest_days: number
+  sample_size: number
+  warning: string | null
+}
+
+export async function checkDataFreshness(): Promise<DataFreshnessInfo> {
+  const { data } = await apiClient.get<DataFreshnessInfo>('/scanner/data-freshness')
+  return data
+}
+
+export async function getWatchlistBySource(source: 'all' | 'manual' | 'chartink'): Promise<WatchlistItem[]> {
+  const { data } = await apiClient.get<WatchlistItem[]>(`/watchlist/filter/${source}`)
   return data
 }
