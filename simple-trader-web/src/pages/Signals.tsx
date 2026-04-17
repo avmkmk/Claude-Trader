@@ -8,11 +8,14 @@ import { getSignals } from '@/api/endpoints'
 import { formatCurrency, formatDateTime } from '@/lib/utils'
 
 export default function Signals() {
-  const { data: signals = [], isLoading } = useQuery({
+  const { data: signalsData = [], isLoading } = useQuery({
     queryKey: ['signals'],
     queryFn: getSignals,
     refetchInterval: 60000,
   })
+
+  // Ensure signals is always an array
+  const signals = Array.isArray(signalsData) ? signalsData : []
 
   const activeSignals = signals.filter(s => s.status === 'ACTIVE')
   const buySignals = activeSignals.filter(s => s.signal_type === 'BUY')

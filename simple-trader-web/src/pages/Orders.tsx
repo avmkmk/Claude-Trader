@@ -7,11 +7,14 @@ import { getOrders, type Order } from '@/api/endpoints'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
 export default function Orders() {
-  const { data: orders = [], isLoading } = useQuery({
+  const { data: ordersData = [], isLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: getOrders,
     refetchInterval: 30000,
   })
+
+  // Ensure orders is always an array
+  const orders = Array.isArray(ordersData) ? ordersData : []
 
   const columns = [
     { key: 'symbol', header: 'Symbol', className: 'font-medium' },
