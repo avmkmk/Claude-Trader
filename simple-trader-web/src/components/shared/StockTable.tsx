@@ -21,7 +21,8 @@ export default function StockTable<T extends { symbol: string }>({
   emptyMessage = 'No data available',
   onRowClick,
 }: StockTableProps<T>) {
-  if (!data || data.length === 0) {
+  // Ensure data is actually an array before proceeding
+  if (!data || !Array.isArray(data) || data.length === 0) {
     return (
       <div className="flex h-32 items-center justify-center text-muted-foreground">
         {emptyMessage}
