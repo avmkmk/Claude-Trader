@@ -237,8 +237,8 @@ export default function Watchlist() {
     return <Badge variant="outline">{item.status_label}</Badge>
   }
 
-  // Filter watchlist by source
-  const filteredWatchlist = watchlist.filter(item => {
+  // Filter watchlist by source (ensure watchlist is an array first)
+  const filteredWatchlist = (Array.isArray(watchlist) ? watchlist : []).filter(item => {
     if (sourceFilter === 'all') return true
     if (sourceFilter === 'manual') return !item.source || item.source === 'manual'
     if (sourceFilter === 'chartink') return item.source?.startsWith('chartink')
