@@ -201,7 +201,7 @@ reports/*.pdf
 reports/*.xlsx
 
 # Claude Code specific
-.claude/
+.claude/*
 !.claude/skills/
 .planning/
 
