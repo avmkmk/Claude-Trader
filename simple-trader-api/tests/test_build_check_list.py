@@ -33,7 +33,7 @@ def test_tracked_skip_symbol_excluded():
     assert summary == {"new": 0, "re_checked": 0, "total": 0}
 
 
-def test_symbol_both_new_and_tracked_not_double_counted():
+def test_tracked_symbol_reappearing_in_candidates_uses_fresh_data():
     # HELDCO is already tracked as reclaimed AND happens to reappear in
     # today's fresh Chartink scrape - must only be checked once, using
     # today's fresh data (not the bare {"symbol": ...} fallback).
@@ -42,6 +42,43 @@ def test_symbol_both_new_and_tracked_not_double_counted():
     to_check, summary = build_check_list(candidates, state)
     assert to_check == [{"symbol": "HELDCO", "cap_size": "mid"}]
     assert summary == {"new": 0, "re_checked": 1, "total": 1}
+
+
+def test_tracked_skip_with_transient_reason_is_rechecked():
+    # A transient-reason skip (see TRANSIENT_SKIP_REASONS - matches
+    # scan_step_c.mjs's set of the same name) is a read glitch, not a real
+    # analysis outcome, so it must keep being re-checked just like
+    # reclaimed/approaching symbols, unlike a genuine skip.
+    candidates = []
+    state = {"GLITCHCO": {"verdict": "skip", "reason": "error"}}
+    to_check, summary = build_check_list(candidates, state)
+    assert to_check == [{"symbol": "GLITCHCO"}]
+    assert summary == {"new": 0, "re_checked": 1, "total": 1}
+
+
+def test_tracked_skip_with_non_transient_reason_still_excluded():
+    # This part of the existing design is intentional and must not change:
+    # a genuine (non-transient) skip reason like outside_band stays excluded.
+    candidates = []
+    state = {"OLDCO": {"verdict": "skip", "reason": "outside_band"}}
+    to_check, summary = build_check_list(candidates, state)
+    assert to_check == []
+    assert summary == {"new": 0, "re_checked": 0, "total": 0}
+
+
+def test_duplicate_candidate_symbols_deduplicated_before_counting():
+    # If candidates.json ever contains a duplicate symbol, the "new" count
+    # must reflect unique symbols, not raw candidate entries.
+    candidates = [
+        {"symbol": "DUPCO", "cap_size": "large"},
+        {"symbol": "DUPCO", "cap_size": "large"},
+        {"symbol": "OTHERCO", "cap_size": "mid"},
+    ]
+    state = {}
+    to_check, summary = build_check_list(candidates, state)
+    assert {c["symbol"] for c in to_check} == {"DUPCO", "OTHERCO"}
+    assert len(to_check) == 2
+    assert summary == {"new": 2, "re_checked": 0, "total": 2}
 
 
 def test_empty_state_treats_everything_as_new():

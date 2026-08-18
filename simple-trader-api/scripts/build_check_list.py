@@ -23,6 +23,16 @@ STATE_PATH = os.path.join(
 
 RECHECK_VERDICTS = {"reclaimed", "approaching"}
 
+# Must stay in sync with TRANSIENT_SKIP_REASONS in
+# tradingview-mcp-jackson/scan_step_c.mjs (~line 56) - these are read
+# glitches, not real analysis outcomes, so a symbol stuck on one of these
+# reasons must keep getting re-checked rather than being treated like a
+# genuine (non-transient) skip such as "outside_band" or "not_primed".
+TRANSIENT_SKIP_REASONS = {
+    "strategy_not_found", "missing_live_ath", "insufficient_history",
+    "stale_data_after_retries", "ohlcv_error", "error",
+}
+
 
 def load(path):
     with open(path) as f:
@@ -40,10 +50,13 @@ def build_check_list(candidates, state):
     candidates_by_symbol = {c["symbol"]: c for c in candidates}
     state_symbols = set(state.keys())
 
-    genuinely_new = [c["symbol"] for c in candidates if c["symbol"] not in state_symbols]
+    genuinely_new = list(dict.fromkeys(
+        c["symbol"] for c in candidates if c["symbol"] not in state_symbols
+    ))
     already_tracked = [
         symbol for symbol, r in state.items()
         if r.get("verdict") in RECHECK_VERDICTS
+        or (r.get("verdict") == "skip" and r.get("reason") in TRANSIENT_SKIP_REASONS)
     ]
 
     to_check_symbols = list(dict.fromkeys(genuinely_new + already_tracked))
