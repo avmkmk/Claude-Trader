@@ -40,6 +40,24 @@ def load_exclusions():
         return {}
 
 
+def compute_combined_rank(rows):
+    eligible = [r for r in rows if r.get("ranking_eligible")]
+
+    def dense_rank_by(key):
+        # Ties share a rank (distinct sorted values, not list position) so
+        # two symbols with identical metrics get an identical combined_rank.
+        distinct_values = sorted({r[key] for r in eligible}, reverse=True)
+        return {v: i for i, v in enumerate(distinct_values)}
+
+    wr_rank = dense_rank_by("win_rate_pct")
+    pf_rank = dense_rank_by("profit_factor")
+    for r in rows:
+        if r.get("ranking_eligible"):
+            r["combined_rank"] = (wr_rank[r["win_rate_pct"]] + pf_rank[r["profit_factor"]]) / 2
+        else:
+            r["combined_rank"] = None
+
+
 def main():
     if len(sys.argv) != 3:
         print("Usage: python build_final_watchlist.py <scan_date> <output_path>")
@@ -67,6 +85,8 @@ def main():
                 "market_cap_cr": market_cap_cr, "distance_pct": dist,
                 "close": r.get("close"), "reference_price": r.get("entry_price"),
                 "reference_label": "Entry Price", "ema200": r.get("ema200"),
+                "win_rate_pct": r.get("win_rate_pct"), "profit_factor": r.get("profit_factor"),
+                "total_trades": r.get("total_trades"), "ranking_eligible": r.get("ranking_eligible", False),
                 "entry_date": r.get("entry_date"), "last_checked": r.get("last_checked"),
             })
         elif r.get("verdict") == "approaching":
@@ -75,11 +95,21 @@ def main():
                 "market_cap_cr": market_cap_cr, "distance_pct": r.get("distance_pct"),
                 "close": r.get("close"), "reference_price": r.get("absolute_ath"),
                 "reference_label": "ATH (entry trigger)", "ema200": r.get("ema200"),
+                "win_rate_pct": r.get("win_rate_pct"), "profit_factor": r.get("profit_factor"),
+                "total_trades": r.get("total_trades"), "ranking_eligible": r.get("ranking_eligible", False),
                 "entry_date": None, "last_checked": r.get("last_checked"),
             })
 
-    reclaimed_rows.sort(key=lambda r: abs(r["distance_pct"]))
-    approaching_rows.sort(key=lambda r: abs(r["distance_pct"]))
+    compute_combined_rank(reclaimed_rows)
+    compute_combined_rank(approaching_rows)
+
+    def sort_key(r):
+        if r["combined_rank"] is not None:
+            return (0, r["combined_rank"])
+        return (1, abs(r["distance_pct"]))
+
+    reclaimed_rows.sort(key=sort_key)
+    approaching_rows.sort(key=sort_key)
 
     wb = Workbook()
     ws = wb.active
@@ -87,8 +117,9 @@ def main():
 
     headers = [
         "Symbol", "Status", "Cap Tier", "Market Cap (cr)", "Distance from Entry %",
-        "Current Price", "Reference Price", "Reference", "EMA 200", "Entry Date",
-        "Last Checked", "TradingView Link",
+        "Current Price", "Reference Price", "Reference", "EMA 200",
+        "Win Rate %", "Profit Factor", "Total Trades", "Combined Rank",
+        "Entry Date", "Last Checked", "TradingView Link",
     ]
     ws.append(headers)
     for cell in ws[1]:
@@ -113,9 +144,13 @@ def main():
             ws.cell(row=row_idx, column=7, value=r["reference_price"])
             ws.cell(row=row_idx, column=8, value=r["reference_label"])
             ws.cell(row=row_idx, column=9, value=r["ema200"])
-            ws.cell(row=row_idx, column=10, value=r["entry_date"] or "")
-            ws.cell(row=row_idx, column=11, value=r["last_checked"] or "")
-            ws.cell(row=row_idx, column=12, value=f"https://in.tradingview.com/chart/?symbol=NSE:{r['symbol']}")
+            ws.cell(row=row_idx, column=10, value=r["win_rate_pct"])
+            ws.cell(row=row_idx, column=11, value=r["profit_factor"])
+            ws.cell(row=row_idx, column=12, value=r["total_trades"])
+            ws.cell(row=row_idx, column=13, value=r["combined_rank"])
+            ws.cell(row=row_idx, column=14, value=r["entry_date"] or "")
+            ws.cell(row=row_idx, column=15, value=r["last_checked"] or "")
+            ws.cell(row=row_idx, column=16, value=f"https://in.tradingview.com/chart/?symbol=NSE:{r['symbol']}")
             row_idx += 1
 
     for col_idx, header in enumerate(headers, start=1):

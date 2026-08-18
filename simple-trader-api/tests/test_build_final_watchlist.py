@@ -1,0 +1,50 @@
+"""Tests for build_final_watchlist.py's ranking logic."""
+from scripts.build_final_watchlist import compute_combined_rank
+
+
+def test_ranks_eligible_symbols_by_win_rate_and_profit_factor():
+    rows = [
+        {"symbol": "A", "ranking_eligible": True, "win_rate_pct": 80.0, "profit_factor": 2.0},
+        {"symbol": "B", "ranking_eligible": True, "win_rate_pct": 60.0, "profit_factor": 10.0},
+        {"symbol": "C", "ranking_eligible": True, "win_rate_pct": 90.0, "profit_factor": 8.0},
+    ]
+    compute_combined_rank(rows)
+    ranks = {r["symbol"]: r["combined_rank"] for r in rows}
+    # C: best win_rate (rank 0) + 2nd best profit_factor (rank 1) -> 0.5
+    # A: 2nd best win_rate (rank 1) + worst profit_factor (rank 2) -> 1.5
+    # B: worst win_rate (rank 2) + best profit_factor (rank 0) -> 1.0
+    assert ranks["C"] < ranks["B"] < ranks["A"]
+
+
+def test_ineligible_symbols_get_null_rank():
+    rows = [
+        {"symbol": "A", "ranking_eligible": True, "win_rate_pct": 80.0, "profit_factor": 2.0},
+        {"symbol": "B", "ranking_eligible": False, "win_rate_pct": None, "profit_factor": None},
+    ]
+    compute_combined_rank(rows)
+    assert rows[0]["combined_rank"] is not None
+    assert rows[1]["combined_rank"] is None
+
+
+def test_empty_list_does_not_error():
+    rows = []
+    compute_combined_rank(rows)
+    assert rows == []
+
+
+def test_all_ineligible_all_null():
+    rows = [
+        {"symbol": "A", "ranking_eligible": False, "win_rate_pct": None, "profit_factor": None},
+        {"symbol": "B", "ranking_eligible": False, "win_rate_pct": None, "profit_factor": None},
+    ]
+    compute_combined_rank(rows)
+    assert all(r["combined_rank"] is None for r in rows)
+
+
+def test_tied_metrics_produce_equal_rank():
+    rows = [
+        {"symbol": "A", "ranking_eligible": True, "win_rate_pct": 70.0, "profit_factor": 3.0},
+        {"symbol": "B", "ranking_eligible": True, "win_rate_pct": 70.0, "profit_factor": 3.0},
+    ]
+    compute_combined_rank(rows)
+    assert rows[0]["combined_rank"] == rows[1]["combined_rank"]
