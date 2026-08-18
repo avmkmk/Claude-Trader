@@ -37,12 +37,12 @@
  *   node scan_step_c.mjs <candidates.json> <verdicts_out.json>
  */
 import { chart, data } from './src/core/index.js';
+import { round2, toDateStr, findBarIndexByPrice, computeRankingFields, resolveHeldEntry } from './src/core/ranking.js';
 import fs from 'fs';
 import path from 'path';
 
 const EMA_PERIOD = 200;
 const STRATEGY_NAME = 'ATH Reclaim - Final Verified';
-const PRICE_MATCH_TOLERANCE_PCT = 0.5;
 const BUY_ZONE_PCT = 5.0; // build_excel.py does no distance filtering itself - the band must be enforced here
 
 // Rejected symbols (skip verdicts) are cached for REJECTION_COOLDOWN_DAYS so
@@ -88,10 +88,6 @@ function parseNumber(v) {
   return NaN;
 }
 
-function round2(n) {
-  return Math.round(n * 100) / 100;
-}
-
 function computeEma(closes, period) {
   const ema = new Array(closes.length).fill(null);
   if (closes.length < period) return ema;
@@ -103,27 +99,6 @@ function computeEma(closes, period) {
     ema[i] = closes[i] * k + ema[i - 1] * (1 - k);
   }
   return ema;
-}
-
-// Finds the bar whose `field` (open/high/low/close) most closely matches
-// targetPrice, searching from the most recent bar backwards (label events
-// are rare, so the closest match is almost always the intended one).
-function findBarIndexByPrice(bars, field, targetPrice) {
-  let bestIdx = -1;
-  let bestDiff = Infinity;
-  for (let i = bars.length - 1; i >= 0; i--) {
-    const diff = Math.abs(bars[i][field] - targetPrice);
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      bestIdx = i;
-    }
-  }
-  if (bestIdx === -1 || bestDiff > targetPrice * (PRICE_MATCH_TOLERANCE_PCT / 100)) return -1;
-  return bestIdx;
-}
-
-function toDateStr(unixSeconds) {
-  return new Date(unixSeconds * 1000).toISOString().slice(0, 10);
 }
 
 // chart.setSymbol()'s own readiness wait can time out (returns chart_ready:
@@ -189,8 +164,11 @@ async function analyzeSymbol(symbol) {
     return { symbol, verdict: 'skip', reason: 'insufficient_history', bar_count: bars.length };
   }
 
+  const strategyResults = await data.getStrategyResults();
+  const rankingFields = computeRankingFields(strategyResults?.metrics);
+
   const distancePct = ((close - athLive) / athLive) * 100;
-  const base = { distance_pct: round2(distancePct), ema200: ema200Live, absolute_ath: athLive, close };
+  const base = { distance_pct: round2(distancePct), ema200: ema200Live, absolute_ath: athLive, close, ...rankingFields };
 
   // A symbol only counts as primed if it has been through at least one real
   // dip-below-EMA200 cycle - otherwise "close to its ATH" just means it's
@@ -221,14 +199,15 @@ async function analyzeSymbol(symbol) {
   if (lastLabel && /^RECLAIM/.test(lastLabel.text)) {
     dipConfirmed = true;
     isHeld = true;
-    // Label y-position is the entry bar's low (label.new(bar_index, low, ...)
-    // in the Pine source), which is a close approximation of the entry price
-    // but not the actual fill (that's close > absoluteAth on that bar). Use
-    // the bar's own close as the true entry reference price once located;
-    // fall back to the label price if the bar can't be matched.
-    const entryIdx = findBarIndexByPrice(bars, 'low', lastLabel.price);
-    entry_date = entryIdx >= 0 ? toDateStr(bars[entryIdx].time) : null;
-    entry_price = entryIdx >= 0 ? bars[entryIdx].close : lastLabel.price;
+    // Prefer the strategy's own recorded trade fill (exact, any trade age)
+    // over bar-price matching, which is capped by the 500-bar OHLCV window
+    // and only approximate even within it. resolveHeldEntry falls back to
+    // bar-matching automatically if the trades read fails or shows no open
+    // position for a symbol Pine's own labels say is held.
+    const tradesResult = await data.getTrades({ max_trades: 20 });
+    const resolved = resolveHeldEntry({ trades: tradesResult?.trades, lastLabel, bars });
+    entry_price = resolved.entry_price;
+    entry_date = resolved.entry_date;
   } else if (lastLabel && lastLabel.text === 'EXIT') {
     dipConfirmed = true;
   } else {
