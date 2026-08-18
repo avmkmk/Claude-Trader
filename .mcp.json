@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "tradingview-desktop": {
+      "command": "node",
+      "args": [
+        "D:/Professional Journey/Personal Software Projects/SimpleTrader/tradingview-mcp-jackson/src/server.js"
+      ]
+    }
+  }
+}

@@ -1,0 +1,67 @@
+//@version=6
+strategy("ATH Reclaim - Final Verified", 
+     overlay             = true,
+     initial_capital    = 1000000,
+     default_qty_type   = strategy.cash,
+     default_qty_value  = 100000,
+     commission_type    = strategy.commission.percent,
+     commission_value   = 0.04,
+     slippage           = 2,
+     process_orders_on_close = true)
+
+// ============================================
+// INDICATORS
+// ============================================
+ema200 = ta.ema(close, 200)
+dailyBody = math.max(open, close)
+
+// ============================================
+// STATE VARIABLES
+// ============================================
+var float absoluteAth = 0.0
+var int phase = 0 
+var int tradeCount = 0
+
+// ============================================
+// CORE LOGIC
+// ============================================
+
+// 1. CHECK FOR ENTRY FIRST (Using yesterday's ATH and Phase)
+// This ensures that if today breaks the ATH, we trade BEFORE updating the ATH level
+bool isReclaiming = phase == 2 and close > absoluteAth and strategy.position_size == 0
+
+if isReclaiming
+    strategy.entry("Long", strategy.long)
+    phase := 0 
+    tradeCount += 1
+    label.new(bar_index, low, "RECLAIM #" + str.tostring(tradeCount), color=color.green, style=label.style_label_up, yloc=yloc.belowbar)
+
+// 2. UPDATE ABSOLUTE ATH & PHASES
+// We only update the ATH if we aren't currently triggering a reclaim on this bar
+if dailyBody > absoluteAth
+    absoluteAth := dailyBody
+    if strategy.position_size == 0 and not isReclaiming
+        phase := 1 // New peak set, now must dip below EMA
+
+// 3. CONSOLIDATION REQUIREMENT (The Dip)
+if phase == 1 and close < ema200
+    phase := 2 
+
+// 4. EXIT (Touch EMA 200)
+// Re-arm straight to phase 2 (not 1): the dip that justified the original
+// entry already happened, so a stop-out doesn't need a brand new higher
+// peak before the same absoluteAth level can be reclaimed again - simply
+// closing back above it is a valid re-entry.
+if strategy.position_size > 0 and low <= ema200
+    strategy.close("Long", comment="EMA Touch Exit")
+    phase := 2
+    label.new(bar_index, high, "EXIT", color=color.red, style=label.style_label_down, yloc=yloc.abovebar)
+
+// ============================================
+// VISUALS
+// ============================================
+plot(ema200, "EMA 200", color=color.orange, linewidth=2)
+plot(absoluteAth > 0 ? absoluteAth : na, "Absolute ATH", color=color.rgb(0, 255, 157), style=plot.style_linebr, linewidth=1)
+
+// Blue background when "Primed" (Phase 2)
+bgcolor(phase == 2 ? color.new(color.blue, 90) : na)
