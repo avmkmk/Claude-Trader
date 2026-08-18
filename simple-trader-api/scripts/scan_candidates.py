@@ -1,0 +1,102 @@
+"""
+Daily ATH scan routine - Step A + B.
+
+Scrapes both Chartink screeners and takes the union (all stocks appearing
+in either), then enriches each symbol with market cap tier and precise
+price/ATH figures from tradingview-cli.
+
+Does not touch chartink_scraper.py's existing union/dedup behavior
+(scrape_both_screeners), which the existing candidates web UI relies on.
+Instead calls scrape_single_screener() twice and unions here.
+
+Usage:
+    python scripts/scan_candidates.py
+"""
+import json
+import logging
+import os
+import sys
+from datetime import date
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from app.services.chartink_scraper import ChartinkScraper
+from app.services.tradingview_cli import tradingview_cli
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
+
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "daily_scans")
+
+
+def scrape_all_symbols() -> list:
+    scraper = ChartinkScraper()
+
+    result_a = scraper.scrape_single_screener("within-2-52week")
+    if result_a["errors"]:
+        raise RuntimeError(f"Screener 'within-2-52week' failed: {result_a['errors']}")
+
+    result_b = scraper.scrape_single_screener("stage-2-trend")
+    if result_b["errors"]:
+        raise RuntimeError(f"Screener 'stage-2-trend' failed: {result_b['errors']}")
+
+    symbols_a = {s["symbol"] for s in result_a["stocks"]}
+    symbols_b = {s["symbol"] for s in result_b["stocks"]}
+    union = sorted(symbols_a | symbols_b)
+
+    logger.info(
+        f"within-2-52week: {len(symbols_a)} stocks, "
+        f"stage-2-trend: {len(symbols_b)} stocks, "
+        f"common: {len(symbols_a & symbols_b)}, "
+        f"union: {len(union)}"
+    )
+    return union
+
+
+def enrich_with_market_cap(symbols: list) -> list:
+    candidates = []
+    for symbol in symbols:
+        info = tradingview_cli.get_stock_info(symbol)
+        if info is None:
+            logger.warning(f"No TradingView data for {symbol}, marking cap_size=unknown")
+            candidates.append({
+                "symbol": symbol,
+                "cap_size": "unknown",
+                "market_cap_cr": None,
+                "current_price": None,
+                "all_time_high": None,
+            })
+            continue
+
+        candidates.append({
+            "symbol": symbol,
+            "cap_size": info["cap_size"],
+            "market_cap_cr": info["market_cap_cr"],
+            "current_price": info["current_price"],
+            "all_time_high": info["all_time_high"],
+        })
+    return candidates
+
+
+def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    all_symbols = scrape_all_symbols()
+    if not all_symbols:
+        logger.warning("No candidates today - nothing to scan.")
+        candidates = []
+    else:
+        candidates = enrich_with_market_cap(all_symbols)
+
+    today = date.today().isoformat()
+    output_path = os.path.join(OUTPUT_DIR, f"{today}_candidates.json")
+    with open(output_path, "w") as f:
+        json.dump(candidates, f, indent=2)
+
+    logger.info(f"Wrote {len(candidates)} candidates to {output_path}")
+    print(output_path)
+    return output_path
+
+
+if __name__ == "__main__":
+    main()
