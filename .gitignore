@@ -211,6 +211,20 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# tradingview-mcp-jackson: runtime/scratch state, not source
+tradingview-mcp-jackson/screenshots/
+tradingview-mcp-jackson/_rejection_cache.json
+tradingview-mcp-jackson/rules.json
+tradingview-mcp-jackson/user_watchlist.json
+tradingview-mcp-jackson/safety-check-log.json
+tradingview-mcp-jackson/strategy_history_results.json
+tradingview-mcp-jackson/*_verdicts*.json
+tradingview-mcp-jackson/approaching_recheck.json
+tradingview-mcp-jackson/closest_entry_check.json
+tradingview-mcp-jackson/new_today_26.json
+tradingview-mcp-jackson/reclaimed_34.json
+tradingview-mcp-jackson/skipped_38.json
+
 # Build outputs
 simple-trader-web/dist/
 simple-trader-web/.vite/
