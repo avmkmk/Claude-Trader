@@ -1,12 +1,4 @@
-fastapi
-uvicorn
-python-multipart
-python-dotenv
-google-generativeai
-requests
 selenium==4.17.2
 webdriver-manager==4.0.1
-pandas>=1.5.0
-numpy>=1.24.0
-filelock>=3.13.0  # Cross-platform file locking
-openpyxl>=3.1.0  # Excel export for daily ATH scan routine
+openpyxl>=3.1.0
+pytest
