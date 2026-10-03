@@ -225,6 +225,20 @@ tradingview-mcp-jackson/new_today_26.json
 tradingview-mcp-jackson/reclaimed_34.json
 tradingview-mcp-jackson/skipped_38.json
 
+# Daily ATH scan data: outputs, persistent state, exclusions (never commit)
+simple-trader-api/data/
+*.xlsx
+**/daily_scans/
+symbol_state.json
+manual_exclusions.json
+*_candidates.json
+*_to_check.json
+*_verdicts*.json
+*_rejection_cache.json
+tradingview-mcp-jackson/*.json
+!tradingview-mcp-jackson/package.json
+!tradingview-mcp-jackson/package-lock.json
+
 # Build outputs
 simple-trader-web/dist/
 simple-trader-web/.vite/
