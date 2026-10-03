@@ -8,6 +8,16 @@ SimpleTrader is now a single-purpose pipeline: the **Daily ATH Scan** for Indian
 
 History of how it got here: `docs/PROJECT_HISTORY.md`. Install and run instructions: `docs/SETUP.md`.
 
+## Session start (do this first, every session)
+
+A SessionStart hook (`.claude/settings.json` -> `scripts/preflight.ps1`) prints a prerequisite report at the top of the session. Before anything else:
+
+1. Tell the user the result in a short list: what is installed, and what is missing with its install command (Git, Python 3.11+, Node.js 18+, Chrome, TradingView Desktop via Microsoft Store, `tradingview-cli`, Python packages, `tradingview-mcp-jackson` npm install, `.mcp.json` path).
+2. If the hook output is absent, run `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/preflight.ps1` yourself.
+3. If anything is missing, offer to install it (ask before running installs), then re-run the preflight until it says `all prerequisites present`.
+4. TradingView must be launched with `tradingview-mcp-jackson/scripts/launch_tv_debug.ps1` (CDP port 9222), never opened normally. First-time users also need to sign in and add the Pine strategy; follow `docs/SETUP.md`.
+5. Once everything is present, say so and offer to run `/daily-ath-scan`. Do not start the scan until prerequisites pass.
+
 ## Structure
 
 ```

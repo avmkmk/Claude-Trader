@@ -7,6 +7,13 @@ Everything a new machine needs to run the `/daily-ath-scan` routine in Claude Co
 - TradingView Desktop (Microsoft Store build) signed in to an account that can show the Pine strategy.
 - Claude Code (desktop app or CLI) opened on this repo folder.
 
+## Automatic prerequisite check
+Opening any Claude Code session in this repo runs `scripts/preflight.ps1` (via a SessionStart hook in `.claude/settings.json`). Claude then reports what is installed and what is missing, with install commands, and re-checks after fixing. You can run it by hand:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/preflight.ps1
+```
+
 ## One-time install
 ```bash
 git clone https://github.com/avmkmk/SmartTrader-NSE-BSE.git

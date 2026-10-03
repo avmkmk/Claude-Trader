@@ -203,6 +203,7 @@ reports/*.xlsx
 # Claude Code specific
 .claude/*
 !.claude/skills/
+!.claude/settings.json
 .planning/
 
 # Node.js
