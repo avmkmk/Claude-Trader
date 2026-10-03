@@ -104,9 +104,7 @@ def main():
     compute_combined_rank(approaching_rows)
 
     def sort_key(r):
-        if r["combined_rank"] is not None:
-            return (0, r["combined_rank"])
-        return (1, abs(r["distance_pct"]))
+        return abs(r["distance_pct"])
 
     reclaimed_rows.sort(key=sort_key)
     approaching_rows.sort(key=sort_key)
