@@ -37,6 +37,7 @@
  *   node scan_step_c.mjs <candidates.json> <verdicts_out.json>
  */
 import { chart, data } from './src/core/index.js';
+import { evaluate } from './src/connection.js';
 import { round2, toDateStr, findBarIndexByPrice, computeRankingFields, resolveHeldEntry } from './src/core/ranking.js';
 import fs from 'fs';
 import path from 'path';
@@ -242,7 +243,29 @@ async function analyzeSymbol(symbol) {
   return { symbol, verdict: 'skip', reason: 'outside_band', ...base, entry_date };
 }
 
+// After TradingView is (re)launched the debug port answers well before the chart widget exists; reading symbols in that
+// window makes every one error out. Wait for a real chart, and say why if it never appears (e.g. not signed in).
+const CHART_READY_EXPR = "(function(){try{var w=window.TradingViewApi&&window.TradingViewApi._activeChartWidgetWV;return !!(w&&w.value()&&w.value()._chartWidget)}catch(e){return false}})()";
+async function waitForChartReady(timeoutMs = 180000) {
+  const start = Date.now();
+  let lastErr = '';
+  while (Date.now() - start < timeoutMs) {
+    try {
+      // each attempt is time-boxed: evaluate() can hang when the debug port has gone away
+      const ready = await Promise.race([evaluate(CHART_READY_EXPR), new Promise((_, rej) => setTimeout(() => rej(new Error('CDP evaluate timed out')), 10000))]);
+      if (ready) return true;
+    } catch (e) { lastErr = String(e.message || e); }
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  console.error(`TradingView chart not ready after ${Math.round(timeoutMs / 1000)}s${lastErr ? ` (${lastErr})` : ''}. Is TradingView signed in and showing a chart?`);
+  return false;
+}
+
+// If most live reads error out the run is useless (and must not be merged into state): abort without writing anything.
+const MAX_ERROR_RATIO = 0.25;
+
 async function main() {
+  if (!(await waitForChartReady())) process.exit(2);
   const verdicts = {};
   const details = [];
   const rejectionCache = loadRejectionCache();
@@ -282,6 +305,12 @@ async function main() {
     }
   }
 
+  const liveChecked = details.filter((d) => !d.cached_from).length;
+  const errored = details.filter((d) => d.reason === 'error').length;
+  if (errored >= 5 && errored / Math.max(1, liveChecked) > MAX_ERROR_RATIO) {
+    console.error(`ABORT: ${errored} of ${liveChecked} live reads errored (>${MAX_ERROR_RATIO * 100}%). Nothing written; fix TradingView (signed in? chart visible?) and re-run.`);
+    process.exit(3);
+  }
   fs.writeFileSync(outputPath, JSON.stringify(verdicts, null, 2));
   const detailsPath = outputPath.replace(/\.json$/, '_details.json');
   fs.writeFileSync(detailsPath, JSON.stringify(details, null, 2));

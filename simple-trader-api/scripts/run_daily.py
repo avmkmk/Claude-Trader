@@ -132,9 +132,27 @@ def backup_state(stamp, log):
     os.makedirs(BACKUPS, exist_ok=True)
     dest = os.path.join(BACKUPS, f"symbol_state_{stamp}_{datetime.now():%H%M%S}.json")
     shutil.copy2(STATE, dest)
-    log(f"Backed up symbol_state.json -> {os.path.relpath(dest, ROOT)}")
+    try:
+        shown = os.path.relpath(dest, ROOT)
+    except ValueError:  # different drive
+        shown = dest
+    log(f"Backed up symbol_state.json -> {shown}")
     for old in sorted(glob.glob(os.path.join(BACKUPS, "symbol_state_*.json")))[:-14]:  # keep the newest 14
         os.remove(old)
+
+
+MAX_ERROR_RATIO = 0.25
+
+
+def check_verdicts(details_path):
+    """Refuse to merge a live read that is mostly errors (e.g. TradingView chart was not ready)."""
+    with open(details_path, encoding="utf-8") as f:
+        details = json.load(f)
+    live = [d for d in details if not d.get("cached_from")]
+    errors = [d for d in live if d.get("reason") == "error"]
+    if len(errors) >= 5 and len(errors) / max(1, len(live)) > MAX_ERROR_RATIO:
+        sample = (errors[0].get("error") or "").splitlines()[0][:120]
+        raise StepFailed(f"{len(errors)} of {len(live)} live reads errored (first: {sample}) - not merging into symbol_state.json")
 
 
 def execute(stamp, args, log):
@@ -167,6 +185,7 @@ def execute(stamp, args, log):
         elif n == 5:
             run(["node", "scan_step_c.mjs", p["to_check"], p["verdicts"]], TV, log, 4 * 3600)
         elif n == 6:
+            check_verdicts(p["details"])
             backup_state(stamp, log)
             run([py, "scripts/update_symbol_state.py", rel(p["details"]), rel(p["candidates"]), stamp], API, log, 600)
         elif n == 7:
