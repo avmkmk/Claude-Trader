@@ -51,10 +51,34 @@ Troubleshooting:
 2. Create a new Pine strategy, paste the contents of `ath-reclaim-pinecone.txt`, and save it. The saved name must be exactly `ATH Reclaim - Final Verified`.
 3. Add it to the default chart template so it loads on every symbol (the routine reads its study values and labels directly).
 
-## Daily run
-1. Open Claude Code in the repo and type `/daily-ath-scan`. The skill is `.claude/skills/daily-ath-scan/SKILL.md`.
-2. It runs, in order: `scan_candidates.py` (Chartink + enrich), `build_check_list.py`, TradingView launch via `launch_tv_debug.ps1` (CDP on port 9222, see above), `scan_step_c.mjs` (live Pine read), `update_symbol_state.py`, `build_final_watchlist.py`.
-3. Output: `simple-trader-api/data/daily_scans/{date}_final_watchlist.xlsx`. Persistent state is `symbol_state.json` in the same folder (gitignored, so back it up yourself); `manual_exclusions.json` lists symbols to always skip.
+## Daily run: two ways, same routine
+**A. Pure script (no Claude)** - from `simple-trader-api/`:
+```bash
+python scripts/run_daily.py              # runs only if the newest watchlist is older than the last completed session
+python scripts/run_daily.py --force      # run regardless
+python scripts/run_daily.py --check-only # CURRENT or RUN NEEDED (+ whether Gate 7 is done)
+python scripts/run_daily.py --from-step 5  # resume after a failure
+```
+Steps: prerequisites -> Chartink scrape (**union** of both screeners) -> check list -> relaunch TradingView with CDP if needed -> live Pine read -> back up and merge `symbol_state.json` -> build the Excel (technical + fundamentals + a sheet per stock). Logs: `data/daily_scans/logs/`; status: `data/daily_scans/run_status.json`.
+
+**B. Claude command** - open Claude Code in the repo and type `/daily-ath-scan`. It runs the same script, then does **Gate 7** (AI web search for company news and government/industry stance on the PASS/WATCH stocks), rebuilds the Excel with those columns and sends it. Gate 7 needs web search, so it lives in the Claude command, not in the script.
+
+Output: `simple-trader-api/data/daily_scans/{stamp}_final_watchlist.xlsx`.
+
+### The watchlist stamp (why running at 8 pm and at 8 am are the same)
+The file date is the **last completed NSE session**, not the calendar date. After 16:00 IST on a trading day that is today; before 16:00, on weekends and on holidays it is the previous trading day. So a run after the close and a run the next morning before the open produce the same stamp, and the second one is skipped as already current. Holidays: `simple-trader-api/config/nse_holidays.json` (2026 list included; add next year's in December).
+
+### Run it automatically (Windows Task Scheduler)
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/register_daily_task.ps1            # daily 08:00 + at logon
+powershell -ExecutionPolicy Bypass -File scripts/register_daily_task.ps1 -Time 07:45
+powershell -ExecutionPolicy Bypass -File scripts/register_daily_task.ps1 -Status
+powershell -ExecutionPolicy Bypass -File scripts/register_daily_task.ps1 -Remove
+```
+Three layers cover "I switched the PC on late": the 08:00 daily trigger; an **at-logon trigger** (3 min delay) that runs the moment you sign in; and **run-as-soon-as-possible-if-missed**. Each one first checks whether the newest watchlist is current and exits immediately if so, so double triggers are harmless. The job needs you logged on (TradingView is a desktop app) and relaunches TradingView with remote debugging, closing any open window. Keep the PC clock on IST. The Excel opens when the run finishes. Gate 7 is not part of the scheduled run; open Claude Code afterwards and the session-start report tells you if it is pending (`/daily-ath-scan` adds it).
+
+### Using the Excel
+Every sheet is a plain table with filter/sort dropdowns on each column; sort however you like (default order is Reclaimed then Approaching by distance from entry). Click a symbol on the Watchlist sheet to jump to its sheet; each stock sheet has a link back.
 
 ## Optional: TradingView MCP tools in Claude
 `.mcp.json` registers the `tradingview-desktop` MCP server (`tradingview-mcp-jackson/src/server.js`). Edit the absolute path in it to match your clone location.

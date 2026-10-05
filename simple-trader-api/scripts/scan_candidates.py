@@ -10,7 +10,7 @@ Does not touch chartink_scraper.py's existing union/dedup behavior
 Instead calls scrape_single_screener() twice and unions here.
 
 Usage:
-    python scripts/scan_candidates.py
+    python scripts/scan_candidates.py [YYYY-MM-DD]
 """
 import json
 import logging
@@ -88,7 +88,7 @@ def main():
     else:
         candidates = enrich_with_market_cap(all_symbols)
 
-    today = date.today().isoformat()
+    today = sys.argv[1] if len(sys.argv) > 1 else date.today().isoformat()  # run_daily.py passes the session date
     output_path = os.path.join(OUTPUT_DIR, f"{today}_candidates.json")
     with open(output_path, "w") as f:
         json.dump(candidates, f, indent=2)

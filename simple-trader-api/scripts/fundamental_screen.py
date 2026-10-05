@@ -106,7 +106,8 @@ def parse_company_page(html, peers_html=None):
                 label, val = tr.get_text(" ", strip=True).split(":", 1)
                 growth[title][label.strip()] = to_num(val)
     wid = re.search(r'data-warehouse-id="(\d+)"', html)
-    return {"top": top, "sector": sector, "tables": tables, "growth": growth,
+    h1 = soup.find("h1")
+    return {"name": h1.get_text(" ", strip=True) if h1 else None, "top": top, "sector": sector, "tables": tables, "growth": growth,
             "peers_median_pe": parse_peers_median_pe(peers_html) if peers_html else None,
             "warehouse_id": wid.group(1) if wid else None}
 
@@ -186,13 +187,13 @@ def read_watchlist(path):
     return header, out
 
 
-def screen_symbols(symbols, delay=2.0, refresh=False, log=print):
+def screen_symbols(symbols, delay=2.0, refresh=False, log=print, cache_date=None):
     """Fetch (cached per day) and evaluate each symbol. Returns {symbol: summary}.
 
     summary = {verdict, score, blocks, hard_fails, flags, industry, basis, results}
     Never raises for a single bad symbol: failures become verdict "NO DATA".
     """
-    cache_dir = os.path.join(CACHE_DIR, date.today().isoformat())
+    cache_dir = os.path.join(CACHE_DIR, cache_date or date.today().isoformat())
     os.makedirs(cache_dir, exist_ok=True)
     out = {}
     for i, sym in enumerate(symbols, 1):
@@ -215,7 +216,8 @@ def screen_symbols(symbols, delay=2.0, refresh=False, log=print):
             res = evaluate(data)
         flags = [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "fail"] +                 [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "warn"]
         out[sym] = {**res, "flags": flags, "industry": (data or {}).get("sector", {}).get("industry"),
-                    "basis": (data or {}).get("basis"), "top": (data or {}).get("top", {})}
+                    "basis": (data or {}).get("basis"), "top": (data or {}).get("top", {}),
+                    "name": (data or {}).get("name")}
         out[sym]["notes"] = summary_notes(out[sym], out[sym]["top"], out[sym]["basis"])
         log(f"[{i}/{len(symbols)}] {sym:12s} {res['verdict']:9s} {res['score'] if res['score'] is not None else '':>5}  {'; '.join(res['hard_fails'])[:90]}")
     return out

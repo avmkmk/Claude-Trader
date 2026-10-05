@@ -85,6 +85,11 @@ if ($cdp) {
     Write-Output "[INFO]    TradingView is not running with CDP on 9222. Start it with: powershell -ExecutionPolicy Bypass -File tradingview-mcp-jackson/scripts/launch_tv_debug.ps1"
 }
 
+if ($pyOk) {
+    $st = (& python (Join-Path $root "simple-trader-api/scripts/run_daily.py") --check-only 2>&1 | Select-Object -First 1)
+    Write-Output "[INFO]    Daily watchlist: $st"
+}
+
 foreach ($w in $warn) { Write-Output "[WARN]    $w" }
 
 Write-Output ""
