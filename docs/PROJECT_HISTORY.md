@@ -1,6 +1,6 @@
 # SimpleTrader — Project History
 
-Compiled 2026-10-03 from git history (`origin/main` + 48 local commits), the specs/plans in `docs/superpowers/`, and every README/CLAUDE.md found in the repo. Remote: `https://github.com/avmkmk/SmartTrader-NSE-BSE.git`.
+Compiled 2026-10-03 from git history (`origin/main` + 48 local commits), the specs/plans in `docs/superpowers/`, and every README/CLAUDE.md found in the repo. Remote: `https://github.com/avmkmk/Claude-Trader.git` (renamed from `SmartTrader-NSE-BSE`; the old URL redirects, and the original name appears in the archived README).
 
 ## Timeline
 

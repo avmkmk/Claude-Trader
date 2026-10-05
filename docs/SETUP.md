@@ -16,8 +16,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/preflight.ps1
 
 ## One-time install
 ```bash
-git clone https://github.com/avmkmk/SmartTrader-NSE-BSE.git
-cd SmartTrader-NSE-BSE
+git clone https://github.com/avmkmk/Claude-Trader.git
+cd Claude-Trader
 python -m venv venv
 source venv/Scripts/activate            # Git Bash
 pip install -r simple-trader-api/requirements.txt
