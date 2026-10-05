@@ -83,10 +83,64 @@ def test_low_roce_fails():
     assert level(res, "2.1") == "fail" and res["verdict"] == "REJECT"
 
 
-def test_small_cap_and_loss_are_rejected():
+def strong(mcap):
+    """A healthy company (cash flow >= operating profit) at the given market cap."""
     d = good_company()
-    d["top"]["market_cap"] = 2000.0
-    assert evaluate(d)["verdict"] == "REJECT"
+    d["top"]["market_cap"] = float(mcap)
+    d["tables"]["cash-flow"]["rows"]["Cash from Operating Activity"] = list(d["tables"]["profit-loss"]["rows"]["Operating Profit"][:12])
+    return d
+
+
+def test_below_250_cr_is_hard_rejected_even_if_healthy():
+    res = evaluate(strong(200))
+    assert res["tier"] == "micro" and res["verdict"] == "REJECT"
+    assert any(f.startswith("0.2") for f in res["hard_fails"]) and res["score"] >= 70
+
+
+def test_250_to_1000_cr_is_capped_at_watch():
+    res = evaluate(strong(800))
+    assert res["tier"] == "small_low" and not res["hard_fails"]
+    assert res["score"] >= 70 and res["verdict"] == "WATCH" and res["capped"]
+    assert level(res, "0.2") == "warn"
+
+
+def test_small_cap_is_not_rejected_for_size_alone():
+    res = evaluate(strong(2000))
+    assert res["tier"] == "small" and not res["hard_fails"] and res["verdict"] == "PASS" and not res["capped"]
+    assert level(res, "0.2") == "ok"
+    assert evaluate(strong(5000))["tier"] == "standard" and evaluate(strong(250))["tier"] == "small_low"
+
+
+def test_small_caps_face_stricter_thresholds():
+    # ROCE 16%: passes the standard 15% bar, only warns under the small-cap 18% bar
+    big, small = strong(20000), strong(2000)
+    for d in (big, small):
+        d["tables"]["ratios"]["rows"]["ROCE %"] = [16.0] * 12
+        d["growth"]["Return on Equity"]["Last Year"] = 16.0
+    assert level(evaluate(big), "2.1") == "pass" and level(evaluate(small), "2.1") == "warn"
+    # cash conversion ~65%: standard warns, small caps fail (hard)
+    big, small = strong(20000), strong(2000)
+    for d in (big, small):
+        d["tables"]["cash-flow"]["rows"]["Cash from Operating Activity"] = [x * 0.65 for x in d["tables"]["profit-loss"]["rows"]["Operating Profit"][:12]]
+    assert level(evaluate(big), "1.4") == "warn" and level(evaluate(small), "1.4") == "fail"
+    # debt/equity 0.6: standard warns, small caps warn; 0.9: standard warns, small caps fail
+    for mc, expect in ((20000, "warn"), (2000, "fail")):
+        d = strong(mc)
+        d["tables"]["balance-sheet"]["rows"]["Borrowings"] = [20.0] * 11 + [0.9 * (10 + 100 + 40 * 11)]
+        assert level(evaluate(d), "1.1") == expect
+
+
+def test_short_history_warns_for_small_caps_but_fails_standard():
+    for mc, expect in ((2000, "warn"), (20000, "fail")):
+        d = strong(mc)
+        d["tables"]["profit-loss"]["rows"]["Sales"] = [None] * 8 + d["tables"]["profit-loss"]["rows"]["Sales"][8:]
+        assert level(evaluate(d), "0.1") == expect
+    d = strong(2000)
+    d["tables"]["profit-loss"]["rows"]["Sales"] = [None] * 10 + d["tables"]["profit-loss"]["rows"]["Sales"][10:]
+    assert level(evaluate(d), "0.1") == "fail"
+
+
+def test_loss_making_is_rejected():
     d = good_company()
     d["tables"]["profit-loss"]["rows"]["Net Profit"][-1] = -5.0
     assert level(evaluate(d), "0.4") == "fail"

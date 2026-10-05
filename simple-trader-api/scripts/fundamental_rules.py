@@ -23,6 +23,31 @@ RULE_NAMES = {
     "5.1": "Promoter holding", "5.2": "FII + DII holding", "5.3": "Shareholder count",
     "6.1": "Reserves growth", "6.2": "Self-funded growth", "6.3": "Capex with ROCE holding", "6.4": "Investments vs borrowings",
 }
+# ---------- size tiers ----------
+# Below MICRO_REJECT_CR: hard reject. Below WATCH_CAP_CR: verdict capped at WATCH. Below SMALL_CR: stricter profile.
+MICRO_REJECT_CR, WATCH_CAP_CR, SMALL_CR = 250, 1000, 5000
+
+PROFILES = {
+    "standard": dict(min_years=5, de_pass=0.5, de_warn=1.0, cfo_pass=80, cfo_warn=60, oi_pass=20, oi_warn=40,
+                     roce_pass=15, roce_warn=10, roe_pass=15, roe_warn=10, g_pass=10, g_warn=5, promoter_min=40),
+    "small": dict(min_years=3, de_pass=0.5, de_warn=0.75, cfo_pass=80, cfo_warn=70, oi_pass=15, oi_warn=30,
+                  roce_pass=18, roce_warn=12, roe_pass=15, roe_warn=12, g_pass=15, g_warn=8, promoter_min=45),
+}
+
+
+def cap_tier(mcap):
+    """Tier name from market cap in Rs Cr: micro (<250), small_low (250-1000), small (1000-5000), standard."""
+    if mcap is None:
+        return "standard"
+    if mcap < MICRO_REJECT_CR:
+        return "micro"
+    if mcap < WATCH_CAP_CR:
+        return "small_low"
+    if mcap < SMALL_CR:
+        return "small"
+    return "standard"
+
+
 BLOCK_MAX = {"quality": 30, "growth": 25, "safety": 20, "valuation": 15, "ownership": 10}
 HARD_GATES = (0, 1, 2)
 
@@ -94,13 +119,27 @@ def evaluate(d):
         return {"verdict": "FINANCIAL", "score": None, "blocks": {}, "results": results, "hard_fails": []}
 
     # ---- Gate 0: eligibility ----
+    mcap = top.get("market_cap")
+    tier = cap_tier(mcap)
+    P = PROFILES["standard" if tier == "standard" else "small"]
     sales_a = series(d, "profit-loss", "Sales")
     np_a = series(d, "profit-loss", "Net Profit")
     n_years = len([v for v in sales_a if v is not None])
-    add("0.1", 0, None, "pass" if n_years >= 5 else "fail", f"{n_years} years of annual data")
-    mcap = top.get("market_cap")
+    if n_years >= 5:
+        add("0.1", 0, None, "pass", f"{n_years} years of annual data")
+    elif n_years >= P["min_years"]:
+        add("0.1", 0, None, "warn", f"Short history: only {n_years} years of annual data (needs 5 for full checks)")
+    else:
+        add("0.1", 0, None, "fail", f"{n_years} years of annual data (min {P['min_years']})")
     if mcap is not None:
-        add("0.2", 0, None, "pass" if mcap >= 5000 else "fail", f"Market cap Rs {mcap:,.0f} Cr (min 5,000)")
+        if tier == "micro":
+            add("0.2", 0, None, "fail", f"Market cap Rs {mcap:,.0f} Cr is below Rs {MICRO_REJECT_CR} Cr - hard reject")
+        elif tier == "small_low":
+            add("0.2", 0, None, "warn", f"Market cap Rs {mcap:,.0f} Cr (under Rs {WATCH_CAP_CR:,} Cr): small-cap rules, verdict capped at WATCH")
+        elif tier == "small":
+            add("0.2", 0, None, "ok", f"Market cap Rs {mcap:,.0f} Cr: small-cap rules (stricter safety, quality and growth bars)")
+        else:
+            add("0.2", 0, None, "pass", f"Market cap Rs {mcap:,.0f} Cr")
     np_last, np_ttm = (np_a[-1] if np_a else None), ttm_value(d, "profit-loss", "Net Profit")
     if np_last is not None:
         ok = np_last > 0 and (np_ttm is None or np_ttm > 0)
@@ -112,7 +151,7 @@ def evaluate(d):
     de = None
     if networth is not None and borrow and borrow[-1] is not None:
         de = borrow[-1] / networth if networth > 0 else 99.0
-        add("1.1", 1, "safety", "pass" if de <= 0.5 else "warn" if de <= 1 else "fail", f"Debt/equity {de:.2f}")
+        add("1.1", 1, "safety", "pass" if de <= P["de_pass"] else "warn" if de <= P["de_warn"] else "fail", f"Debt/equity {de:.2f}")
 
     op_a, intr_a = series(d, "profit-loss", "Operating Profit"), series(d, "profit-loss", "Interest")
     if op_a and intr_a and None not in (op_a[-1], intr_a[-1]):
@@ -136,7 +175,7 @@ def evaluate(d):
             add("1.4", 1, "safety", "fail", "Operating profit sum <= 0 over 3 years")
         else:
             r = sum(cfo3) / sum(op3) * 100
-            add("1.4", 1, "safety", "pass" if r >= 80 else "warn" if r >= 60 else "fail", f"3-yr CFO/OP {r:.0f}%")
+            add("1.4", 1, "safety", "pass" if r >= P["cfo_pass"] else "warn" if r >= P["cfo_warn"] else "fail", f"3-yr CFO/OP {r:.0f}%")
 
     fcf5 = tail(series(d, "cash-flow", "Free Cash Flow"), 5)
     if fcf5:
@@ -148,7 +187,7 @@ def evaluate(d):
             add("1.6", 1, "safety", "fail", "Profit before tax <= 0")
         else:
             r = oi_a[-1] / pbt_a[-1] * 100
-            add("1.6", 1, "safety", "pass" if r < 20 else "warn" if r <= 40 else "fail", f"Other income {r:.0f}% of PBT")
+            add("1.6", 1, "safety", "pass" if r < P["oi_pass"] else "warn" if r <= P["oi_warn"] else "fail", f"Other income {r:.0f}% of PBT")
 
     ol4, s4 = tail(series(d, "balance-sheet", "Other Liabilities"), 4), tail(sales_a, 4)
     if ol4 and s4 and ol4[0] and s4[0]:
@@ -168,11 +207,12 @@ def evaluate(d):
     r5 = tail(roce_a, 5)
     if roce_a and roce_a[-1] is not None:
         r = roce_a[-1]
-        add("2.1", 2, "quality", "pass" if r >= 15 else "warn" if r >= 10 else "fail", f"ROCE {r:.1f}%" + (" (strong)" if r >= 20 else ""))
+        add("2.1", 2, "quality", "pass" if r >= P["roce_pass"] else "warn" if r >= P["roce_warn"] else "fail", f"ROCE {r:.1f}%" + (" (strong)" if r >= 20 else ""))
     if r5:
-        med, bad = median(r5), sum(1 for v in r5 if v < 10)
-        lvl = "pass" if med >= 15 and bad == 0 else "fail" if med < 10 else "warn"
-        add("2.2", 2, "quality", lvl, f"5-yr median ROCE {med:.1f}%, {bad} yrs below 10%")
+        rw = P["roce_warn"]
+        med, bad = median(r5), sum(1 for v in r5 if v < rw)
+        lvl = "pass" if med >= P["roce_pass"] and bad == 0 else "fail" if med < rw else "warn"
+        add("2.2", 2, "quality", lvl, f"5-yr median ROCE {med:.1f}%, {bad} yrs below {rw}%")
         drop = r5[-1] - sum(r5) / 5
         add("2.3", 2, "quality", "fail" if drop < -10 else "warn" if drop < -5 else "pass", f"ROCE vs 5-yr average {drop:+.1f} pts")
 
@@ -180,7 +220,7 @@ def evaluate(d):
     if roe_last is None:
         roe_last = top.get("roe")
     if roe_last is not None:
-        add("2.4", 2, "quality", "pass" if roe_last >= 15 else "warn" if roe_last >= 10 else "fail", f"ROE {roe_last:.1f}%")
+        add("2.4", 2, "quality", "pass" if roe_last >= P["roe_pass"] else "warn" if roe_last >= P["roe_warn"] else "fail", f"ROE {roe_last:.1f}%")
         if de is not None and roce_a and roce_a[-1] is not None:
             infl = roe_last - roce_a[-1] > 8 and de > 0.5
             add("2.5", 2, "quality", "warn" if infl else "pass", f"ROE {roe_last:.0f}% vs ROCE {roce_a[-1]:.0f}%, D/E {de:.2f}")
@@ -211,7 +251,7 @@ def evaluate(d):
         v = [x for x in (a, b) if x is not None]
         if not v:
             return None
-        return "pass" if all(x >= 10 for x in v) else "warn" if any(x < 5 for x in v) else "ok"
+        return "pass" if all(x >= P["g_pass"] for x in v) else "warn" if any(x < P["g_warn"] for x in v) else "ok"
 
     if two(sg3, sg5):
         add("3.1", 3, "growth", two(sg3, sg5), f"Sales CAGR 3y {sg3}%, 5y {sg5}%")
@@ -265,7 +305,8 @@ def evaluate(d):
     if prom and prom[-1] is not None:
         base = prom[-9] if len(prom) >= 9 and prom[-9] is not None else prom[0]
         chg = prom[-1] - base
-        lvl = "fail" if chg < -5 else "pass" if prom[-1] >= 40 and chg >= -2 else "warn" if prom[-1] < 40 else "ok"
+        pm = P["promoter_min"]
+        lvl = "fail" if chg < -5 else "pass" if prom[-1] >= pm and chg >= -2 else "warn" if prom[-1] < pm else "ok"
         add("5.1", 5, "ownership", lvl, f"Promoters {prom[-1]:.1f}% (change {chg:+.1f} pts over 8 qtrs)")
     if fii and dii and fii[-1] is not None and dii[-1] is not None:
         inst = [(a + b) if a is not None and b is not None else None for a, b in zip(fii, dii)]
@@ -308,7 +349,11 @@ def evaluate(d):
     score = round(sum(blocks.values()), 1)
     hard_fails = [f'{r["id"]}: {r["msg"]}' for r in results if r["gate"] in HARD_GATES and r["level"] == "fail"]
     verdict = "REJECT" if hard_fails or score < 50 else "PASS" if score >= 70 else "WATCH"
-    return {"verdict": verdict, "score": score, "blocks": blocks, "results": results, "hard_fails": hard_fails}
+    capped = verdict == "PASS" and tier == "small_low"
+    if capped:
+        verdict = "WATCH"
+    return {"verdict": verdict, "score": score, "blocks": blocks, "results": results, "hard_fails": hard_fails,
+            "tier": tier, "capped": capped}
 
 
 # ---------- plain-English summary ----------
@@ -339,7 +384,8 @@ def summary_notes(summary, top=None, basis=None):
     if summary.get("hard_fails"):
         lines.append(f"{verdict} ({score:.0f}/100) - hard fail: " + "; ".join(f.split(": ", 1)[1] for f in summary["hard_fails"][:2]) + ".")
     else:
-        lines.append(f"{verdict} ({score:.0f}/100). Strongest area: {best.capitalize()} ({blocks[best]:g}/{BLOCK_MAX[best]}); weakest: {worst.capitalize()} ({blocks[worst]:g}/{BLOCK_MAX[worst]}).")
+        capnote = " Capped at WATCH: market cap under Rs 1,000 Cr." if summary.get("capped") else ""
+        lines.append(f"{verdict} ({score:.0f}/100).{capnote} Strongest area: {best.capitalize()} ({blocks[best]:g}/{BLOCK_MAX[best]}); weakest: {worst.capitalize()} ({blocks[worst]:g}/{BLOCK_MAX[worst]}).")
 
     by_id = {r["id"]: r for r in results}
     strengths = [by_id[i]["msg"] for i in _STRENGTH_PRIORITY if i in by_id and by_id[i]["level"] in ("pass", "bonus")][:3]
@@ -348,6 +394,8 @@ def summary_notes(summary, top=None, basis=None):
     concerns = sorted((r for r in results if r["level"] in ("fail", "warn")), key=lambda r: (r["gate"] not in HARD_GATES, r["level"] != "fail"))
     lines.append("Concerns: " + ("; ".join(r["msg"] for r in concerns[:3]) if concerns else "no warnings raised") + ".")
 
-    ctx = cap_txt + (" (small cap - thinner liquidity, higher volatility)" if mcap and mcap < 5000 else "")
+    tier_txt = {"small_low": " (micro/small cap: stricter thresholds, thin liquidity, verdict capped at WATCH)",
+                "small": " (small cap: stricter safety, quality and growth thresholds applied)"}.get(summary.get("tier") or cap_tier(mcap), "")
+    ctx = cap_txt + tier_txt
     lines.append(ctx + (f"; {basis} statements" if basis else "") + ". Promoter pledging and credit rating are not checked yet.")
     return lines

@@ -10,10 +10,33 @@ Banks, NBFCs and insurers need different metrics (NIM, NPA, capital adequacy). T
 ## Gate 0: Eligibility
 | # | Rule | Source | Result |
 |---|---|---|---|
-| 0.1 | At least 5 years of annual data | P&L columns | Fail if fewer |
-| 0.2 | Market cap >= Rs 5,000 Cr | Top box | Fail if smaller |
+| 0.1 | Enough history | P&L columns | Standard: fail if under 5 years. Small caps: 3-4 years warns ("short history"), under 3 fails |
+| 0.2 | Market cap tier | Top box | Under Rs 250 Cr: **hard reject**. Rs 250-1,000 Cr: warn, small-cap rules, verdict capped at WATCH. Rs 1,000-5,000 Cr: small-cap rules. Rs 5,000 Cr and above: standard rules |
 | 0.3 | Sector is not Bank / NBFC / Insurance | Sector line under Peer comparison | Route to financials |
 | 0.4 | Net profit positive, TTM and last FY | P&L | Fail if either negative |
+
+### Size tiers (tier-aware thresholds)
+Size alone only rejects below Rs 250 Cr. Below Rs 5,000 Cr the same rules run with a stricter **small-cap profile**, because thinner liquidity, weaker governance disclosure and lumpier earnings leave less room for error. Thresholds below are the standard values; small-cap values are in the table.
+
+| Tier | Market cap | Treatment |
+|---|---|---|
+| Micro | < Rs 250 Cr | Hard reject (rule 0.2) |
+| Small (low) | Rs 250 - 1,000 Cr | Small-cap profile; a PASS is capped at WATCH |
+| Small | Rs 1,000 - 5,000 Cr | Small-cap profile |
+| Standard | >= Rs 5,000 Cr | Standard profile |
+
+| Rule | Standard | Small-cap profile |
+|---|---|---|
+| 0.1 history | >= 5 yrs or fail | >= 5 pass, 3-4 warn, < 3 fail |
+| 1.1 debt/equity | <=0.5 pass, <=1 warn, >1 fail | <=0.5 pass, <=0.75 warn, >0.75 fail |
+| 1.4 CFO/OP (3 yr) | >=80 pass, >=60 warn | >=80 pass, >=70 warn, <70 fail |
+| 1.6 other income / PBT | <20 pass, <=40 warn | <15 pass, <=30 warn |
+| 2.1 / 2.2 ROCE | >=15 pass, >=10 warn | >=18 pass, >=12 warn (bad year = below 12) |
+| 2.4 ROE | >=15 pass, >=10 warn | >=15 pass, >=12 warn |
+| 3.1 / 3.2 growth | >=10 pass, <5 warn | >=15 pass, <8 warn |
+| 5.1 promoter stake | >=40 | >=45 |
+
+Not yet tier-aware (needs data we do not fetch): average daily traded value (liquidity), and promoter pledging (hard fail above 10% for small caps).
 
 ## Gate 1: Survival and red flags
 | # | Rule | Formula | Pass / Warn / Fail |
@@ -97,4 +120,4 @@ The standalone command only fetches and prints verdicts. The Excel output comes 
 - Peer median P/E comes from screener's peers endpoint (rule 4.1).
 - Banks, NBFCs and insurers are marked FINANCIAL and not scored. Symbols not found on screener.in are marked NO DATA.
 - Not automated yet: promoter pledging (1.9), credit rating (1.10), own-history P/E (4.3), and Gate 7 news/government stance.
-- Known tuning questions: the Rs 5,000 Cr market-cap floor (0.2) rejects small caps on size alone; the score can still say PASS with several safety warnings.
+- Known tuning question: the score can still say PASS with several safety warnings (block scores are averages).
