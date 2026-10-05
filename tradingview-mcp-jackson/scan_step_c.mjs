@@ -59,15 +59,16 @@ const TRANSIENT_SKIP_REASONS = new Set([
   'stale_data_after_retries', 'ohlcv_error', 'error',
 ]);
 
-const [, , candidatesPath, outputPath] = process.argv;
+const [, , candidatesPath, outputPath, cachePathArg] = process.argv;
 if (!candidatesPath || !outputPath) {
-  console.error('Usage: node scan_step_c.mjs <candidates.json> <verdicts_out.json>');
+  console.error('Usage: node scan_step_c.mjs <candidates.json> <verdicts_out.json> [rejection_cache.json]');
   process.exit(1);
 }
 
 const candidates = JSON.parse(fs.readFileSync(candidatesPath, 'utf8'));
 
-const cachePath = path.join(path.dirname(outputPath), '_rejection_cache.json');
+// run_daily.py passes the persistent cache in data/state/; standalone use falls back to next to the output file
+const cachePath = cachePathArg || path.join(path.dirname(outputPath), '_rejection_cache.json');
 
 function loadRejectionCache() {
   try {

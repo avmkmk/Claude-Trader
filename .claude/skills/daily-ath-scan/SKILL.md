@@ -24,17 +24,17 @@ Files are stamped with the **last completed NSE session date** (not the calendar
    - `CURRENT` and the user did not ask for a refresh: skip to step 3 using the newest watchlist's date as `{stamp}`.
    - Otherwise (or if the user asks to refresh), go to step 2.
 
-2. **Run the scan** (long - run it in the background and poll `data/daily_scans/run_status.json` and the newest file in `data/daily_scans/logs/`):
+2. **Run the scan** (long - run it in the background and poll `data/state/run_status.json` and the newest file in `data/state/logs/`):
    ```bash
    python scripts/run_daily.py            # add --force to refresh a current watchlist
    ```
    It performs, in order: prerequisites check; Chartink scrape (**union** of both screeners, so nothing is missed) + enrichment; build the check list (new candidates + every tracked Reclaimed/Approaching symbol); relaunch TradingView with remote debugging if CDP is not up (the script closes any open TradingView window - that is accepted); read the live Pine strategy per symbol (slowest step, seconds per symbol); back up and merge `symbol_state.json`; build `{stamp}_final_watchlist.xlsx` with fundamentals. Report the counts it prints (`new=N re-checked=M`, Reclaimed/Approaching, fundamental tally). If it fails, the status file names the step: fix the cause and resume with `--from-step N`.
 
-3. **Gate 7 - news and government stance (this is the part that needs you).** Read `data/daily_scans/{stamp}_gate7_targets.json` (the PASS/WATCH survivors: symbol, name, industry, verdict, score). For each target:
+3. **Gate 7 - news and government stance (this is the part that needs you).** Read `data/work/{stamp}/gate7_targets.json` (the PASS/WATCH survivors: symbol, name, industry, verdict, score). For each target:
    - **Company news** - WebSearch `"<name> NSE <symbol> news"` (look at roughly the last 30 days): earnings and guidance, order wins/losses, capex/M&A, management or auditor changes, promoter stake/pledge actions, credit-rating actions, litigation or regulatory action.
    - **Government / industry stance** - WebSearch the target's `industry` in India (e.g. `"<industry> India government policy duty subsidy PLI regulation <month year>"` and `"<industry> India demand outlook"`): budget and policy moves, tariffs/duties, PLI/subsidies, regulation, RBI/SEBI actions, commodity or demand trends. Targets in the same industry share one industry search.
    - Classify each as **Bullish** (clear net positive developments / policy tailwind), **Neutral** (mixed, or nothing material found) or **Bearish** (net negative). No evidence means Neutral - say "No material news found". Never invent headlines, dates or URLs; use only what the searches returned.
-   - Write `data/daily_scans/{stamp}_gate7.json`:
+   - Write `data/work/{stamp}/gate7.json`:
      ```json
      {"SYMBOL": {"news_sentiment": "Bullish|Neutral|Bearish",
                  "policy_sentiment": "Bullish|Neutral|Bearish",
@@ -58,7 +58,7 @@ Files are stamped with the **last completed NSE session date** (not the calendar
 
 ## Notes
 - First-ever run: a missing `symbol_state.json` is treated as empty; every candidate is `new`.
-- Symbols you want excluded permanently live in `data/daily_scans/manual_exclusions.json`.
-- If the live Pine read fails partway, its rejection cache (`_rejection_cache.json`, written next to the verdicts output) means already-processed `skip` verdicts are not re-driven for 3 days; just resume.
-- `symbol_state.json` is backed up before every merge to `data/daily_scans/backups/` (newest 14 kept).
+- Symbols you want excluded permanently live in `data/state/manual_exclusions.json`.
+- If the live Pine read fails partway, its rejection cache (`data/state/_rejection_cache.json`) means already-processed `skip` verdicts are not re-driven for 3 days; just resume.
+- `symbol_state.json` is backed up before every merge to `data/state/backups/` (newest 14 kept). `data/daily_scans/` holds only the consolidated Excel files; intermediates live in `data/work/{stamp}/` and are pruned after 3 days.
 - Telegram delivery is planned but not built; the file is delivered by this command / opened by the scheduled run.

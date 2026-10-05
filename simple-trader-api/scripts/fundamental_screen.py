@@ -24,10 +24,10 @@ from openpyxl import load_workbook
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.fundamental_rules import evaluate, summary_notes  # noqa: E402
+from scripts.paths import FUND_CACHE_DIR, SCANS_DIR  # noqa: E402
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SCANS_DIR = os.path.join(BASE, "data", "daily_scans")
-CACHE_DIR = os.path.join(BASE, "data", "fundamentals")
+CACHE_DIR = FUND_CACHE_DIR
 HEADERS = {"User-Agent": "Mozilla/5.0 (personal research script)"}
 TABLES = ["quarters", "profit-loss", "balance-sheet", "cash-flow", "ratios", "shareholding"]
 

@@ -22,11 +22,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.services.chartink_scraper import ChartinkScraper
 from app.services.tradingview_cli import tradingview_cli
+from scripts.paths import work_dir
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
-
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "daily_scans")
 
 
 def scrape_all_symbols() -> list:
@@ -35,10 +34,14 @@ def scrape_all_symbols() -> list:
     result_a = scraper.scrape_single_screener("within-2-52week")
     if result_a["errors"]:
         raise RuntimeError(f"Screener 'within-2-52week' failed: {result_a['errors']}")
+    if getattr(scraper, "last_scrape_incomplete", False):
+        raise RuntimeError("Screener 'within-2-52week' paging ended early - refusing to use a partial list")
 
     result_b = scraper.scrape_single_screener("stage-2-trend")
     if result_b["errors"]:
         raise RuntimeError(f"Screener 'stage-2-trend' failed: {result_b['errors']}")
+    if getattr(scraper, "last_scrape_incomplete", False):
+        raise RuntimeError("Screener 'stage-2-trend' paging ended early - refusing to use a partial list (new stocks would be missed)")
 
     symbols_a = {s["symbol"] for s in result_a["stocks"]}
     symbols_b = {s["symbol"] for s in result_b["stocks"]}
@@ -79,8 +82,6 @@ def enrich_with_market_cap(symbols: list) -> list:
 
 
 def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
     all_symbols = scrape_all_symbols()
     if not all_symbols:
         logger.warning("No candidates today - nothing to scan.")
@@ -89,7 +90,7 @@ def main():
         candidates = enrich_with_market_cap(all_symbols)
 
     today = sys.argv[1] if len(sys.argv) > 1 else date.today().isoformat()  # run_daily.py passes the session date
-    output_path = os.path.join(OUTPUT_DIR, f"{today}_candidates.json")
+    output_path = os.path.join(work_dir(today), "candidates.json")
     with open(output_path, "w") as f:
         json.dump(candidates, f, indent=2)
 

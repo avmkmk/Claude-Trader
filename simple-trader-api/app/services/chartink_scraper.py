@@ -15,7 +15,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException, TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 
 logger = logging.getLogger(__name__)
@@ -100,6 +100,29 @@ class ChartinkScraper:
             finally:
                 self.driver = None
 
+    def _enabled_next_buttons(self, attempts: int = 5):
+        """Enabled, visible 'Next' buttons. The table re-renders right after a page change, so elements can go stale
+        mid-scan; retry instead of treating that as the end of pagination (which silently truncated the results)."""
+        for attempt in range(attempts):
+            try:
+                found = []
+                for btn in self.driver.find_elements(By.TAG_NAME, "button"):
+                    if 'next' not in btn.text.strip().lower():
+                        continue
+                    is_disabled = (
+                        btn.get_attribute('disabled') == 'true' or
+                        btn.get_attribute('disabled') == 'disabled' or
+                        btn.get_attribute('aria-disabled') == 'true'
+                    )
+                    if not is_disabled and btn.is_displayed():
+                        found.append(btn)
+                return found
+            except StaleElementReferenceException:
+                if attempt == attempts - 1:
+                    raise
+                time.sleep(1)
+        return []
+
     def scrape_screener(self, url: str, source_name: str) -> List[Dict]:
         """
         Scrape a single Chartink screener with pagination support.
@@ -122,6 +145,7 @@ class ChartinkScraper:
             logger.info(f"Waiting {self.PAGE_LOAD_TIME}s for page to load...")
             time.sleep(self.PAGE_LOAD_TIME)
 
+            self.last_scrape_incomplete = False  # set True if paging ends for any reason other than the last page
             page_num = 1
             while page_num <= self.MAX_PAGES:
                 logger.info(f"Scraping page {page_num} of {source_name}")
@@ -173,23 +197,7 @@ class ChartinkScraper:
 
                 # Try to find and click Next button
                 try:
-                    # Find ALL buttons
-                    all_buttons = self.driver.find_elements(By.TAG_NAME, "button")
-                    next_buttons = []
-
-                    # Filter for enabled Next buttons
-                    for btn in all_buttons:
-                        btn_text = btn.text.strip().lower()
-                        if 'next' in btn_text:
-                            # Check if disabled
-                            is_disabled = (
-                                btn.get_attribute('disabled') == 'true' or
-                                btn.get_attribute('disabled') == 'disabled' or
-                                btn.get_attribute('aria-disabled') == 'true'
-                            )
-
-                            if not is_disabled and btn.is_displayed():
-                                next_buttons.append(btn)
+                    next_buttons = self._enabled_next_buttons()
 
                     if not next_buttons:
                         logger.info(f"No enabled Next button found - last page")
@@ -223,17 +231,20 @@ class ChartinkScraper:
                             pass
 
                     if not page_changed:
-                        logger.info(f"Page did not change - stopping")
+                        logger.warning(f"Page did not change - stopping (results may be incomplete)")
+                        self.last_scrape_incomplete = True
                         break
 
                     page_num += 1
 
                 except Exception as e:
-                    logger.info(f"Pagination ended: {str(e)[:100]}")
+                    logger.warning(f"Pagination ended abnormally: {str(e)[:100]} (results may be incomplete)")
+                    self.last_scrape_incomplete = True
                     break
 
             if page_num > self.MAX_PAGES:
                 logger.warning(f"Hit max page limit ({self.MAX_PAGES}) for {source_name}")
+                self.last_scrape_incomplete = True
 
             logger.info(f"Completed scraping {source_name}: {len(results)} stocks found")
             return results

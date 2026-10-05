@@ -30,7 +30,10 @@ simple-trader-api/
   config/nse_holidays.json       # NSE holidays used to stamp watchlists with the last completed session
   app/services/                  # chartink_scraper.py, tradingview_cli.py
   tests/                         # pytest (run from simple-trader-api/)
-  data/daily_scans/              # gitignored: daily outputs, symbol_state.json, manual_exclusions.json
+  data/daily_scans/              # gitignored: ONLY the consolidated {date}_final_watchlist.xlsx files (stocks + fundamentals + news/policy)
+  data/state/                    # symbol_state.json, manual_exclusions.json, _rejection_cache.json, run_status.json, backups/, logs/
+  data/work/{stamp}/             # per-run intermediates (candidates, verdicts, gate7*.json); auto-pruned after 3 days
+  data/archive/                  # spreadsheets moved out of daily_scans/ (never auto-deleted); paths are defined in scripts/paths.py
 tradingview-mcp-jackson/         # vendored TradingView CDP bridge; scan_step_c.mjs is the live-scan step
 docs/                            # PROJECT_HISTORY.md, SETUP.md, superpowers/ specs+plans, archive/
 .mcp.json                        # tradingview-desktop MCP server (edit the absolute path per machine)
@@ -38,7 +41,7 @@ docs/                            # PROJECT_HISTORY.md, SETUP.md, superpowers/ sp
 
 ## Daily routine (two ways)
 - Script: `cd simple-trader-api && python scripts/run_daily.py` (add `--force`, `--check-only`, `--from-step N`); scheduled with `scripts/register_daily_task.ps1`.
-- Claude: `/daily-ath-scan` = the same script + Gate 7 (web search for company news and government stance), written to `{stamp}_gate7.json` and merged into the Excel.
+- Claude: `/daily-ath-scan` = the same script + Gate 7 (web search for company news and government stance), written to `data/work/{stamp}/gate7.json` and merged into the Excel.
 - Excel sheets are plain filterable tables; never hard-sort or merge cells inside a table (the user sorts).
 
 ## Commands

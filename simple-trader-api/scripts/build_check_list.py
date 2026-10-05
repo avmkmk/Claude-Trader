@@ -16,10 +16,8 @@ import json
 import os
 import sys
 
-STATE_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "data", "daily_scans", "symbol_state.json",
-)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from scripts.paths import STATE_PATH  # noqa: E402
 
 RECHECK_VERDICTS = {"reclaimed", "approaching"}
 

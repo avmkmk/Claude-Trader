@@ -33,12 +33,10 @@ from scripts.trading_calendar import is_stale, load_holidays, market_is_open, no
 API = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(API)
 TV = os.path.join(ROOT, "tradingview-mcp-jackson")
-SCANS = os.path.join(API, "data", "daily_scans")
-STATE = os.path.join(SCANS, "symbol_state.json")
-LOCK = os.path.join(SCANS, ".run.lock")
-STATUS = os.path.join(SCANS, "run_status.json")
-LOGS = os.path.join(SCANS, "logs")
-BACKUPS = os.path.join(SCANS, "backups")
+# Layout (see scripts/paths.py): SCANS holds ONLY the consolidated Excel files; state/bookkeeping live in data/state/,
+# per-run intermediates in data/work/{stamp}/.
+from scripts.paths import (BACKUPS_DIR as BACKUPS, LOCK_PATH as LOCK, LOGS_DIR as LOGS, REJECTION_CACHE_PATH,  # noqa: E402
+                           SCANS_DIR as SCANS, STATE_PATH as STATE, STATUS_PATH as STATUS, WORK_DIR as WORK, prune_old)
 LOCK_MAX_AGE_S = 4 * 3600
 CDP_URL = "http://localhost:9222/json/version"
 
@@ -58,13 +56,14 @@ class StepFailed(Exception):
 
 
 def paths(stamp):
-    d = lambda name: os.path.join(SCANS, f"{stamp}_{name}")  # noqa: E731
+    d = lambda name: os.path.join(WORK, stamp, name)  # noqa: E731
     return {"candidates": d("candidates.json"), "to_check": d("to_check.json"), "verdicts": d("verdicts.json"),
-            "details": d("verdicts_details.json"), "watchlist": d("final_watchlist.xlsx"), "gate7": d("gate7.json")}
+            "details": d("verdicts_details.json"), "gate7": d("gate7.json"),
+            "watchlist": os.path.join(SCANS, f"{stamp}_final_watchlist.xlsx")}
 
 
 def write_status(**fields):
-    os.makedirs(SCANS, exist_ok=True)
+    os.makedirs(os.path.dirname(STATUS), exist_ok=True)
     try:
         cur = json.load(open(STATUS, encoding="utf-8"))
     except (OSError, ValueError):
@@ -75,7 +74,7 @@ def write_status(**fields):
 
 
 def acquire_lock():
-    os.makedirs(SCANS, exist_ok=True)
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
     if os.path.exists(LOCK) and time.time() - os.path.getmtime(LOCK) < LOCK_MAX_AGE_S:
         return False
     with open(LOCK, "w") as f:
@@ -157,6 +156,8 @@ def check_verdicts(details_path):
 
 def execute(stamp, args, log):
     p = paths(stamp)
+    os.makedirs(os.path.dirname(p["candidates"]), exist_ok=True)
+    os.makedirs(SCANS, exist_ok=True)
     rel = lambda path: os.path.relpath(path, API)  # noqa: E731
     py = sys.executable
     for n, title in STEPS:
@@ -183,7 +184,7 @@ def execute(stamp, args, log):
                 run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                      os.path.join(TV, "scripts", "launch_tv_debug.ps1")], ROOT, log, 300)
         elif n == 5:
-            run(["node", "scan_step_c.mjs", p["to_check"], p["verdicts"]], TV, log, 4 * 3600)
+            run(["node", "scan_step_c.mjs", p["to_check"], p["verdicts"], REJECTION_CACHE_PATH], TV, log, 4 * 3600)
         elif n == 6:
             check_verdicts(p["details"])
             backup_state(stamp, log)
@@ -257,6 +258,9 @@ def main():
     release_lock()
     write_status(status="success", finished=datetime.now().isoformat(timespec="seconds"), watchlist=p["watchlist"],
                  gate7_done=os.path.exists(p["gate7"]))
+    removed = prune_old(stamp)
+    if removed:
+        log(f"Pruned old intermediates: {', '.join(removed)}")
     log(f"DONE. Watchlist: {p['watchlist']}")
     if not os.path.exists(p["gate7"]):
         log("Gate 7 (news + government stance) not done yet - run /daily-ath-scan in Claude Code to add it.")

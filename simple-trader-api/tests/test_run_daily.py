@@ -18,7 +18,9 @@ def patch_dirs(monkeypatch, tmp_path):
 
 def test_paths_use_the_stamp():
     p = rd.paths("2026-10-01")
-    assert p["watchlist"].endswith("2026-10-01_final_watchlist.xlsx") and p["gate7"].endswith("2026-10-01_gate7.json")
+    assert p["watchlist"].endswith("2026-10-01_final_watchlist.xlsx")
+    assert os.path.basename(os.path.dirname(p["gate7"])) == "2026-10-01" and p["gate7"].endswith("gate7.json")  # intermediates live in work/{stamp}/
+    assert os.path.dirname(p["watchlist"]) == rd.SCANS and os.path.dirname(os.path.dirname(p["candidates"])) == rd.WORK
 
 
 def test_lock_blocks_a_second_run_but_not_a_stale_lock(monkeypatch, tmp_path):

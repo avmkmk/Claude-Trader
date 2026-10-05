@@ -19,7 +19,7 @@ its own sheet. That step fetches screener.in pages (cached per session date, ~3-
 technical watchlist is still written with blank fundamental columns.
 
 Gate 7 (news + government stance) is produced by the Claude command, not by this script: this script writes
-{scan_date}_gate7_targets.json (the PASS/WATCH survivors) and, if {scan_date}_gate7.json exists, adds its columns
+work/{scan_date}/gate7_targets.json (the PASS/WATCH survivors) and, if work/{scan_date}/gate7.json exists, adds its columns
 and a "News and policy" section to each symbol sheet.
 
 Usage:
@@ -30,13 +30,12 @@ import os
 import sys
 from datetime import date
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # so `scripts.*` imports work when run as a script
+from scripts.paths import EXCLUSIONS_PATH, STATE_PATH, work_dir  # noqa: E402
+
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
-
-DATA_DIR = "data/daily_scans"
-STATE_PATH = f"{DATA_DIR}/symbol_state.json"
-EXCLUSIONS_PATH = f"{DATA_DIR}/manual_exclusions.json"
 
 FUNDAMENTAL_HEADERS = [
     "Fundamental Verdict", "Fundamental Score", "Quality /30", "Growth /25", "Safety /20",
@@ -118,7 +117,7 @@ def clean_gate7(entry):
 
 def load_gate7(scan_date):
     """{symbol: cleaned entry} from {scan_date}_gate7.json, or {} if the Claude command has not run yet."""
-    path = f"{DATA_DIR}/{scan_date}_gate7.json"
+    path = os.path.join(work_dir(scan_date, create=False), "gate7.json")
     if not os.path.exists(path):
         return {}
     return {sym: clean_gate7(e) for sym, e in load(path).items() if isinstance(e, dict)}
@@ -272,7 +271,7 @@ def main():
                 "verdict": fundamentals[r["symbol"]]["verdict"], "score": fundamentals[r["symbol"]]["score"],
                 "market_cap_cr": r["market_cap_cr"]}
                for r in rows if r["symbol"] in fundamentals and fundamentals[r["symbol"]]["verdict"] in SURVIVOR_VERDICTS]
-    with open(f"{DATA_DIR}/{scan_date}_gate7_targets.json", "w", encoding="utf-8") as f:
+    with open(os.path.join(work_dir(scan_date), "gate7_targets.json"), "w", encoding="utf-8") as f:
         json.dump(targets, f, indent=2)
 
     print(f"Reclaimed near entry: {n_reclaimed}")

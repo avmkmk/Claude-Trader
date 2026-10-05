@@ -65,6 +65,17 @@ Steps: prerequisites -> Chartink scrape (**union** of both screeners) -> check l
 
 Output: `simple-trader-api/data/daily_scans/{stamp}_final_watchlist.xlsx`.
 
+### Where files live (`simple-trader-api/data/`, all gitignored)
+| Folder | What |
+|---|---|
+| `daily_scans/` | **Only** the consolidated Excel per session (`{date}_final_watchlist.xlsx`: stocks, fundamentals, news/policy). Nothing else is written here. |
+| `state/` | Persistent state and bookkeeping: `symbol_state.json`, `manual_exclusions.json`, `_rejection_cache.json`, `run_status.json`, `backups/` (state snapshots, newest 14), `logs/` (run logs, 30 days). **Back up `state/`.** |
+| `work/{stamp}/` | Per-run intermediates (candidates, check list, verdicts, Gate 7 inputs/outputs). Pruned automatically after 3 days. |
+| `fundamentals/` | Parsed screener.in pages, cached per session date. Pruned after 3 days. |
+| `archive/` | Any other spreadsheet found in `daily_scans/` is moved here (never deleted automatically). |
+
+Older machines with everything inside `daily_scans/` are migrated automatically (files are moved, never deleted) the first time any script runs.
+
 ### The watchlist stamp (why running at 8 pm and at 8 am are the same)
 The file date is the **last completed NSE session**, not the calendar date. After 16:00 IST on a trading day that is today; before 16:00, on weekends and on holidays it is the previous trading day. So a run after the close and a run the next morning before the open produce the same stamp, and the second one is skipped as already current. Holidays: `simple-trader-api/config/nse_holidays.json` (2026 list included; add next year's in December).
 
