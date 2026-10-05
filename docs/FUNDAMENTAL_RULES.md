@@ -84,13 +84,13 @@ Quality (Gate 2) 30, Growth (Gate 3) 25, Safety and cash (Gate 1 + Gate 6) 20, V
 - Worked example (Asian Paints, 5 Oct 2026): scores **PASS 81** (quality 30/30, safety 17.7/20, ownership 10/10, growth 16.1/25, valuation 7.5/15). Flags: rising debt in FY26, weak 3-yr growth, a 33% profit drop in FY25, PEG 23. Good business, expensive and slow lately - the score reflects mostly quality.
 
 ## Running it
-The daily `build_final_watchlist.py` runs this automatically and adds the columns to the watchlist Excel (`--no-fundamentals` skips, `--refresh-fundamentals` ignores the day's cache). To run it on its own against an existing watchlist:
+The daily `build_final_watchlist.py` runs this automatically and adds the columns and per-symbol sheets to the watchlist Excel (`--no-fundamentals` skips, `--refresh-fundamentals` ignores the day's cache). To run it on its own against an existing watchlist:
 ```bash
 cd simple-trader-api
 python scripts/fundamental_screen.py                 # newest *_final_watchlist.xlsx
 python scripts/fundamental_screen.py path/to/list.xlsx --delay 2 --refresh
 ```
-Output: `data/daily_scans/{date}_fundamental_screen.xlsx` (sheet "Fundamentals": verdict, score, block scores, hard fails, warnings; sheet "Rule Details": every rule per symbol). Parsed pages are cached per day in `data/fundamentals/{date}/` (gitignored).
+The standalone command only fetches and prints verdicts. The Excel output comes from `build_final_watchlist.py`: page 1 (Watchlist) gets Fundamental Verdict, Score, block scores, Industry and a Key Note, and the symbol cell is a hyperlink to that stock's own sheet. Each symbol sheet (named after the symbol, with a link back) shows the verdict banner, block scores, key figures, the technical status, a 3-4 line summary and every rule as Check / Value / Result (Pass, Bonus, Neutral, Warn, Fail, Fail - Reject, Info, Not checked), grouped by gate. Parsed pages are cached per day in `data/fundamentals/{date}/` (gitignored).
 
 ## Implementation notes (v1)
 - Fetches `screener.in/company/{SYMBOL}/consolidated/`; if that has < 5 years or < 5 quarters of data (empty or recently consolidated), it also fetches standalone and keeps whichever has more history. The basis used is stored in the cached JSON.

@@ -32,7 +32,7 @@ EXCLUSIONS_PATH = "data/daily_scans/manual_exclusions.json"
 
 FUNDAMENTAL_HEADERS = [
     "Fundamental Verdict", "Fundamental Score", "Quality /30", "Growth /25", "Safety /20",
-    "Valuation /15", "Ownership /10", "Industry", "Fundamental Hard Fails", "Fundamental Warnings",
+    "Valuation /15", "Ownership /10", "Industry", "Key Note",
 ]
 VERDICT_FILLS = {"PASS": "C6EFCE", "WATCH": "FFEB9C", "REJECT": "FFC7CE", "FINANCIAL": "DDEBF7", "NO DATA": "D9D9D9"}
 
@@ -70,6 +70,16 @@ def compute_combined_rank(rows):
             r["combined_rank"] = None
 
 
+def key_note(summary):
+    """One short line for page 1: the first hard fail, else the first warning (full detail is on the symbol's sheet)."""
+    if summary["verdict"] == "FINANCIAL":
+        return "Bank / NBFC / insurer - not scored"
+    for text in list(summary.get("hard_fails") or []) + list(summary.get("flags") or []):
+        text = text.split(": ", 1)[1] if ": " in text else text
+        return text if len(text) <= 90 else text[:87] + "..."
+    return ""
+
+
 def fundamental_cells(summary):
     """Values for FUNDAMENTAL_HEADERS from a screen_symbols() summary (blank cells if None)."""
     if not summary:
@@ -77,8 +87,7 @@ def fundamental_cells(summary):
     b = summary.get("blocks") or {}
     return [
         summary["verdict"], summary["score"], b.get("quality"), b.get("growth"), b.get("safety"),
-        b.get("valuation"), b.get("ownership"), summary.get("industry") or "",
-        "\n".join(summary.get("hard_fails") or []), "\n".join(summary.get("flags") or []),
+        b.get("valuation"), b.get("ownership"), summary.get("industry") or "", key_note(summary),
     ]
 
 
@@ -141,10 +150,20 @@ def main():
         try:
             sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # so `scripts.*` imports work when run as a script
             from scripts.fundamental_screen import screen_symbols
+            from scripts.fundamental_sheets import add_symbol_sheet, link
             print(f"Running fundamental screen on {len(all_rows)} symbols (cached per day)...")
             fundamentals = screen_symbols([r["symbol"] for r in all_rows], refresh="--refresh-fundamentals" in flags)
         except Exception as e:  # never lose the technical watchlist over the fundamental step
             print(f"WARNING: fundamental screen failed ({type(e).__name__}: {e}); writing watchlist without fundamentals")
+
+    sheet_names = {}
+    if fundamentals:
+        from scripts.fundamental_sheets import sheet_name
+        used = ["Watchlist"]
+        for r in all_rows:
+            if r["symbol"] in fundamentals:
+                sheet_names[r["symbol"]] = sheet_name(r["symbol"], used)
+                used.append(sheet_names[r["symbol"]])
 
     wb = Workbook()
     ws = wb.active
@@ -182,26 +201,21 @@ def main():
             ]
             for col, v in enumerate(values, start=1):
                 ws.cell(row=row_idx, column=col, value=v)
+            if r["symbol"] in sheet_names:  # symbol -> its fundamental sheet
+                link(ws.cell(row=row_idx, column=1), f"'{sheet_names[r['symbol']]}'!A1")
             verdict_col = headers.index("Fundamental Verdict") + 1
             if fund[0] in VERDICT_FILLS:
                 ws.cell(row=row_idx, column=verdict_col).fill = PatternFill("solid", fgColor=VERDICT_FILLS[fund[0]])
             row_idx += 1
 
     for col_idx, header in enumerate(headers, start=1):
-        wide = {"Fundamental Hard Fails": 55, "Fundamental Warnings": 70, "Industry": 24}
+        wide = {"Key Note": 60, "Industry": 24}
         ws.column_dimensions[get_column_letter(col_idx)].width = wide.get(header, max(14, len(header) + 2))
     ws.freeze_panes = "B2"
 
-    if fundamentals:
-        det = wb.create_sheet("Fundamental Details")
-        det.append(["Symbol", "Rule", "Result", "Detail"])
-        for cell in det[1]:
-            cell.font = Font(bold=True)
-        for sym, summ in fundamentals.items():
-            for res in sorted(summ["results"], key=lambda x: [int(p) for p in x["id"].split(".")]):
-                det.append([sym, res["id"], res["level"].upper(), res["msg"]])
-        for i, w in enumerate([12, 7, 9, 90], start=1):
-            det.column_dimensions[get_column_letter(i)].width = w
+    for r in all_rows:  # one sheet per symbol, in watchlist order
+        if r["symbol"] in sheet_names:
+            add_symbol_sheet(wb, r["symbol"], fundamentals[r["symbol"]], sheet_names[r["symbol"]], tech=r)
 
     wb.save(output_path)
     print(f"Reclaimed near entry: {len(reclaimed_rows)}")

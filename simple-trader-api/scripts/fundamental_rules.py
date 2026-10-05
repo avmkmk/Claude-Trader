@@ -7,6 +7,22 @@ and returns a verdict, 0-100 score, per-block scores and one result per rule. No
 from statistics import median, pstdev
 
 POINTS = {"pass": 1.0, "bonus": 1.0, "ok": 0.6, "warn": 0.3, "fail": 0.0}
+
+GATE_NAMES = {0: "Gate 0 - Eligibility", 1: "Gate 1 - Survival and red flags", 2: "Gate 2 - Business quality",
+              3: "Gate 3 - Growth", 4: "Gate 4 - Valuation", 5: "Gate 5 - Ownership", 6: "Gate 6 - Balance-sheet strength"}
+RULE_NAMES = {
+    "0.1": "Enough history", "0.2": "Market cap size", "0.3": "Not a financial company", "0.4": "Profitable (last FY and TTM)",
+    "1.1": "Debt to equity", "1.2": "Interest cover", "1.3": "Rising debt", "1.4": "Cash backs profit (CFO/OP)",
+    "1.5": "Free cash flow (5 yrs)", "1.6": "Other income share of profit", "1.7": "Liabilities vs sales growth",
+    "1.8": "Equity dilution", "1.9": "Promoter pledging", "1.10": "Credit rating",
+    "2.1": "ROCE level", "2.2": "ROCE consistency", "2.3": "ROCE trend", "2.4": "ROE", "2.5": "ROE vs ROCE (debt-inflated?)",
+    "2.6": "Operating margin vs history", "2.7": "Margin stability", "2.8": "Cash conversion cycle", "2.9": "Debtor and inventory days",
+    "3.1": "Sales growth (3y / 5y)", "3.2": "Profit growth (3y / 5y)", "3.3": "TTM growth", "3.4": "Latest quarter (YoY)",
+    "3.5": "Profit growth streak", "3.6": "Operating leverage", "3.7": "Earnings shocks (5 yrs)",
+    "4.1": "P/E vs peers", "4.2": "PEG", "4.4": "Dividend payout",
+    "5.1": "Promoter holding", "5.2": "FII + DII holding", "5.3": "Shareholder count",
+    "6.1": "Reserves growth", "6.2": "Self-funded growth", "6.3": "Capex with ROCE holding", "6.4": "Investments vs borrowings",
+}
 BLOCK_MAX = {"quality": 30, "growth": 25, "safety": 20, "valuation": 15, "ownership": 10}
 HARD_GATES = (0, 1, 2)
 
@@ -67,7 +83,7 @@ def evaluate(d):
     results = []
 
     def add(rid, gate, block, level, msg):
-        results.append({"id": rid, "gate": gate, "block": block, "level": level, "msg": msg})
+        results.append({"id": rid, "name": RULE_NAMES.get(rid, rid), "gate": gate, "block": block, "level": level, "msg": msg})
 
     top = d.get("top", {})
     broad = (d.get("sector", {}).get("broad") or "")
@@ -293,3 +309,45 @@ def evaluate(d):
     hard_fails = [f'{r["id"]}: {r["msg"]}' for r in results if r["gate"] in HARD_GATES and r["level"] == "fail"]
     verdict = "REJECT" if hard_fails or score < 50 else "PASS" if score >= 70 else "WATCH"
     return {"verdict": verdict, "score": score, "blocks": blocks, "results": results, "hard_fails": hard_fails}
+
+
+# ---------- plain-English summary ----------
+
+_STRENGTH_PRIORITY = ["2.1", "2.2", "1.1", "1.2", "1.4", "3.4", "3.3", "3.1", "3.2", "4.1", "5.1", "5.2", "6.1", "6.2"]
+
+
+def summary_notes(summary, top=None, basis=None):
+    """3-4 short lines describing the stock, built only from the rule results."""
+    top = top or {}
+    verdict, score = summary["verdict"], summary.get("score")
+    results = summary.get("results", [])
+    mcap = top.get("market_cap")
+    cap_txt = f"Market cap Rs {mcap:,.0f} Cr" if mcap else "Market cap n/a"
+
+    if verdict == "FINANCIAL":
+        return ["Bank / NBFC / insurer: the non-financial rule set does not apply, so it is not scored.",
+                "Judge it on ROE, price-to-book, net interest margin, asset quality (NPA) and capital adequacy instead.",
+                cap_txt + ". A financials ruleset is a planned follow-up."]
+    if verdict == "NO DATA":
+        reason = "; ".join(summary.get("hard_fails") or []) or "no data returned"
+        return [f"No fundamental data could be fetched ({reason}).", "Check the symbol on screener.in manually."]
+
+    blocks = summary.get("blocks", {})
+    frac = {b: blocks[b] / BLOCK_MAX[b] for b in blocks if b in BLOCK_MAX}
+    best, worst = max(frac, key=frac.get), min(frac, key=frac.get)
+    lines = []
+    if summary.get("hard_fails"):
+        lines.append(f"{verdict} ({score:.0f}/100) - hard fail: " + "; ".join(f.split(": ", 1)[1] for f in summary["hard_fails"][:2]) + ".")
+    else:
+        lines.append(f"{verdict} ({score:.0f}/100). Strongest area: {best.capitalize()} ({blocks[best]:g}/{BLOCK_MAX[best]}); weakest: {worst.capitalize()} ({blocks[worst]:g}/{BLOCK_MAX[worst]}).")
+
+    by_id = {r["id"]: r for r in results}
+    strengths = [by_id[i]["msg"] for i in _STRENGTH_PRIORITY if i in by_id and by_id[i]["level"] in ("pass", "bonus")][:3]
+    lines.append("Strengths: " + ("; ".join(strengths) if strengths else "none standing out on these rules") + ".")
+
+    concerns = sorted((r for r in results if r["level"] in ("fail", "warn")), key=lambda r: (r["gate"] not in HARD_GATES, r["level"] != "fail"))
+    lines.append("Concerns: " + ("; ".join(r["msg"] for r in concerns[:3]) if concerns else "no warnings raised") + ".")
+
+    ctx = cap_txt + (" (small cap - thinner liquidity, higher volatility)" if mcap and mcap < 5000 else "")
+    lines.append(ctx + (f"; {basis} statements" if basis else "") + ". Promoter pledging and credit rating are not checked yet.")
+    return lines

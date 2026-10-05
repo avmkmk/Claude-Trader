@@ -4,9 +4,10 @@ Run the fundamental rules (docs/FUNDAMENTAL_RULES.md) over the latest daily ATH 
 Usage (from simple-trader-api/):
     python scripts/fundamental_screen.py [watchlist.xlsx] [--delay 2.0] [--refresh]
 
-Reads the newest data/daily_scans/*_final_watchlist.xlsx (or the one given), fetches each symbol's
-screener.in page (consolidated, falling back to standalone), caches the parsed data per day under
-data/fundamentals/{date}/, and writes data/daily_scans/{date}_fundamental_screen.xlsx.
+Console check: reads the newest data/daily_scans/*_final_watchlist.xlsx (or the one given), fetches each
+symbol's screener.in page (consolidated, falling back to standalone), caches the parsed data per day
+under data/fundamentals/{date}/ and prints the verdicts. The Excel report with a sheet per symbol is
+produced by build_final_watchlist.py, which calls screen_symbols() below.
 """
 import argparse
 import glob
@@ -19,12 +20,10 @@ from datetime import date
 
 import requests
 from bs4 import BeautifulSoup
-from openpyxl import Workbook, load_workbook
-from openpyxl.styles import Font, PatternFill
-from openpyxl.utils import get_column_letter
+from openpyxl import load_workbook
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scripts.fundamental_rules import evaluate  # noqa: E402
+from scripts.fundamental_rules import evaluate, summary_notes  # noqa: E402
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCANS_DIR = os.path.join(BASE, "data", "daily_scans")
@@ -216,12 +215,10 @@ def screen_symbols(symbols, delay=2.0, refresh=False, log=print):
             res = evaluate(data)
         flags = [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "fail"] +                 [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "warn"]
         out[sym] = {**res, "flags": flags, "industry": (data or {}).get("sector", {}).get("industry"),
-                    "basis": (data or {}).get("basis")}
+                    "basis": (data or {}).get("basis"), "top": (data or {}).get("top", {})}
+        out[sym]["notes"] = summary_notes(out[sym], out[sym]["top"], out[sym]["basis"])
         log(f"[{i}/{len(symbols)}] {sym:12s} {res['verdict']:9s} {res['score'] if res['score'] is not None else '':>5}  {'; '.join(res['hard_fails'])[:90]}")
     return out
-
-
-FILLS = {"PASS": "C6EFCE", "WATCH": "FFEB9C", "REJECT": "FFC7CE", "FINANCIAL": "DDEBF7", "NO DATA": "D9D9D9"}
 
 
 def main():
@@ -232,54 +229,13 @@ def main():
     args = ap.parse_args()
 
     path = args.watchlist or latest_watchlist()
-    scan_date = re.match(r"(\d{4}-\d{2}-\d{2})", os.path.basename(path))
-    scan_date = scan_date.group(1) if scan_date else date.today().isoformat()
     header, rows = read_watchlist(path)
     print(f"Watchlist: {os.path.basename(path)} ({len(rows)} symbols)")
     screened = screen_symbols([r["Symbol"] for r in rows], args.delay, args.refresh)
-    out_rows, detail_rows = [], []
-    for rec in rows:
-        res = screened[rec["Symbol"]]
-        out_rows.append({"rec": rec, "res": res, "sector": {"industry": res["industry"]}, "flags": res["flags"]})
-        for r in res["results"]:
-            detail_rows.append([rec["Symbol"], r["id"], r["level"].upper(), r["msg"]])
-
-    order = {"PASS": 0, "WATCH": 1, "REJECT": 2, "FINANCIAL": 3, "NO DATA": 4}
-    out_rows.sort(key=lambda x: (order[x["res"]["verdict"]], -(x["res"]["score"] or 0)))
-
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Fundamentals"
-    cols = ["Symbol", "Status", "Cap Tier", "Market Cap (cr)", "Industry", "Fundamental Verdict", "Score", "Quality /30",
-            "Growth /25", "Safety /20", "Valuation /15", "Ownership /10", "Hard Fails", "Warnings", "TradingView Link"]
-    ws.append(cols)
-    for c in ws[1]:
-        c.font = Font(bold=True)
-    for x in out_rows:
-        rec, res, b = x["rec"], x["res"], x["res"]["blocks"]
-        ws.append([rec["Symbol"], rec["Status"], rec.get("Cap Tier"), rec.get("Market Cap (cr)"), x["sector"].get("industry"),
-                   res["verdict"], res["score"], b.get("quality"), b.get("growth"), b.get("safety"), b.get("valuation"),
-                   b.get("ownership"), "\n".join(res["hard_fails"]), "\n".join(x["flags"]), rec.get("TradingView Link")])
-        ws.cell(ws.max_row, 6).fill = PatternFill("solid", fgColor=FILLS[res["verdict"]])
-    for i, w in enumerate([12, 11, 11, 14, 22, 18, 8, 10, 10, 10, 11, 11, 60, 70, 45], 1):
-        ws.column_dimensions[get_column_letter(i)].width = w
-    ws.freeze_panes = "B2"
-    d = wb.create_sheet("Rule Details")
-    d.append(["Symbol", "Rule", "Result", "Detail"])
-    for c in d[1]:
-        c.font = Font(bold=True)
-    for r in sorted(detail_rows, key=lambda r: (r[0], [int(p) for p in r[1].split(".")])):
-        d.append(r)
-    for i, w in enumerate([12, 7, 9, 90], 1):
-        d.column_dimensions[get_column_letter(i)].width = w
-    out = os.path.join(SCANS_DIR, f"{scan_date}_fundamental_screen.xlsx")
-    wb.save(out)
-
     tally = {}
-    for x in out_rows:
-        tally[x["res"]["verdict"]] = tally.get(x["res"]["verdict"], 0) + 1
-    print("\nSummary:", ", ".join(f"{k}={v}" for k, v in sorted(tally.items(), key=lambda kv: order[kv[0]])))
-    print("Wrote", out)
+    for summ in screened.values():
+        tally[summ["verdict"]] = tally.get(summ["verdict"], 0) + 1
+    print("Summary:", ", ".join(f"{k}={v}" for k, v in sorted(tally.items())))
 
 
 if __name__ == "__main__":
