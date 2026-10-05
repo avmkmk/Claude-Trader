@@ -84,6 +84,7 @@ Quality (Gate 2) 30, Growth (Gate 3) 25, Safety and cash (Gate 1 + Gate 6) 20, V
 - Worked example (Asian Paints, 5 Oct 2026): scores **PASS 81** (quality 30/30, safety 17.7/20, ownership 10/10, growth 16.1/25, valuation 7.5/15). Flags: rising debt in FY26, weak 3-yr growth, a 33% profit drop in FY25, PEG 23. Good business, expensive and slow lately - the score reflects mostly quality.
 
 ## Running it
+The daily `build_final_watchlist.py` runs this automatically and adds the columns to the watchlist Excel (`--no-fundamentals` skips, `--refresh-fundamentals` ignores the day's cache). To run it on its own against an existing watchlist:
 ```bash
 cd simple-trader-api
 python scripts/fundamental_screen.py                 # newest *_final_watchlist.xlsx

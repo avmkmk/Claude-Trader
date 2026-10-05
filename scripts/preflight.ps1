@@ -54,13 +54,13 @@ $tvcli = Get-Command "tradingview-cli" -ErrorAction SilentlyContinue
 Report ($null -ne $tvcli) "tradingview-cli (market cap / price lookups)" $tvcli.Source "npm install -g tradingview-mcp-server"
 
 if ($pyOk) {
-    $pkgs = @{ "selenium" = "selenium"; "webdriver_manager" = "webdriver-manager"; "openpyxl" = "openpyxl"; "pytest" = "pytest" }
+    $pkgs = @{ "selenium" = "selenium"; "webdriver_manager" = "webdriver-manager"; "openpyxl" = "openpyxl"; "requests" = "requests"; "bs4" = "beautifulsoup4"; "pytest" = "pytest" }
     $absent = @()
     foreach ($m in $pkgs.Keys) {
         & python -c "import $m" 2>$null
         if ($LASTEXITCODE -ne 0) { $absent += $pkgs[$m] }
     }
-    Report ($absent.Count -eq 0) "Python packages" "selenium, webdriver-manager, openpyxl, pytest" "pip install -r simple-trader-api/requirements.txt  (missing: $($absent -join ', '))"
+    Report ($absent.Count -eq 0) "Python packages" "selenium, webdriver-manager, openpyxl, requests, beautifulsoup4, pytest" "pip install -r simple-trader-api/requirements.txt  (missing: $($absent -join ', '))"
 }
 
 $nm = Test-Path (Join-Path $root "tradingview-mcp-jackson\node_modules")

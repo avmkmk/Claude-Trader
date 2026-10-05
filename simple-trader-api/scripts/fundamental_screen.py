@@ -187,6 +187,40 @@ def read_watchlist(path):
     return header, out
 
 
+def screen_symbols(symbols, delay=2.0, refresh=False, log=print):
+    """Fetch (cached per day) and evaluate each symbol. Returns {symbol: summary}.
+
+    summary = {verdict, score, blocks, hard_fails, flags, industry, basis, results}
+    Never raises for a single bad symbol: failures become verdict "NO DATA".
+    """
+    cache_dir = os.path.join(CACHE_DIR, date.today().isoformat())
+    os.makedirs(cache_dir, exist_ok=True)
+    out = {}
+    for i, sym in enumerate(symbols, 1):
+        cache = os.path.join(cache_dir, f"{sym}.json")
+        data, err = None, None
+        if os.path.exists(cache) and not refresh:
+            with open(cache, encoding="utf-8") as f:
+                data = json.load(f)
+        else:
+            try:
+                data, err = fetch_symbol(sym, delay)
+            except requests.RequestException as e:
+                err = f"network error: {e}"
+            if data:
+                with open(cache, "w", encoding="utf-8") as f:
+                    json.dump(data, f)
+        if data is None:
+            res = {"verdict": "NO DATA", "score": None, "blocks": {}, "results": [], "hard_fails": [err]}
+        else:
+            res = evaluate(data)
+        flags = [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "fail"] +                 [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "warn"]
+        out[sym] = {**res, "flags": flags, "industry": (data or {}).get("sector", {}).get("industry"),
+                    "basis": (data or {}).get("basis")}
+        log(f"[{i}/{len(symbols)}] {sym:12s} {res['verdict']:9s} {res['score'] if res['score'] is not None else '':>5}  {'; '.join(res['hard_fails'])[:90]}")
+    return out
+
+
 FILLS = {"PASS": "C6EFCE", "WATCH": "FFEB9C", "REJECT": "FFC7CE", "FINANCIAL": "DDEBF7", "NO DATA": "D9D9D9"}
 
 
@@ -200,36 +234,15 @@ def main():
     path = args.watchlist or latest_watchlist()
     scan_date = re.match(r"(\d{4}-\d{2}-\d{2})", os.path.basename(path))
     scan_date = scan_date.group(1) if scan_date else date.today().isoformat()
-    cache_dir = os.path.join(CACHE_DIR, date.today().isoformat())
-    os.makedirs(cache_dir, exist_ok=True)
-
     header, rows = read_watchlist(path)
     print(f"Watchlist: {os.path.basename(path)} ({len(rows)} symbols)")
-
+    screened = screen_symbols([r["Symbol"] for r in rows], args.delay, args.refresh)
     out_rows, detail_rows = [], []
-    for i, rec in enumerate(rows, 1):
-        sym = rec["Symbol"]
-        cache = os.path.join(cache_dir, f"{sym}.json")
-        data, err = None, None
-        if os.path.exists(cache) and not args.refresh:
-            data = json.load(open(cache, encoding="utf-8"))
-        else:
-            try:
-                data, err = fetch_symbol(sym, args.delay)
-            except requests.RequestException as e:
-                err = f"network error: {e}"
-            if data:
-                json.dump(data, open(cache, "w", encoding="utf-8"))
-        if data is None:
-            res = {"verdict": "NO DATA", "score": None, "blocks": {}, "results": [], "hard_fails": [err]}
-        else:
-            res = evaluate(data)
-        warns = [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "warn"]
-        fails = [f'{r["id"]}: {r["msg"]}' for r in res["results"] if r["level"] == "fail"]
-        out_rows.append({"rec": rec, "res": res, "sector": (data or {}).get("sector", {}), "flags": fails + warns})
+    for rec in rows:
+        res = screened[rec["Symbol"]]
+        out_rows.append({"rec": rec, "res": res, "sector": {"industry": res["industry"]}, "flags": res["flags"]})
         for r in res["results"]:
-            detail_rows.append([sym, r["id"], r["level"].upper(), r["msg"]])
-        print(f"[{i}/{len(rows)}] {sym:12s} {res['verdict']:9s} {res['score'] if res['score'] is not None else '':>5}  {'; '.join(res['hard_fails'])[:90]}")
+            detail_rows.append([rec["Symbol"], r["id"], r["level"].upper(), r["msg"]])
 
     order = {"PASS": 0, "WATCH": 1, "REJECT": 2, "FINANCIAL": 3, "NO DATA": 4}
     out_rows.sort(key=lambda x: (order[x["res"]["verdict"]], -(x["res"]["score"] or 0)))

@@ -48,3 +48,20 @@ def test_tied_metrics_produce_equal_rank():
     ]
     compute_combined_rank(rows)
     assert rows[0]["combined_rank"] == rows[1]["combined_rank"]
+
+
+def test_fundamental_cells_blank_when_missing():
+    from scripts.build_final_watchlist import fundamental_cells, FUNDAMENTAL_HEADERS
+    cells = fundamental_cells(None)
+    assert len(cells) == len(FUNDAMENTAL_HEADERS) and set(cells) == {""}
+
+
+def test_fundamental_cells_maps_summary():
+    from scripts.build_final_watchlist import fundamental_cells, FUNDAMENTAL_HEADERS
+    summary = {"verdict": "WATCH", "score": 65.4, "blocks": {"quality": 22.1, "growth": 18.6, "safety": 15.2,
+               "valuation": 4.5, "ownership": 5.0}, "industry": "Paints", "hard_fails": ["1.1: D/E 1.2"],
+               "flags": ["1.3: Borrowings up", "3.3: weak"]}
+    cells = fundamental_cells(summary)
+    assert len(cells) == len(FUNDAMENTAL_HEADERS)
+    assert cells[:7] == ["WATCH", 65.4, 22.1, 18.6, 15.2, 4.5, 5.0]
+    assert cells[7] == "Paints" and cells[8] == "1.1: D/E 1.2" and cells[9] == "1.3: Borrowings up\n3.3: weak"

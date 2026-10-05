@@ -11,10 +11,16 @@ ratcheting up while a position is held, so "close to ATH" does not mean
 Approaching stocks have no entry yet, so distance-from-ATH is the right
 "how close to triggering" measure for them.
 
+Each row also gets fundamental columns (verdict, score, block scores, hard fails,
+warnings) from scripts/fundamental_screen.py - see docs/FUNDAMENTAL_RULES.md. That step
+fetches screener.in pages (cached per day, ~2-4 min for a fresh list). If it fails, the
+technical watchlist is still written with blank fundamental columns.
+
 Usage:
-    python scripts/build_final_watchlist.py <scan_date> <output_path>
+    python scripts/build_final_watchlist.py <scan_date> <output_path> [--no-fundamentals] [--refresh-fundamentals]
 """
 import json
+import os
 import sys
 
 from openpyxl import Workbook
@@ -23,6 +29,12 @@ from openpyxl.utils import get_column_letter
 
 STATE_PATH = "data/daily_scans/symbol_state.json"
 EXCLUSIONS_PATH = "data/daily_scans/manual_exclusions.json"
+
+FUNDAMENTAL_HEADERS = [
+    "Fundamental Verdict", "Fundamental Score", "Quality /30", "Growth /25", "Safety /20",
+    "Valuation /15", "Ownership /10", "Industry", "Fundamental Hard Fails", "Fundamental Warnings",
+]
+VERDICT_FILLS = {"PASS": "C6EFCE", "WATCH": "FFEB9C", "REJECT": "FFC7CE", "FINANCIAL": "DDEBF7", "NO DATA": "D9D9D9"}
 
 ENTRY_BAND_PCT = 5.0
 CAP_LABELS = {"large": "Large Cap", "mid": "Mid Cap", "small": "Small Cap", "unknown": "Unknown"}
@@ -58,11 +70,25 @@ def compute_combined_rank(rows):
             r["combined_rank"] = None
 
 
+def fundamental_cells(summary):
+    """Values for FUNDAMENTAL_HEADERS from a screen_symbols() summary (blank cells if None)."""
+    if not summary:
+        return [""] * len(FUNDAMENTAL_HEADERS)
+    b = summary.get("blocks") or {}
+    return [
+        summary["verdict"], summary["score"], b.get("quality"), b.get("growth"), b.get("safety"),
+        b.get("valuation"), b.get("ownership"), summary.get("industry") or "",
+        "\n".join(summary.get("hard_fails") or []), "\n".join(summary.get("flags") or []),
+    ]
+
+
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python build_final_watchlist.py <scan_date> <output_path>")
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+    if len(args) != 2 or not flags <= {"--no-fundamentals", "--refresh-fundamentals"}:
+        print("Usage: python build_final_watchlist.py <scan_date> <output_path> [--no-fundamentals] [--refresh-fundamentals]")
         sys.exit(1)
-    scan_date, output_path = sys.argv[1], sys.argv[2]
+    scan_date, output_path = args
 
     state = load(STATE_PATH)
     exclusions = load_exclusions()
@@ -109,6 +135,17 @@ def main():
     reclaimed_rows.sort(key=sort_key)
     approaching_rows.sort(key=sort_key)
 
+    fundamentals = {}
+    all_rows = reclaimed_rows + approaching_rows
+    if "--no-fundamentals" not in flags and all_rows:
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # so `scripts.*` imports work when run as a script
+            from scripts.fundamental_screen import screen_symbols
+            print(f"Running fundamental screen on {len(all_rows)} symbols (cached per day)...")
+            fundamentals = screen_symbols([r["symbol"] for r in all_rows], refresh="--refresh-fundamentals" in flags)
+        except Exception as e:  # never lose the technical watchlist over the fundamental step
+            print(f"WARNING: fundamental screen failed ({type(e).__name__}: {e}); writing watchlist without fundamentals")
+
     wb = Workbook()
     ws = wb.active
     ws.title = "Watchlist"
@@ -117,6 +154,7 @@ def main():
         "Symbol", "Status", "Cap Tier", "Market Cap (cr)", "Distance from Entry %",
         "Current Price", "Reference Price", "Reference", "EMA 200",
         "Win Rate %", "Profit Factor", "Total Trades", "Combined Rank",
+        *FUNDAMENTAL_HEADERS,
         "Entry Date", "Last Checked", "TradingView Link",
     ]
     ws.append(headers)
@@ -133,30 +171,46 @@ def main():
         row_idx += 1
 
         for r in group:
-            ws.cell(row=row_idx, column=1, value=r["symbol"])
-            ws.cell(row=row_idx, column=2, value=r["status"])
-            ws.cell(row=row_idx, column=3, value=CAP_LABELS.get(r["cap_size"], "Unknown"))
-            ws.cell(row=row_idx, column=4, value=r["market_cap_cr"])
-            ws.cell(row=row_idx, column=5, value=r["distance_pct"])
-            ws.cell(row=row_idx, column=6, value=r["close"])
-            ws.cell(row=row_idx, column=7, value=r["reference_price"])
-            ws.cell(row=row_idx, column=8, value=r["reference_label"])
-            ws.cell(row=row_idx, column=9, value=r["ema200"])
-            ws.cell(row=row_idx, column=10, value=r["win_rate_pct"])
-            ws.cell(row=row_idx, column=11, value=r["profit_factor"])
-            ws.cell(row=row_idx, column=12, value=r["total_trades"])
-            ws.cell(row=row_idx, column=13, value=r["combined_rank"])
-            ws.cell(row=row_idx, column=14, value=r["entry_date"] or "")
-            ws.cell(row=row_idx, column=15, value=r["last_checked"] or "")
-            ws.cell(row=row_idx, column=16, value=f"https://in.tradingview.com/chart/?symbol=NSE:{r['symbol']}")
+            fund = fundamental_cells(fundamentals.get(r["symbol"]))
+            values = [
+                r["symbol"], r["status"], CAP_LABELS.get(r["cap_size"], "Unknown"), r["market_cap_cr"],
+                r["distance_pct"], r["close"], r["reference_price"], r["reference_label"], r["ema200"],
+                r["win_rate_pct"], r["profit_factor"], r["total_trades"], r["combined_rank"],
+                *fund,
+                r["entry_date"] or "", r["last_checked"] or "",
+                f"https://in.tradingview.com/chart/?symbol=NSE:{r['symbol']}",
+            ]
+            for col, v in enumerate(values, start=1):
+                ws.cell(row=row_idx, column=col, value=v)
+            verdict_col = headers.index("Fundamental Verdict") + 1
+            if fund[0] in VERDICT_FILLS:
+                ws.cell(row=row_idx, column=verdict_col).fill = PatternFill("solid", fgColor=VERDICT_FILLS[fund[0]])
             row_idx += 1
 
     for col_idx, header in enumerate(headers, start=1):
-        ws.column_dimensions[get_column_letter(col_idx)].width = max(14, len(header) + 2)
+        wide = {"Fundamental Hard Fails": 55, "Fundamental Warnings": 70, "Industry": 24}
+        ws.column_dimensions[get_column_letter(col_idx)].width = wide.get(header, max(14, len(header) + 2))
+    ws.freeze_panes = "B2"
+
+    if fundamentals:
+        det = wb.create_sheet("Fundamental Details")
+        det.append(["Symbol", "Rule", "Result", "Detail"])
+        for cell in det[1]:
+            cell.font = Font(bold=True)
+        for sym, summ in fundamentals.items():
+            for res in sorted(summ["results"], key=lambda x: [int(p) for p in x["id"].split(".")]):
+                det.append([sym, res["id"], res["level"].upper(), res["msg"]])
+        for i, w in enumerate([12, 7, 9, 90], start=1):
+            det.column_dimensions[get_column_letter(i)].width = w
 
     wb.save(output_path)
     print(f"Reclaimed near entry: {len(reclaimed_rows)}")
     print(f"Approaching: {len(approaching_rows)}")
+    if fundamentals:
+        tally = {}
+        for summ in fundamentals.values():
+            tally[summ["verdict"]] = tally.get(summ["verdict"], 0) + 1
+        print("Fundamentals: " + ", ".join(f"{k}={v}" for k, v in sorted(tally.items())))
     print(f"Wrote {len(reclaimed_rows) + len(approaching_rows)} stocks to {output_path}")
 
 
