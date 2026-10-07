@@ -54,6 +54,6 @@ cd tradingview-mcp-jackson && node --test tests/ranking.test.js
 ## Notes
 
 - Design: `docs/superpowers/specs/2026-08-11-daily-ath-scan-routine-design.md` and `2026-08-18-signal-pipeline-selection-design.md`.
-- Planned but not built: Telegram delivery of the top 5 picks, and fundamentals enrichment.
+- Telegram: top-5 digest after the scan and again after Gate 7 (`scripts/build_telegram_digest.py`, `app/services/telegram_notifier.py`; setup in `docs/SETUP.md`; token/chat id in gitignored `simple-trader-api/.env`). Channel broadcast to other subscribers is planned, not built.
 - `symbol_state.json` is gitignored persistent state; back it up.
 - Removed in the 2026 cleanup (still in git history): backtesting engine, broker APIs, FastAPI app, React frontend, data-update pipeline.

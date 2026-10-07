@@ -6,7 +6,7 @@ Daily ATH scan runner - the pure-script routine (no Claude needed).
     python scripts/run_daily.py --check-only    # print staleness, exit 10 if a run is needed, 0 if current
     python scripts/run_daily.py --dry-run       # show what would run
     python scripts/run_daily.py --from-step 4   # resume after a failure (steps listed in STEPS)
-    flags: --open (open the Excel when done), --no-fundamentals, --stamp YYYY-MM-DD
+    flags: --open (open the Excel when done), --no-fundamentals, --no-telegram, --stamp YYYY-MM-DD
 
 The watchlist is stamped with the last COMPLETED NSE session (see trading_calendar.py), so running after the close
 or the next morning before the open is the same thing. Designed to be started by Windows Task Scheduler at a fixed
@@ -205,6 +205,7 @@ def main():
     ap.add_argument("--from-step", type=int, default=1)
     ap.add_argument("--open", action="store_true")
     ap.add_argument("--no-fundamentals", action="store_true")
+    ap.add_argument("--no-telegram", action="store_true", help="do not send the Telegram digest")
     ap.add_argument("--stamp", help="override the session date (YYYY-MM-DD)")
     args = ap.parse_args()
 
@@ -261,6 +262,13 @@ def main():
     removed = prune_old(stamp)
     if removed:
         log(f"Pruned old intermediates: {', '.join(removed)}")
+    if not args.no_telegram and not os.path.exists(p["gate7"]):
+        try:  # notification only: never let it affect the run's outcome
+            r = subprocess.run([sys.executable, "scripts/build_telegram_digest.py", stamp, "--stage", "scan"],
+                               cwd=API, capture_output=True, text=True, timeout=120)
+            log((r.stdout.strip() or r.stderr.strip() or "Telegram: no output").splitlines()[-1])
+        except Exception as e:  # noqa: BLE001
+            log(f"Telegram: skipped ({type(e).__name__})")
     log(f"DONE. Watchlist: {p['watchlist']}")
     if not os.path.exists(p["gate7"]):
         log("Gate 7 (news + government stance) not done yet - run /daily-ath-scan in Claude Code to add it.")

@@ -91,6 +91,13 @@ Three layers cover "I switched the PC on late": the 08:00 daily trigger; an **at
 ### Using the Excel
 Every sheet is a plain table with filter/sort dropdowns on each column; sort however you like (default order is Reclaimed then Approaching by distance from entry). Click a symbol on the Watchlist sheet to jump to its sheet; each stock sheet has a link back.
 
+## Telegram delivery (optional)
+1. Create a bot with @BotFather in Telegram and copy the token; open the bot and press Start.
+2. Put `TELEGRAM_BOT_TOKEN=...` in `simple-trader-api/.env` (gitignored; see `.env.example`).
+3. `cd simple-trader-api && python scripts/send_telegram_test.py --whoami` prints your chat id; add `TELEGRAM_CHAT_ID=...` to `.env`. For a channel, make the bot a channel admin with Post Messages, post once in the channel, run `--whoami` again and put its `-100...` id in `TELEGRAM_CHANNEL_ID=` (private channels have no @name). Digests then go to both your chat and the channel, tracked separately.
+4. `python scripts/send_telegram_test.py "hello"` sends a test message.
+The scripted run sends a top-5 digest after the scan (Gate 7 marked pending; skip with `--no-telegram`); `/daily-ath-scan` sends a second one with news/policy tags. Each stage is sent once per session date (`data/state/telegram_sent.json`; `--force` resends). Preview: `python scripts/build_telegram_digest.py {stamp} --stage gate7 --dry-run`.
+
 ## Optional: TradingView MCP tools in Claude
 `.mcp.json` registers the `tradingview-desktop` MCP server (`tradingview-mcp-jackson/src/server.js`). Edit the absolute path in it to match your clone location.
 

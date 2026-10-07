@@ -50,7 +50,11 @@ Files are stamped with the **last completed NSE session date** (not the calendar
    ```
    Adds News Sentiment / Policy Stance / News & Policy Note columns on the Watchlist sheet and a "News and policy" section on each symbol's sheet.
 
-5. **Report and send.** Summarize: candidates scraped, new vs re-checked, Reclaimed/Approaching counts, fundamental tally, the PASS names with their news and policy tags, any conflicts. Send `data/daily_scans/{stamp}_final_watchlist.xlsx` to the user.
+5. **Report and send.** Summarize: candidates scraped, new vs re-checked, Reclaimed/Approaching counts, fundamental tally, the PASS names with their news and policy tags, any conflicts. Send `data/daily_scans/{stamp}_final_watchlist.xlsx` to the user. Then send the Telegram digest with the news/policy tags (once per stamp; needs `.env` configured, see `docs/SETUP.md`):
+   ```bash
+   python scripts/build_telegram_digest.py {stamp} --stage gate7
+   ```
+   (The scripted run already sent the `--stage scan` version, with Gate 7 marked pending.)
 
 ## Workbook (for reference)
 - **Watchlist** sheet: one clean table, filter/sort dropdowns on every column (the user does all sorting; default order is Reclaimed then Approaching by distance). Clicking a symbol jumps to its sheet.
